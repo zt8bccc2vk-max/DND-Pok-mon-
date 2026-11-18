@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pokémon Chant & Festin — Kanto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#231a4a;--ink:#1a1240;--red:#d6473a;--yel:#f7d35a;--brn:#6b4c28;--soft:#f8f7ff;--mut:#6c6694;--ok:#4caf50;--mid:#f5a524;--low:#e5483c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:600 16px/1.35 'Baloo 2',system-ui,sans-serif;padding:max(10px,env(safe-area-inset-top)) 12px calc(40px + env(safe-area-inset-bottom))}
+.wrap{max-width:560px;margin:0 auto}
+.panel{display:none}.panel.on{display:block}
+.card{background:#fff;border:3px solid var(--ink);border-radius:20px;box-shadow:0 5px 0 #0e0a26;padding:12px;margin-bottom:14px}
+.state{background:var(--brn);color:#fff}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.18);border-radius:99px;padding:3px 12px;font-weight:800;font-size:14px}
+.state h1{margin:10px 2px 6px;font-size:26px;line-height:1.1}
+.lieu{display:inline-block;background:var(--yel);color:var(--ink);border:3px solid var(--ink);border-radius:99px;padding:4px 14px;font-weight:800}
+h2{color:#fff;font-size:18px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink)}
+.card h2{color:var(--ink);text-shadow:none;font-size:19px}
+.arena{position:relative;border:3px solid var(--ink);border-radius:20px;box-shadow:0 5px 0 #0e0a26;margin-bottom:14px;overflow:hidden;background:linear-gradient(#9fd8ff 0 46%,#86c95a 46%);padding:10px}
+#anim{position:fixed;inset:0;background:rgba(14,10,38,.94);z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:20px}
+#anim[hidden]{display:none}
+#anim-stage{min-height:185px;display:flex;align-items:center;justify-content:center}
+#anim-stage.flash{animation:aflash .5s ease}
+@keyframes aflash{0%{filter:brightness(1)}30%{filter:brightness(3.4)}100%{filter:brightness(1)}}
+.anim-egg{font-size:110px;line-height:1}
+.anim-egg.wiggle{animation:wig .5s ease-in-out 4}
+@keyframes wig{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg)}75%{transform:rotate(9deg)}}
+.anim-sprite{width:170px;height:170px;image-rendering:pixelated;animation:pop .45s ease}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.silh{filter:brightness(0) invert(1)}
+#anim-txt{color:#fff;font-size:20px;font-weight:800;text-align:center}
+#anim-x{background:var(--yel);border:3px solid var(--ink);border-radius:99px;padding:8px 22px;font:inherit;font-weight:800;cursor:pointer;color:var(--ink)}
+.dice{transition:opacity .6s ease,transform .6s ease}
+.dice.gone{opacity:0;transform:scale(.96)}
+.mapsvg{width:100%;height:auto;display:block}
+.pulse{animation:pl 1.6s ease-in-out infinite}
+@keyframes pl{0%,100%{opacity:.95}50%{opacity:.25}}
+.mapleg{font-weight:800;color:var(--mut);font-size:13px;margin-top:6px;text-align:center}
+#deco{position:absolute;top:6px;right:12px;font-size:30px;letter-spacing:6px;opacity:.85;pointer-events:none;z-index:0}
+.arena .row{position:relative;z-index:1}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.slot{position:relative;display:flex;flex-direction:column;align-items:center;min-height:150px}
+.sprite{width:104px;height:104px;object-fit:contain;image-rendering:pixelated;position:relative;z-index:1;filter:drop-shadow(0 3px 0 rgba(0,0,0,.18))}
+.slot::after{content:"";position:absolute;bottom:34px;width:110px;height:20px;border-radius:50%;background:rgba(0,0,0,.18)}
+.slot.foe::after{bottom:auto;top:98px;width:90px;height:14px}
+.noimg{width:104px;height:104px;display:grid;place-items:center;font-size:44px;position:relative;z-index:1}
+.hpbox{width:100%;background:var(--soft);border:3px solid var(--ink);border-radius:14px;padding:5px 8px;position:relative;z-index:2}
+.hpbox .n{display:flex;justify-content:space-between;gap:4px;font-weight:800;font-size:14px}
+.hpbox .n small{color:var(--mut);font-weight:700}
+.bar{height:11px;background:#d9d6ee;border:2px solid var(--ink);border-radius:99px;overflow:hidden;margin:3px 0}
+.fill{height:100%;transition:width .7s ease,background .4s}
+.pv{font-size:12px;color:var(--mut);font-weight:700}
+.st{display:inline-block;font-size:11px;font-weight:800;border:2px solid var(--ink);border-radius:99px;padding:0 7px;margin:2px 3px 0 0;background:#e6e1ff}
+.own{font-size:11px;font-weight:800;color:var(--red)}
+.hit{animation:hit .45s}
+@keyframes hit{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.ann{display:grid;gap:8px}
+.ann div{background:var(--soft);border:2px solid #e2defa;border-radius:14px;padding:8px 10px}
+.ann b{color:var(--red)}
+.vide{color:var(--mut);padding:4px}
+.team{display:flex;gap:10px;align-items:center;background:var(--soft);border:3px solid var(--ink);border-radius:16px;padding:8px;margin-top:10px}
+.team .sprite,.team .noimg{width:72px;height:72px;font-size:32px}
+.team .info{flex:1}
+.badge{font-size:12px;font-weight:800;border-radius:99px;padding:1px 10px;border:2px solid var(--ink);margin-left:6px}
+.b-on{background:#7ddc7a}.b-off{background:#c9c4ee}
+.jh{background:var(--brn);color:#fff;border-radius:12px;padding:6px 12px;font-weight:800}
+
+.device{background:var(--red);border:4px solid var(--ink);border-radius:28px 28px 24px 24px;box-shadow:0 8px 0 #0e0a26,inset 0 0 0 3px #ef6a5c;padding:12px}
+.head{display:flex;align-items:center;gap:8px;padding:2px 4px 12px;border-bottom:4px solid var(--ink);margin-bottom:12px}
+.lens{width:58px;height:58px;border-radius:50%;flex:none;border:4px solid #fff;box-shadow:0 0 0 4px var(--ink);background:radial-gradient(circle at 32% 28%,#fff 0 7%,#9fe3ff 8% 28%,#2c8be0 62%,#1262b5)}
+.led{width:14px;height:14px;border-radius:50%;border:3px solid var(--ink);display:inline-block;flex:none}
+.led.r{background:#ff8b7d}.led.y{background:var(--yel)}.led.g{background:#7ddc7a}
+.brand{margin-left:auto;text-align:right;color:#fff;font-weight:800;font-size:20px;line-height:1;text-shadow:0 2px 0 var(--ink);letter-spacing:.04em}
+.brand small{display:block;font-size:11px;letter-spacing:0;margin-top:4px;font-weight:700}
+.bezel{background:#e9e6f5;border:4px solid var(--ink);border-radius:16px 16px 16px 44px;padding:10px 12px 16px;box-shadow:inset 0 -4px 0 #c9c4ee}
+.dots{display:flex;gap:6px;margin:0 0 8px 4px}.dots i{width:9px;height:9px;border-radius:50%;background:var(--red);border:2px solid var(--ink)}
+.screen{background:var(--bg);border:4px solid var(--ink);border-radius:10px;padding:10px;min-height:440px;box-shadow:inset 0 0 0 3px #3a2f7a}
+.ctrl{margin-top:12px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tab{min-width:0;border:3px solid var(--ink);background:#fff;font:inherit;font-size:15.5px;font-weight:800;color:var(--ink);padding:9px 2px;border-radius:14px;box-shadow:0 4px 0 #0e0a26;text-align:center;white-space:nowrap;overflow:hidden}
+.tab:active{transform:translateY(3px);box-shadow:0 1px 0 #0e0a26}
+.tab.on{background:var(--yel)}
+.deco{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding:0 6px}
+.dpad{width:56px;height:56px;position:relative}
+.dpad::before,.dpad::after{content:"";position:absolute;background:var(--ink);border-radius:5px}
+.dpad::before{left:0;right:0;top:19px;height:18px}.dpad::after{top:0;bottom:0;left:19px;width:18px}
+.stat{font-size:12px;font-weight:800;color:#fff;background:var(--ink);border-radius:99px;padding:3px 12px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--low);margin-right:6px}.dot.on{background:#7ddc7a}
+.slits{display:flex;gap:6px;transform:rotate(-20deg)}.slits i{width:6px;height:34px;border-radius:4px;background:var(--ink)}
+.dice{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;margin:10px 0}
+.dw{text-align:center}
+.die{position:relative;width:68px;height:68px;margin:0 auto;cursor:pointer;background:var(--ink);clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)}
+.die::before{content:"";position:absolute;inset:4px;background:linear-gradient(#e5483c 0 43%,var(--ink) 43% 57%,#fff 57%);clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)}
+.face{position:absolute;inset:0;display:grid;place-items:center;z-index:1}
+.face span{width:30px;height:30px;border-radius:50%;background:#fff;border:3px solid var(--ink);display:grid;place-items:center;font-weight:800;font-size:15px}
+.die.roll{animation:spin .8s ease-out}@keyframes spin{to{transform:rotate(720deg)}}
+.die.crit::before{background:linear-gradient(#f7d35a 0 43%,var(--ink) 43% 57%,#fff6c2 57%)}
+.die.fumble{filter:grayscale(1)}
+.cap{font-size:12px;font-weight:800;line-height:1.1;margin-top:4px}
+.res{font-size:11px;color:var(--mut)}
+.go{border:3px solid var(--ink);background:var(--yel);font:inherit;font-weight:800;border-radius:99px;padding:3px 14px;box-shadow:0 3px 0 #0e0a26}
+.flab{display:block;font-weight:800;margin:10px 0 4px}
+.fin{width:100%;box-sizing:border-box;border:3px solid var(--ink);border-radius:12px;padding:10px;font:inherit;font-weight:700;background:#fff}
+.big{width:100%;margin-top:12px;padding:10px;font-size:17px;cursor:pointer}
+.fmsg{margin-top:8px;font-weight:800;min-height:20px}
+.pimg{width:100%;height:auto;border:3px solid var(--ink);border-radius:14px;display:block;margin-bottom:8px}
+.perso h3{margin:2px 0 4px;font-size:20px}
+.perso p{margin:0;color:var(--mut);font-weight:700;font-size:14px;line-height:1.35}
+
+.dress{padding:8px 0;border-bottom:1px dashed var(--border)}
+.dress:last-child{border-bottom:none}
+.dnom{font-weight:800}
+.dchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.dchip{background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:2px 9px;font-size:12.5px;font-weight:700}
+.ptrait{font-size:12.5px;color:var(--muted);font-style:italic}
+.poke{flex-wrap:wrap}
+details.atk{flex-basis:100%;margin-top:6px}
+details.atk summary{cursor:pointer;font-weight:700;font-size:13.5px;color:var(--accent2)}
+.atklist{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.atkchip{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:3px 8px;font-size:12.5px}
+.atkchip.or{background:#fdf3d8;border-color:#d9a92c;font-weight:700}
+.campname{margin:14px 0 8px;font-size:16px}
+.pmeta{color:var(--muted);font-size:13px;font-weight:700}
+#rech-persos{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;margin-bottom:6px}
+.objcat{font-weight:800;margin:10px 0 4px}
+.objligne{padding:3px 0;border-bottom:1px dashed var(--border)}
+.objligne:last-child{border-bottom:none}
+.objligne.fait{opacity:.55;text-decoration:line-through}
+.acc{margin:6px 0;border:1px solid var(--border);border-radius:10px;padding:4px 10px}
+.acc summary{cursor:pointer;font-weight:800;padding:4px 0}
+.acc .objligne:last-child{border-bottom:none}
+.iimg{width:30px;height:30px;object-fit:contain;vertical-align:-9px;margin-right:6px}
+.acc2{margin:8px 0;background:#fff;border:3px solid var(--ink);border-radius:16px;box-shadow:0 4px 0 #0e0a26;padding:8px 12px}
+.acc2 summary{cursor:pointer;padding:6px 0}
+.acc2 .campname{font-weight:800;font-size:17px}
+.acc2 .prev{display:block;font-size:13px;opacity:.7;margin-top:2px}
+.mapwrap{position:relative;border-radius:14px;overflow:hidden;border:2px solid #241f4e;background:#3a7bd5}
+.mapimg{display:block;width:100%}
+.mapwrap .pin{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;border:2px solid #241f4e;background:#ffffff;font-size:17px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
+.mapwrap .pin.petit{width:27px;height:27px;font-size:13px}
+.mapwrap .pin.avenir{opacity:.45;filter:grayscale(.7)}
+.mapwrap .pin.ici{box-shadow:0 0 0 3px #e63946;animation:pinpulse 1.6s infinite;z-index:2}
+@keyframes pinpulse{0%{box-shadow:0 0 0 2px #e63946}50%{box-shadow:0 0 0 7px rgba(230,57,70,.45)}100%{box-shadow:0 0 0 2px #e63946}}
+#btn-son{width:48px;height:48px;flex:none;border-radius:50%;border:3px solid var(--ink);background:#fff;font-size:22px;cursor:pointer;box-shadow:0 4px 0 #0e0a26;padding:0}
+#btn-son.on{background:var(--yel)}
+.anim-egg svg{width:112px;height:auto;display:block;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}
+html,body{overflow-x:hidden}
+.mapwrap{box-sizing:border-box}
+#toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,16px);background:var(--ink);color:#fff;font-weight:800;padding:10px 18px;border-radius:99px;border:3px solid var(--yel);opacity:0;pointer-events:none;transition:.3s;z-index:70;max-width:88vw;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.ann-st{display:inline-block;margin-left:8px;font-size:12px;font-weight:800;background:var(--yel);border:2px solid var(--ink);border-radius:99px;padding:1px 8px;vertical-align:middle}
+.dexgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+.dexcell{background:#f6f4ff;border:2px solid var(--ink);border-radius:12px;padding:6px 4px;text-align:center}
+.dexcell img{width:64px;height:64px;image-rendering:pixelated}
+.dexcell.miss img{filter:brightness(0);opacity:.3}
+.dexnom{font-weight:800;font-size:13px;line-height:1.15}
+.dexnum{font-size:11px;color:#6b6590}
+#errbox{background:#e5484d;color:#fff;font-weight:800;border:3px solid var(--ink);border-radius:12px;padding:10px 12px;margin:0 0 10px;box-shadow:0 4px 0 #0e0a26}
+.hpfill{height:100%;border-radius:99px;background:var(--ok);transition:width .4s}
+.hpfill.mid{background:var(--mid)}
+.hpfill.low{background:var(--low)}
+.hp{min-width:92px}
+.hpbar{height:10px;background:#e3def5;border:2px solid var(--ink);border-radius:99px;overflow:hidden}
+.hptext{font-size:12px;font-weight:800;margin-top:2px}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#d6473a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Chant & Festin">
+</head>
+<body>
+<div class="wrap"><div class="device">
+  <div class="head"><div class="lens"></div><i class="led r"></i><i class="led y"></i><i class="led g"></i>
+    <div class="brand">POKÉDEX<small>Pokémon Chant & Festin · Kanto</small></div></div>
+  <div class="bezel"><div class="dots"><i></i><i></i></div><div class="screen">
+    <section class="panel on" id="p-jouer">
+        <div id="errbox" hidden></div>
+      <div class="card state">
+        <div class="chips"><span class="chip" id="c-tour">Tour —</span><span class="chip" id="c-heure">⏰ —</span><span class="chip" id="c-jour">Jour —</span><span class="chip" id="c-meteo" hidden></span></div>
+        <h1 id="phase">…</h1>
+        <span class="lieu" id="lieu" hidden></span>
+      </div>
+      <h2>⚔️ Le combat</h2>
+      <div class="arena"><div id="deco"></div><div class="row" id="foes"></div><div class="row" id="allies"></div></div>
+      <h2>📣 Annonces du tour</h2>
+      <div class="card"><div class="ann" id="annonces"></div></div>
+      <h2>📜 Dernier résultat</h2>
+      <div class="card" id="lastres"><div class="vide">Aucun résultat pour l’instant.</div></div>
+      <div class="card">
+        <h2>✍️ Écrire mon annonce</h2>
+        <label class="flab" for="f-joueur">Je suis</label>
+        <select id="f-joueur" class="fin"><option>Axel</option><option>Julien</option></select>
+        <label class="flab" for="f-texte">Mon annonce</label>
+        <textarea id="f-texte" class="fin" rows="3" placeholder="Ex : Mélodie : Écras'Face sur le Magnéti de Bob !"></textarea>
+        <button id="f-send" class="go big">📣 Envoyer l’annonce</button>
+        <div id="f-msg" class="fmsg"></div>
+      </div>
+    </section>
+    <section class="panel" id="p-equipes"><div id="equipes"></div></section>
+    <section class="panel" id="p-journal"><div id="journal"></div></section>
+    <section class="panel" id="p-persos"><input id="rech-persos" type="search" placeholder="🔎 Rechercher un personnage…"><div id="persos"></div></section>
+    <section class="panel" id="p-carte">
+      <div class="card">
+        <h2>🗺️ Carte de Kanto</h2>
+        <div id="carte"></div>
+        <div class="mapleg">🟡 Déjà visité · 🔴 Vous êtes ici · ⚪ À venir</div>
+        <div class="mapleg" id="carte-lieu"></div>
+      </div>
+    </section>
+    <section class="panel" id="p-sac"><div id="sac"></div></section>
+    <section class="panel" id="p-dex"><div id="dex"></div></section>
+    <section class="panel" id="p-quetes"><div id="quetes"></div></section>
+  </div></div>
+  <div class="ctrl">
+    <div class="tabs">
+      <button class="tab on" data-t="jouer">Jouer</button>
+      <button class="tab" data-t="equipes">Équipes</button>
+      <button class="tab" data-t="journal">Journal</button>
+      <button class="tab" data-t="persos">Persos</button>
+      <button class="tab" data-t="carte">Carte</button>
+      <button class="tab" data-t="sac">Sac</button>
+      <button class="tab" data-t="quetes">Quêtes</button>
+      <button class="tab" data-t="dex">Dex</button>
+    </div>
+    <div class="deco"><div class="dpad"></div><div class="stat"><span class="dot" id="dot"></span><span id="conn">connexion…</span></div><button id="btn-son" title="Musique">🔇</button><div class="slits"><i></i><i></i><i></i></div></div>
+  </div>
+</div></div>
+
+<div id="anim" hidden><div id="anim-stage"></div><div id="anim-txt"></div><button id="anim-x" type="button">Continuer</button></div>
+<script>
+const SUPABASE_URL='https://kybylakwlqwsmbyawjlu.supabase.co';
+const SUPABASE_KEY='sb_publishable_jQDj0u0fcMavgsp0MDI7lg_witetarV';
+const partie=new URLSearchParams(location.search).get('partie')||'TEST';
+const PHASES={attente_actions:'En attente des actions',resolution:'Résolution en cours',resolu:'Tour résolu'};
+const DEX={bulbizarre:1,herbizarre:2,florizarre:3,salameche:4,reptincel:5,dracaufeu:6,carapuce:7,carabaffe:8,tortank:9,chenipan:10,chrysacier:11,papilusion:12,aspicot:13,coconfort:14,dardargnan:15,roucool:16,roucoups:17,roucarnage:18,rattata:19,rattatac:20,piafabec:21,rapasdepic:22,abo:23,arbok:24,pikachu:25,raichu:26,sabelette:27,sablaireau:28,nidoran:29,nidoranf:29,nidorina:30,nidoqueen:31,nidoranm:32,nidorino:33,nidoking:34,melofee:35,melodelfe:36,goupix:37,feunard:38,rondoudou:39,grodoudou:40,nosferapti:41,nosferalto:42,mystherbe:43,ortide:44,rafflesia:45,paras:46,parasect:47,mimitoss:48,aeromite:49,taupiqueur:50,triopikeur:51,miaouss:52,persian:53,psykokwak:54,akwakwak:55,ferosinge:56,colossinge:57,caninos:58,arcanin:59,ptitard:60,tetarte:61,tartard:62,abra:63,kadabra:64,alakazam:65,machoc:66,machopeur:67,mackogneur:68,chetiflor:69,boustiflor:70,empiflor:71,tentacool:72,tentacruel:73,racaillou:74,gravalanch:75,grolem:76,ponyta:77,galopa:78,ramoloss:79,flagadoss:80,magneti:81,magneton:82,canarticho:83,doduo:84,dodrio:85,otaria:86,lamantine:87,tadmorv:88,grotadmorv:89,kokiyas:90,crustabri:91,fantominus:92,spectrum:93,ectoplasma:94,onix:95,soporifik:96,hypnomade:97,krabby:98,krabboss:99,voltorbe:100,electrode:101,noeunoeuf:102,noadkoko:103,osselait:104,ossatueur:105,kicklee:106,tygnon:107,excelangue:108,smogo:109,smogogo:110,rhinocorne:111,rhinoferos:112,leveinard:113,saquedeneu:114,kangourex:115,hypotrempe:116,hypocean:117,poissirene:118,poissoroy:119,stari:120,staross:121,mmime:122,insecateur:123,lippoutou:124,elektek:125,magmar:126,scarabrute:127,tauros:128,magicarpe:129,leviator:130,lokhlass:131,metamorph:132,evoli:133,aquali:134,voltali:135,pyroli:136,porygon:137,amonita:138,amonistar:139,kabuto:140,kabutops:141,ptera:142,ronflex:143,artikodin:144,electhor:145,sulfura:146,minidraco:147,draco:148,dracolosse:149,mewtwo:150,mew:151,goinfrex:446};
+const $=id=>document.getElementById(id);
+let db=null;
+window.addEventListener('error',e=>{const c=document.getElementById('conn');if(c)c.textContent='Erreur : '+(e.message||'inconnue')});
+const prev={};
+
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'')}
+function dexId(p){if(p.dex_id)return p.dex_id;const e=String(p.espece||'').trim();return /^\d+$/.test(e)?+e:DEX[norm(e)]||DEX[norm(p.nom)]||null}
+function spriteUrl(id,back){return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+(back?'back/':'')+id+'.png'}
+function officialUrl(id){return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'+id+'.png'}
+function sprite(p,back){
+  const id=dexId(p),box=el('div','noimg','❔');
+  if(!id)return box;
+  const img=new Image();img.className='sprite';img.alt=p.nom;
+  img.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+(back?'back/':'')+id+'.png';
+  img.onerror=()=>img.replaceWith(box);
+  return img;
+}
+function col(v){return v>50?'var(--ok)':v>25?'var(--mid)':'var(--low)'}
+function stColor(s){s=s.toLowerCase();return /poison/.test(s)?'#e0a8f5':/ralent/.test(s)?'#a9c8ff':/endorm|sommeil/.test(s)?'#c7ccd6':/confus/.test(s)?'#ffb3d1':/paraly/.test(s)?'#f7d35a':/br[uû]l/.test(s)?'#ffb27a':'#e6e1ff'}
+function hpClass(p){const v=pct(p);return v>50?'ok':v>25?'mid':'low'}
+function pct(p){return Math.max(0,Math.min(100,Math.round(100*p.pv_actuel/Math.max(1,p.pv_max))))}
+function statuts(p,into){(p.statut||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>{const c=el('span','st',s);c.style.background=stColor(s);into.append(c)})}
+
+function stIcon(s){s=String(s||'').toLowerCase();
+  if(/endorm|sommeil/.test(s))return '💤';
+  if(/gel/.test(s))return '❄️';
+  if(/br[uû]l/.test(s))return '🔥';
+  if(/paraly/.test(s))return '⚡';
+  if(/poison|empoisonn/.test(s))return '🧪';
+  if(/confus/.test(s))return '💫';
+  if(/ralent/.test(s))return '🐌';
+  if(/éteint|eteint/.test(s))return '🔌';
+  if(/étourd|etourd/.test(s))return '😵';
+  if(/scell/.test(s))return '🔒';
+  return ''}
+function hpbox(p,owner){
+  const b=el('div','hpbox'),n=el('div','n'),ic=stIcon(p.statut);
+  n.append(el('span','',(ic?ic+' ':'')+p.nom),el('small','','Niv. '+p.niveau));
+  const bar=el('div','bar'),f=el('div','fill'),v=pct(p),old=prev[p.id];
+  f.style.width=(old===undefined?v:old)+'%';f.style.background=col(v);bar.append(f);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{f.style.width=v+'%'}));
+  if(owner)b.append(el('div','own',owner));
+  b.append(n,bar,el('div','pv',p.pv_actuel+' / '+p.pv_max+' PV'));
+  statuts(p,b);
+  return b;
+}
+function slot(p,foe){
+  const s=el('div','slot'+(foe?' foe':'')),sp=sprite(p,!foe),o=prev[p.id];
+  if(o!==undefined&&pct(p)<o)sp.classList.add('hit');
+  const hb=hpbox(p,foe?'':p.proprietaire);
+  if(foe)s.append(hb,sp);else s.append(sp,hb);
+  return s;
+}
+function renderArena(list){
+  const act=list.filter(p=>p.actif),F=$('foes'),A=$('allies');
+  const foes=act.filter(p=>p.proprietaire==='Adversaire'),al=act.filter(p=>p.proprietaire!=='Adversaire');
+  F.replaceChildren();A.replaceChildren();
+  foes.forEach(p=>F.append(slot(p,true)));al.forEach(p=>A.append(slot(p,false)));
+  if(!foes.length)F.append(el('div','vide','Aucun adversaire en jeu.'));
+  if(!al.length)A.append(el('div','vide','Aucun Pokémon allié en jeu.'));
+}
+function lignePoke(p,avecPv){
+  const r=el('div','poke');
+  const id=dexId(p);
+  const img=new Image();img.className='sprite';img.alt=p.espece||'?';
+  if(id){img.src=spriteUrl(id,false);img.onerror=()=>{img.onerror=null;img.src=officialUrl(id)}}
+  else{img.removeAttribute('src');img.alt='❔'}
+  r.append(img);
+  const info=el('div','pinfo');
+  info.append(el('div','pname',p.nom+' '+stIcon(p)));
+  info.append(el('div','psub',(p.espece||'???')+' · Niv. '+(p.niveau||'?')+(p.proprietaire&&p.proprietaire!=='Adversaires'?' · à '+p.proprietaire:'')));
+  if(p.trait)info.append(el('div','ptrait','✦ '+p.trait));
+  r.append(info);
+  if(avecPv){
+    const hp=el('div','hp');
+    const bar=el('div','hpbar'),fill=el('div','hpfill '+hpClass(p));
+    fill.style.width=pct(p)+'%';bar.append(fill);hp.append(bar,el('div','hptext',p.pv_actuel+'/'+p.pv_max+' PV'));
+    r.append(hp);
+  }
+  const atks=Array.isArray(p.attaques)?p.attaques:[];
+  if(atks.length){
+    const det=document.createElement('details');det.className='atk';det.open=accOuvert('atk:'+p.id,false);det.addEventListener('toggle',()=>{accState['atk:'+p.id]=det.open});
+    const sum=document.createElement('summary');sum.textContent='⚔️ Attaques disponibles ('+atks.length+')';det.append(sum);
+    const wrap=el('div','atklist');
+    atks.forEach(a=>{
+      const extra=a.source==='CT'?' · CT':(a.source==='don'?' · don':(a.niveau?' · niv. '+a.niveau:''));
+      wrap.append(el('span','atkchip'+((a.source&&a.source!=='niveau')?' or':''),a.nom+' · '+a.type+extra));
+    });
+    det.append(wrap);r.append(det);
+  }
+  return r;
+}
+function renderEquipes(list,dresseurs){
+  const z=$('equipes');z.replaceChildren();
+  if(dresseurs&&dresseurs.length){
+    const dc=el('div','card');dc.append(el('h3','','🧑‍🤝‍🧑 Dresseurs'));
+    dresseurs.slice().sort((a,b)=>a.nom.localeCompare(b.nom)).forEach(d=>{
+      const row=el('div','dress');
+      row.append(el('div','dnom',d.nom+(d.talent?' · ⭐ '+d.talent:'')));
+      const chips=el('div','dchips');
+      const sg=v=>(v>=0?'+':'')+v;
+      chips.append(el('span','dchip','🎯 Tactique '+sg(d.tactique||0)));
+      chips.append(el('span','dchip','❤️ Cœur '+sg(d.coeur||0)));
+      chips.append(el('span','dchip','🔥 Instinct '+sg(d.instinct||0)));
+      chips.append(el('span','dchip','💰 '+(d.argent||0)+' ₽'));
+      chips.append(el('span','dchip','🔁 Clutch ×'+(d.clutch||0)));
+      const bd=Array.isArray(d.badges)?d.badges:[];
+      if(bd.length)chips.append(el('span','dchip','🏅 Badges : '+bd.join(' · ')));
+      row.append(chips);dc.append(row);
+    });
+    z.append(dc);
+  }
+  const groupes={};list.forEach(p=>{(groupes[p.proprietaire]=groupes[p.proprietaire]||[]).push(p)});
+  const sp=p=>p.statut_pokemon||'actif';
+  ['Axel','Julien','Adversaires'].forEach(g=>{
+    const rows=(groupes[g]||[]).filter(p=>sp(p)==='actif'||sp(p)==='ko');
+    if(!rows.length)return;
+    const c=el('div','card');c.append(el('h3','',g==='Adversaires'?'⚔️ Adversaires':'🎒 Équipe de '+g));
+    rows.forEach(p=>c.append(lignePoke(p,true)));
+    z.append(c);
+  });
+  const depot=list.filter(p=>sp(p)==='depot');
+  if(depot.length){const c=el('div','card');c.append(el('h3','','🖥️ Au PC (dépôt)'));depot.forEach(p=>c.append(lignePoke(p,true)));z.append(c)}
+  const partis=list.filter(p=>sp(p)==='parti');
+  if(partis.length){const c=el('div','card');c.append(el('h3','','👋 Anciens Pokémon — partis'));partis.forEach(p=>c.append(lignePoke(p,false)));z.append(c)}
+  if(!list.length){const c=el('div','card');c.append(el('div','vide','Aucun Pokémon pour l’instant.'));z.append(c)}
+}
+
+function renderDex(rencontres,list){
+  const z=$('dex');if(!z)return;z.replaceChildren();
+  const vus={};
+  (rencontres||[]).forEach(r=>{if(r.dex_id)vus[r.dex_id]=r.espece});
+  (list||[]).forEach(p=>{const id=p.dex_id||dexId(p);if(id&&p.espece)vus[id]=p.espece});
+  const nb=Object.keys(vus).length;
+  const card=el('div','card');z.append(card);
+  card.append(el('h3','','📖 Pokédex de la campagne — '+nb+' / 151'));
+  card.append(el('p','note','Toutes les espèces déjà vues pendant l’aventure. Les silhouettes restent à découvrir…'));
+  const g=el('div','dexgrid');
+  for(let id=1;id<=151;id++){
+    const c=el('div','dexcell'+(vus[id]?'':' miss'));
+    const im=el('img');im.loading='lazy';im.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+id+'.png';im.alt=vus[id]||'Pokémon inconnu';c.append(im);
+    c.append(el('div','dexnom',vus[id]||'???'));
+    c.append(el('div','dexnum','N°'+id));
+    g.append(c);
+  }
+  card.append(g);
+}
+
+const accState={};
+function accOuvert(cle,defaut){return (cle in accState)?accState[cle]:defaut}
+function acc(titre,ouvert,cle){
+  const d=document.createElement('details');d.className='acc';d.open=cle?accOuvert(cle,ouvert):ouvert;
+  if(cle)d.addEventListener('toggle',()=>{accState[cle]=d.open});
+  const s=document.createElement('summary');s.textContent=titre;d.append(s);return d;
+}
+function typeObjet(n){
+  const s=(n||'').toLowerCase();
+  if(/scell/.test(s))return '🔑 Objets clés';
+  if(/potion|soin|miel|baie|antidote|réveil|rappel|bandage/.test(s))return '💊 Soins';
+  if(/ball/.test(s))return '⚪ Balls';
+  if(/(^|\s)ct(\s|$)/.test(s))return '💿 CT';
+  if(/fossile|pierre|éclat|rivet|lettre|masque|cape|pendentif|clé|carte|photo|carnet|page|badge/.test(s))return '🔑 Objets clés';
+  if(/conserve|nourriture|repas|pain|fromage|gâteau/.test(s))return '🍱 Nourriture';
+  return '🎒 Divers';
+}
+function renderQuetes(obj){
+  const z=$('quetes');if(!z)return;z.replaceChildren();
+  const CATS={'objectif':'🟢 Objectifs','sous-quete':'🔵 Sous-quêtes','rumeur':'🟡 Rumeurs','gain':'⭐ Gains','bonus':'🎁 Bonus en banque'};
+  const oc=el('div','card');oc.append(el('h3','','🎯 Objectifs & quêtes'));
+  if(obj&&obj.length){
+    const by={};obj.forEach(o=>{const c=o.categorie||'objectif';(by[c]=by[c]||[]).push(o)});
+    Object.keys(CATS).forEach(cat=>{if(!by[cat])return;const d=acc(CATS[cat]+' ('+by[cat].length+')',cat==='objectif','q:'+cat);by[cat].forEach(o=>d.append(el('div','objligne'+(o.fait?' fait':''),(o.fait?'✅ ':'• ')+o.texte)));oc.append(d)});
+  } else oc.append(el('div','vide','Rien pour l’instant.'));
+  z.append(oc);
+}
+function spriteObjet(n){
+  const s=(n||'').toLowerCase();
+  const M=[['super potion','super-potion'],['hyper potion','hyper-potion'],['potion max','max-potion'],['rappel max','max-revive'],['super bonbon','rare-candy'],['poké ball','poke-ball'],['super ball','great-ball'],['hyper ball','ultra-ball'],['master ball','master-ball'],['potion','potion'],['rappel','revive'],['miel','honey'],['amonita','helix-fossil'],['fossile dôme','dome-fossil'],['pierre lune','moon-stone'],['pierre feu','fire-stone'],['pierre eau','water-stone'],['pierre foudre','thunder-stone'],['pierre plante','leaf-stone'],['pierre soleil','sun-stone'],['antidote','antidote'],['anti-para','paralyze-heal'],['réveil','awakening'],['anti-brûle','burn-heal'],['antigel','ice-heal'],['soin total','full-heal'],['élixir','elixir'],['huile','ether']];
+  for(const [k,v] of M){if(s.includes(k))return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/'+v+'.png'}
+  return null;
+}
+function ligneObjet(i){
+  const d=el('div','objligne');
+  const url=spriteObjet(i.nom);
+  if(url){const img=new Image();img.src=url;img.className='iimg';img.alt='';img.onerror=()=>img.replaceWith(document.createTextNode((i.icone||'🎒')+' '));d.append(img)}
+  else d.append(document.createTextNode((i.icone||'🎒')+' '));
+  d.append(document.createTextNode(i.nom+(i.quantite>1?' ×'+i.quantite:'')+(i.note?' — '+i.note:'')));
+  return d;
+}
+function renderSac(inv){
+  const z=$('sac');if(!z)return;z.replaceChildren();
+  const ic=el('div','card');ic.append(el('h3','','🎒 Inventaire'));
+  const ORDRE=['💊 Soins','⚪ Balls','💿 CT','🔑 Objets clés','🍱 Nourriture','🎒 Divers'];
+  if(inv&&inv.length){
+    const by={};inv.forEach(i=>{(by[i.dresseur]=by[i.dresseur]||[]).push(i)});
+    ['Axel','Julien','commun'].forEach(d=>{if(!by[d])return;ic.append(el('div','objcat','🎒 '+(d==='commun'?'Commun':d)));
+      const bt={};by[d].forEach(i=>{const t=typeObjet(i.nom);(bt[t]=bt[t]||[]).push(i)});
+      ORDRE.forEach(t=>{if(!bt[t])return;const det=acc(t+' ('+bt[t].length+')',t==='💊 Soins'||t==='⚪ Balls','sac:'+d+':'+t);bt[t].forEach(i=>det.append(ligneObjet(i)));ic.append(det)});
+    });
+  } else ic.append(el('div','vide','Rien pour l’instant.'));
+  z.append(ic);
+}
+const FONDS={
+  plaine:{bg:'linear-gradient(#9fd8ff 0 46%,#86c95a 46%)',deco:'☁️🌳'},
+  arene_elec:{bg:'linear-gradient(#3a3f5c 0 46%,#5c5f75 46%)',deco:'⚡🏭'},
+  port:{bg:'linear-gradient(#aee3ff 0 46%,#3f8fd2 46%)',deco:'⚓⛵'},
+  foret:{bg:'linear-gradient(#bfe8c9 0 46%,#3e7d3a 46%)',deco:'🌲🌲'},
+  grotte:{bg:'linear-gradient(#2c2440 0 46%,#171224 46%)',deco:'🦇💎'},
+  tour:{bg:'linear-gradient(#241d3a 0 55%,#171224 55%)',deco:'🕯️👻'},
+  neige:{bg:'linear-gradient(#eaf6ff 0 46%,#ffffff 46%)',deco:'❄️⛄'},
+  ville:{bg:'linear-gradient(#ffd9a0 0 46%,#b08968 46%)',deco:'🏙️'},
+  volcan:{bg:'linear-gradient(#5c2e2e 0 46%,#2e1a1a 46%)',deco:'🌋'}
+};
+function fondDepuisLieu(lieu){
+  const s=(lieu||'').toLowerCase();
+  if(s.includes('carmin'))return 'arene_elec';
+  if(s.includes('tour'))return 'tour';
+  if(s.includes('forêt')||s.includes('foret')||s.includes('jade'))return 'foret';
+  if(s.includes('grotte')||s.includes('mont')||s.includes('sélénite')||s.includes('selenite'))return 'grotte';
+  if(s.includes('port')||s.includes('quai')||s.includes('océane')||s.includes('oceane')||s.includes('bateau'))return 'port';
+  if(s.includes('neige'))return 'neige';
+  if(s.includes('volcan')||s.includes('cramois'))return 'volcan';
+  if(s.includes('céladopole')||s.includes('celadopole')||s.includes('safrania')||s.includes('ville'))return 'ville';
+  return 'plaine';
+}
+function fxMeteo(m){const n=norm(m||'');if(!n)return '';if(n.indexOf('pluie')>=0)return 'Eau +2 · Feu −2';if(n.indexOf('soleil')>=0||n.indexOf('zenith')>=0)return 'Feu +2 · Eau −2';if(n.indexOf('brouillard')>=0)return 'Touches −1 pour tous';if(n.indexOf('grele')>=0||n.indexOf('tempete')>=0)return 'Dégâts d’ambiance (hors types immunisés)';if(n.indexOf('couvert')>=0||n.indexOf('clair')>=0||n.indexOf('nuage')>=0)return 'Aucun effet';return ''}
+function renderEtat(e){
+  if(!e){$('phase').textContent='Partie « '+partie+' » introuvable';return}
+  $('c-tour').textContent='Tour n°'+e.tour;
+  $('c-heure').textContent='⏰ '+(e.horloge||'—');
+  $('c-jour').textContent=e.jour_label||'Jour —';
+  $('phase').textContent=PHASES[e.phase]||e.phase;
+  const l=$('lieu');l.hidden=!e.lieu;l.textContent='📍 '+(e.lieu||'');
+  const mt=$('c-meteo');if(mt){if(e.meteo){mt.hidden=false;const fx=fxMeteo(e.meteo);mt.textContent='🌦️ '+e.meteo+(fx?' — '+fx:'')}else mt.hidden=true}
+  const th=FONDS[e.fond]||FONDS[fondDepuisLieu(e.lieu)]||FONDS.plaine;
+  document.querySelector('.arena').style.background=th.bg;
+  $('deco').textContent=th.deco;
+  renderCarte(e.lieu);majMusique(e);
+  if(e.evenement&&e.evenement_id){
+    let vu=0;try{vu=+localStorage.getItem('evVu')||0}catch(_){}
+    if(e.evenement_id>vu){try{localStorage.setItem('evVu',e.evenement_id);jouerAnim(JSON.parse(e.evenement))}catch(_){}}
+  }
+}
+const LIEUX=[
+  {nom:'Bourg Palette',court:'Bourg Palette',x:33,y:86,ico:'🏘️',etape:0,mots:['bourg palette'],desc:"Le village de départ. La maison d'Axel, celle de Julien, et le laboratoire du Professeur Chen."},
+  {nom:'Laboratoire du Professeur Chen',court:'Labo Chen',x:37,y:80,ico:'🔬',etape:0,petit:1,mots:['laboratoire','labo'],desc:"Tenu par Léo pendant la tournée du Professeur. C'est ici que tout a commencé : un œuf et un pack de départ pour chacun.",pres:'Léo — tient le laboratoire'},
+  {nom:'Route 1',court:'Route 1',x:29,y:70,ico:'🛤️',etape:1,mots:['route 1'],desc:"La route des départs. Hautes herbes, Roucool et Rattata — Ratatouille y a été capturé ; Sire Plume y a été vexé, puis conquis."},
+  {nom:'Jadielle',court:'Jadielle',x:23,y:55,ico:'🏘️',etape:2,mots:['jadielle'],desc:"La ville éternellement verte. Son Arène aux portes closes : « Le champion est en voyage. »"},
+  {nom:'Route 2',court:'Route 2',x:24,y:41,ico:'🛤️',etape:3,mots:['route 2'],desc:"La route qui grimpe vers la forêt, entre Jadielle et Argenta."},
+  {nom:'Forêt de Jade',court:'Forêt de Jade',x:26,y:27,ico:'🌲',etape:4,mots:['forêt','foret','jade'],desc:"La grande forêt. Le territoire des Pikachu y a été cartographié par le groupe."},
+  {nom:'Clairière aux baies brûlées',court:'Clairière',x:31,y:32,ico:'🔥',etape:4,petit:1,mots:['clairière','clairiere'],desc:"Une clairière marquée par un ancien incident — des baies brûlées, et des questions."},
+  {nom:'Argenta',court:'Argenta',x:24,y:12,ico:'🏘️',etape:5,mots:['argenta'],desc:"La ville de pierre. L'Arène de Pierre, les carrières, et Anselme, le plus vieux lecteur de Gonkabi de Kanto.",pres:'Pierre — champion · Anselme — au Centre'},
+  {nom:'Mont Sélénite',court:'Mont Sélénite',x:52,y:19,ico:'⛰️',etape:6,mots:['sélénite','selenite','mont'],desc:"La montagne des Mélofée et des fossiles. La danse de la pleine lune, Barnabé le berger, et une pierre pâle encore dans la paroi."},
+  {nom:'Azuria',court:'Azuria',x:81,y:27,ico:'🏘️',etape:7,mots:['azuria'],desc:"La ville d'eau. L'Arène d'Ondine, gagnée en 21 rounds dans la piscine.",pres:'Ondine — championne'},
+  {nom:'Carmin sur Mer',court:'Carmin sur Mer',x:58,y:75,ico:'⚓',etape:8,mots:['carmin'],desc:"Le grand port de Kanto. L'Arène du Major Bob, les quais… et l'Océane, le bateau de croisière, à quai.",pres:'Major Bob — champion · Oscar — son Second'},
+  {nom:'Lavanville',court:'Lavanville',x:90,y:46,ico:'🗼',etape:9,mots:['lavanville'],desc:"La ville mauve, au pied de la Tour Pokémon. On y parle bas, et les souvenirs y restent."},
+  {nom:'Céladopole',court:'Céladopole',x:57,y:39,ico:'🏙️',etape:10,mots:['céladopole','celadopole'],desc:"La plus grande ville de l'ouest : grand magasin, casino, restaurants… et l'Arène d'Erika."},
+  {nom:'Safrania',court:'Safrania',x:67,y:35,ico:'🏙️',etape:11,mots:['safrania'],desc:"La ville dorée au centre de Kanto. La Silph SARL, et l'Arène de Morgane."},
+  {nom:'Parmanie',court:'Parmanie',x:45,y:59,ico:'🏘️',etape:12,mots:['parmanie'],desc:"La ville du sud, porte de la Zone Safari. L'Arène de Koga n'est jamais là où on l'attend."},
+  {nom:"Cramois'Île",court:"Cramois'Île",x:12,y:80,ico:'🌋',etape:13,mots:['cramois'],desc:"L'île volcan du sud. Un laboratoire, un manoir en ruines, et l'Arène de Blaine."},
+  {nom:'Plateau Indigo',court:'Plateau Indigo',x:9,y:44,ico:'🏆',etape:14,mots:['indigo','plateau'],desc:"Le siège de la Ligue Pokémon. L'arrivée de tous les voyages — avec les huit badges."}
+];
+let lieuChoisi=null;
+function lieuDepuisNom(lieu){
+  const s=(lieu||'').toLowerCase();
+  for(const L of LIEUX){if(L.mots.some(m=>s.includes(m)))return L}
+  return null;
+}
+let mapErr=false;
+function renderCarte(lieu){
+  const z=$('carte');if(!z)return;
+  if(mapErr){renderCarteSVG(lieu);return}
+  const curL=lieuDepuisNom(lieu);
+  const curE=curL?curL.etape:-1;
+  const sel=lieuChoisi?LIEUX.find(L=>L.nom===lieuChoisi):null;
+  const affiche=sel||curL;
+  let s='<div class="mapwrap"><img class="mapimg" src="carte-kanto.png" alt="Carte de Kanto">';
+  LIEUX.forEach(L=>{
+    const fait=L.etape<=curE, ici=curL&&L.nom===curL.nom;
+    s+='<button class="pin'+(ici?' ici':(fait?' fait':' avenir'))+(L.petit?' petit':'')+'" data-nom="'+L.nom+'" style="left:'+L.x+'%;top:'+L.y+'%" title="'+L.nom+'">'+L.ico+'</button>';
+  });
+  s+='</div>';
+  z.innerHTML=s;
+  const img=z.querySelector('.mapimg');
+  img.onerror=()=>{mapErr=true;renderCarte(lieu)};
+  z.querySelectorAll('.pin').forEach(b=>b.addEventListener('click',()=>{lieuChoisi=b.getAttribute('data-nom');renderCarte(lieu)}));
+  const info=$('carte-lieu');
+  if(affiche){
+    const fait=affiche.etape<=curE, ici=curL&&affiche.nom===curL.nom;
+    info.textContent=(ici?'📍 Vous êtes ici — ':'')+affiche.ico+' '+affiche.nom+' : '+affiche.desc+(affiche.pres?' · 👥 '+affiche.pres:'')+(fait?'':' · (à venir)');
+  } else info.textContent=lieu?('📍 Position actuelle : '+lieu):'';
+}
+function renderCarteSVG(lieu){
+  const z=$('carte');if(!z)return;
+  const curL=lieuDepuisNom(lieu);
+  const curE=curL?curL.etape:-1;
+  const sel=lieuChoisi?LIEUX.find(L=>L.nom===lieuChoisi):null;
+  const affiche=sel||curL;
+  let s='<svg class="mapsvg" viewBox="0 0 100 100" role="img" aria-label="Carte de Kanto">';
+  s+='<rect x="0" y="0" width="100" height="100" fill="#7ec3ee"/>';
+  s+='<path d="M12 2 L86 2 Q97 20 90 38 Q95 55 82 66 Q70 88 48 92 Q30 99 18 90 Q4 78 8 58 Q2 40 8 22 Q9 8 12 2 Z" fill="#a8d89a" stroke="#241f4e" stroke-width="0.7"/>';
+  s+='<ellipse cx="15" cy="94" rx="10" ry="5.5" fill="#f2e3ac" stroke="#241f4e" stroke-width="0.6"/>';
+  const ordre=LIEUX.filter(L=>!L.petit).slice().sort((a,b)=>a.etape-b.etape);
+  s+='<polyline points="'+ordre.map(L=>L.x+','+L.y).join(' ')+'" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-dasharray="2.5 2" opacity="0.85"/>';
+  if(curE>=0)s+='<polyline points="'+ordre.filter(L=>L.etape<=curE).map(L=>L.x+','+L.y).join(' ')+'" fill="none" stroke="#e63946" stroke-width="1.5"/>';
+  LIEUX.forEach(L=>{
+    const fait=L.etape<=curE, ici=curL&&L.nom===curL.nom;
+    const r=L.petit?2.6:3.4, op=fait?1:0.45;
+    if(ici)s+='<circle cx="'+L.x+'" cy="'+L.y+'" r="5.6" fill="none" stroke="#e63946" stroke-width="0.9" class="pulse"/>';
+    s+='<g class="pin" data-nom="'+L.nom+'" opacity="'+op+'" style="cursor:pointer">';
+    s+='<circle cx="'+L.x+'" cy="'+L.y+'" r="'+r+'" fill="#ffffff" stroke="#241f4e" stroke-width="0.6"/>';
+    s+='<text x="'+L.x+'" y="'+(L.y+(L.petit?1.3:1.7))+'" font-size="'+(L.petit?3.2:4.4)+'" text-anchor="middle">'+L.ico+'</text>';
+    s+='</g>';
+    const ly=L.lab==='dessus'?(L.y-r-1.6):(L.y+r+4.2);
+    const anch=L.anc==='e'?'end':(L.anc==='s'?'start':'middle');
+    const lx=L.anc==='e'?(L.x+r):(L.anc==='s'?(L.x-r):L.x);
+    s+='<text x="'+lx+'" y="'+ly+'" font-size="3.1" font-weight="800" fill="#241f4e" text-anchor="'+anch+'" style="paint-order:stroke" stroke="#ffffff" stroke-width="0.8" opacity="'+op+'">'+L.court+'</text>';
+  });
+  s+='</svg>';
+  z.innerHTML=s;
+  z.querySelectorAll('.pin').forEach(g=>g.addEventListener('click',()=>{lieuChoisi=g.getAttribute('data-nom');renderCarte(lieu)}));
+  const info=$('carte-lieu');
+  if(affiche){
+    const fait=affiche.etape<=curE, ici=curL&&affiche.nom===curL.nom;
+    info.textContent=(ici?'📍 Vous êtes ici — ':'')+affiche.ico+' '+affiche.nom+' : '+affiche.desc+(affiche.pres?' · 👥 '+affiche.pres:'')+(fait?'':' · (à venir)');
+  } else info.textContent=lieu?('📍 Position actuelle : '+lieu):'';
+}
+const ST_ANN={envoyee:'📤 Envoyée',vue:'👀 Vue par le MJ',resolue:'✅ Résolue'};
+function renderAnnonces(rows){
+  const z=$('annonces');z.replaceChildren();
+  ['Axel','Julien'].forEach(j=>{
+    const a=rows.filter(r=>r.joueur===j).sort((x,y)=>new Date(y.cree_le)-new Date(x.cree_le))[0];
+    const d=el('div','');d.append(el('b','',j+' : '),document.createTextNode(a?a.texte:'pas encore d’annonce…'));if(a)d.append(el('span','ann-st',ST_ANN[a.statut]||ST_ANN.envoyee));z.append(d);
+  });
+}
+let animEnCours=false;
+function fermerAnim(){const z=$('anim');if(z)z.hidden=true;animEnCours=false}
+function jouerAnim(ev){
+  if(animEnCours)return;animEnCours=true;
+  const z=$('anim'),st=$('anim-stage'),tx=$('anim-txt');
+  if(!z||!st||!tx){animEnCours=false;return}
+  z.hidden=false;st.replaceChildren();tx.textContent='';
+  const imgDe=(esp)=>{const id=dexId({espece:esp});if(!id)return el('div','noimg','❔');const im=el('img','anim-sprite');im.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+id+'.png';im.alt=esp;return im};
+  const flash=()=>{st.classList.remove('flash');void st.offsetWidth;st.classList.add('flash')};
+  if(ev.type==='eclosion'){
+    const egg=el('div','anim-egg');egg.innerHTML='<svg viewBox="0 0 100 130" class="oeuf-svg" role="img" aria-label="Œuf de Pokémon"><path d="M50 4C73 4 89 46 89 79 89 109 72 126 50 126 28 126 11 109 11 79 11 46 27 4 50 4Z" fill="#fdf6e0" stroke="#d9c68f" stroke-width="3"/><ellipse cx="36" cy="52" rx="11" ry="8" fill="#7ac74f" opacity=".85" transform="rotate(-18 36 52)"/><ellipse cx="64" cy="86" rx="13" ry="9" fill="#7ac74f" opacity=".85" transform="rotate(14 64 86)"/><ellipse cx="60" cy="30" rx="7" ry="5" fill="#f2a65a" opacity=".9" transform="rotate(10 60 30)"/><ellipse cx="30" cy="98" rx="6" ry="4.5" fill="#f2a65a" opacity=".9"/><ellipse cx="42" cy="72" rx="5" ry="4" fill="#7ac74f" opacity=".7"/></svg>';st.append(egg);tx.textContent='Oh ? L’œuf bouge…';
+    setTimeout(()=>egg.classList.add('wiggle'),400);
+    setTimeout(()=>{tx.textContent='Il va éclore !'},2100);
+    setTimeout(()=>{flash();st.replaceChildren(imgDe(ev.espece));tx.textContent='✨ '+(ev.nom||ev.espece)+' est né ! ✨'},3000);
+  }else if(ev.type==='evolution'){
+    const a=imgDe(ev.avant),b=imgDe(ev.apres);a.classList.add('silh');b.classList.add('silh');b.style.display='none';st.append(a,b);
+    tx.textContent='Quoi ? '+(ev.nom||ev.avant)+' évolue !';
+    let delai=320,n=0;
+    const swap=()=>{const showA=a.style.display!=='none';a.style.display=showA?'none':'';b.style.display=showA?'':'none';n++;delai=Math.max(70,delai*0.82);
+      if(n<16)setTimeout(swap,delai);
+      else{a.style.display='none';b.style.display='';b.classList.remove('silh');flash();tx.textContent='✨ '+(ev.nom||ev.avant)+' a évolué en '+ev.apres+' ! ✨'}};
+    setTimeout(swap,750);
+  }
+}
+const animX=$('anim-x');if(animX)animX.addEventListener('click',fermerAnim);
+let REV;try{REV=new Set(JSON.parse(localStorage.getItem('rev')||'[]'))}catch(e){REV=new Set()}
+function saveRev(){try{localStorage.setItem('rev',JSON.stringify([...REV]))}catch(e){}}
+function dieEl(key,x){
+  const w=el('div','dw'),d=el('div','die'),f=el('div','face'),n=el('span','','?'),res=el('div','res');
+  const nat=x.total-(x.mod||0);
+  f.append(n);d.append(f);
+  const show=()=>{n.textContent=nat;res.textContent=x.de+(x.mod?(x.mod>0?'+':'')+x.mod:'')+' = '+x.total+' → '+x.verdict;d.classList.add('revealed');
+    if(x.de==='d20'&&nat===20)d.classList.add('crit');if(x.de==='d20'&&nat===1)d.classList.add('fumble')};
+  if(REV.has(key))show();else res.textContent='Touche pour lancer';
+  d.onclick=()=>{
+    if(REV.has(key)||d.classList.contains('roll'))return;
+    const max=+String(x.de).replace(/\D/g,'')||20;
+    d.classList.add('roll');
+    const t=setInterval(()=>{n.textContent=1+Math.floor(Math.random()*max)},70);
+    setTimeout(()=>{clearInterval(t);d.classList.remove('roll');REV.add(key);saveRev();show();
+      const cont=w.parentElement;
+      if(cont&&[...cont.querySelectorAll('.die')].every(dd=>dd.classList.contains('revealed'))){
+        setTimeout(()=>{cont.classList.add('gone');const b=cont.parentElement?cont.parentElement.querySelector('.go'):null;if(b)b.style.display='none';
+          setTimeout(()=>{cont.style.display='none'},700)},1600);
+      }},800);
+  };
+  w.append(d,el('div','cap',x.label),res);return w;
+}
+function renderJournal(rows){
+  const z=$('journal');z.replaceChildren();
+  if(!rows.length){const c=el('div','card');c.append(el('div','vide','Aucun tour résolu pour l’instant.'));z.append(c);return}
+  const lr=$('lastres');
+  if(lr){lr.replaceChildren();lr.append(el('div','jh','Tour n°'+rows[0].tour+' — résolu par le MJ'),el('div','',rows[0].texte_resolution.length>320?rows[0].texte_resolution.slice(0,320)+'…':rows[0].texte_resolution),el('div','pmeta','📖 Tous les tours et leurs dés : onglet Journal'))}
+  rows.forEach(r=>{
+    const c=el('div','card'),dice=el('div','dice'),des=r.des_json||[];
+    c.append(el('div','jh','Tour n°'+r.tour+' — résolu par le MJ'));
+    des.forEach((x,i)=>dice.append(dieEl(r.id+'-'+i,x)));
+    let go=null;
+    if(des.length){
+      go=el('button','go','🎲 Tout lancer');
+      go.onclick=()=>[...dice.querySelectorAll('.die')].forEach((d,k)=>setTimeout(()=>d.click(),k*250));
+      c.append(go);
+    }
+    c.append(dice,el('div','',r.texte_resolution));z.append(c);
+    if(des.length&&des.every((x,i)=>REV.has(r.id+'-'+i))){dice.style.display='none';if(go)go.style.display='none'}
+  });
+}
+function renderPersos(rows){
+  const z=$('persos');z.replaceChildren();
+  if(!rows.length){const c=el('div','card');c.append(el('div','vide','Aucun personnage pour l’instant.'));z.append(c);return}
+  const CAMPS=['Héros','Champions d’Arène','Alliés','Antagonistes','Légendes','Autres'];
+  const groups={};rows.forEach(r=>{const c=r.camp||'Autres';(groups[c]=groups[c]||[]).push(r)});
+  const order=CAMPS.filter(c=>groups[c]).concat(Object.keys(groups).filter(c=>!CAMPS.includes(c)));
+  order.forEach(camp=>{
+    const det=document.createElement('details');det.className='acc2 campgrp';det.open=accOuvert('p:'+camp,camp==='Héros');det.addEventListener('toggle',()=>{accState['p:'+camp]=det.open});
+    const sum=document.createElement('summary');
+    const noms=groups[camp].map(r=>r.nom);
+    sum.append(el('span','campname',camp+' · '+noms.length),el('span','prev',noms.slice(0,4).join(', ')+(noms.length>4?'…':'')));
+    det.append(sum);
+    groups[camp].forEach(r=>{
+      const c=el('div','card perso');c.dataset.nom=r.nom||'';
+      if(r.image){
+        const img=new Image();img.src=r.image;img.alt=r.nom;img.className='pimg';
+        img.onerror=()=>{const b=el('div','noimg','❔');b.style.width='100%';b.style.height='180px';b.style.fontSize='60px';img.replaceWith(b)};
+        c.append(img);
+      }
+      c.append(el('h3','',r.nom));
+      const meta=[r.role,r.statut].filter(Boolean).join(' · ');
+      if(meta)c.append(el('p','pmeta',meta));
+      c.append(el('p','',r.texte||''));
+      det.append(c);
+    });
+    z.append(det);
+  });
+  appliqueRecherchePersos();
+}
+function appliqueRecherchePersos(){
+  const inp=$('rech-persos');if(!inp)return;
+  const q=norm(inp.value||'');
+  document.querySelectorAll('#persos .perso').forEach(c=>{c.style.display=(!q||norm(c.dataset.nom||'').includes(q))?'':'none'});
+  document.querySelectorAll('#persos .campgrp').forEach(g=>{const any=Array.from(g.querySelectorAll('.perso')).some(c=>c.style.display!=='none');g.style.display=any?'':'none';if(q&&any)g.open=true});
+}
+let tourCourant=null;
+async function envoyerAnnonce(){
+  const joueur=$('f-joueur').value,texte=$('f-texte').value.trim(),msg=$('f-msg'),btn=$('f-send');
+  if(!texte){msg.textContent='⚠️ Écris ton annonce d’abord.';return}
+  btn.disabled=true;msg.textContent='Envoi…';
+  const {error}=await db.from('annonces').insert({code_partie:partie,joueur:joueur,texte:texte,tour:tourCourant,statut:'envoyee'});
+  btn.disabled=false;
+  if(error){msg.textContent='❌ Envoi refusé : '+error.message;return}
+  msg.textContent='✔ Annonce envoyée !';$('f-texte').value='';charger();
+}
+function setConn(ok){$('dot').className='dot'+(ok?' on':'');$('conn').textContent=ok?'en direct':'hors ligne'}
+
+let enCharge=false,enAttente=false;
+async function charger(){if(enCharge){enAttente=true;return}enCharge=true;try{await chargerInterne()}catch(err){const eb=$('errbox');if(eb){eb.hidden=false;eb.textContent='⚠️ Erreur de chargement — '+((err&&err.message)||err)}setConn(false)}finally{enCharge=false;if(enAttente){enAttente=false;charger()}}}
+async function chargerInterne(){
+  const errs=[];
+  const safe=(nom,fn)=>{try{fn()}catch(err){errs.push(nom+' : '+((err&&err.message)||err))}};
+  const e=await db.from('etat').select('*').eq('code_partie',partie).maybeSingle();
+  const [p,j]=await Promise.all([
+    db.from('pokemon').select('*').eq('code_partie',partie).order('id'),
+    db.from('journal').select('*').eq('code_partie',partie).order('tour',{ascending:false}).limit(300)]);
+  if(e.error)errs.push('état : '+(e.error.message||e.error.code||'?'));
+  if(p.error)errs.push('pokémon : '+(p.error.message||p.error.code||'?'));
+  if(j.error)errs.push('journal : '+(j.error.message||j.error.code||'?'));
+  setConn(!errs.length);
+  const a=e.data?await db.from('annonces').select('*').eq('code_partie',partie).eq('tour',e.data.tour):{data:[]};
+  const list=p.data||[];
+  advActif=list.some(x=>x.proprietaire==='Adversaire'&&x.actif);
+  tourCourant=e.data?e.data.tour:null;
+  safe('état',()=>renderEtat(e.data));safe('arène',()=>renderArena(list));safe('annonces',()=>renderAnnonces(a.data||[]));safe('journal',()=>renderJournal(j.data||[]));
+  const pr=await db.from('personnages').select('*').eq('code_partie',partie).order('ordre');
+  safe('persos',()=>renderPersos(pr.error?[]:(pr.data||[])));
+  const [dr,iv,ob]=await Promise.all([
+    db.from('dresseurs').select('*').eq('code_partie',partie),
+    db.from('inventaire').select('*').eq('code_partie',partie).order('id'),
+    db.from('objectifs').select('*').eq('code_partie',partie).order('id')]);
+  if(dr.error)errs.push('dresseurs : '+(dr.error.message||dr.error.code||'?'));
+  if(iv.error)errs.push('inventaire : '+(iv.error.message||iv.error.code||'?'));
+  if(ob.error)errs.push('objectifs : '+(ob.error.message||ob.error.code||'?'));
+  safe('équipes',()=>renderEquipes(list,dr.error?[]:(dr.data||[])));
+  safe('sac',()=>renderSac(iv.error?[]:(iv.data||[])));
+  safe('quêtes',()=>renderQuetes(ob.error?[]:(ob.data||[])));
+  const rc=await db.from('rencontres').select('*').eq('code_partie',partie);
+  if(rc.error)errs.push('rencontres : '+(rc.error.message||rc.error.code||'?'));
+  safe('dex',()=>renderDex(rc.error?[]:(rc.data||[]),list));
+  list.forEach(x=>{prev[x.id]=pct(x)});
+  safe('pokédex',()=>verifierNouveaux(list));
+  const eb=$('errbox');if(eb){if(errs.length){eb.hidden=false;eb.textContent='⚠️ Chargement incomplet — '+errs.join(' · ')}else{eb.hidden=true;eb.textContent=''}}
+}
+
+$('f-send').onclick=envoyerAnnonce;
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('on',x.id==='p-'+b.dataset.t));
+});
+function chargeLib(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.append(s)})}
+async function demarrer(){
+  if(!window.supabase){try{await chargeLib('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js')}catch(e){}}
+  if(!window.supabase){try{await chargeLib('https://unpkg.com/@supabase/supabase-js@2.57.4/dist/umd/supabase.js')}catch(e){}}
+  if(!window.supabase){
+    $('phase').textContent='⚠️ Librairie de connexion non chargée';
+    $('conn').textContent='hors ligne — ouvre la page via son adresse https (pas en fichier local) et vérifie ta connexion';
+    return;
+  }
+  db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  charger();
+  const bs=$('btn-son');if(bs)bs.addEventListener('click',basculeSon);
+  const rp=$('rech-persos');if(rp)rp.addEventListener('input',appliqueRecherchePersos);
+  ['etat','pokemon','annonces','journal','personnages','dresseurs','inventaire','objectifs','rencontres'].forEach(t=>{
+    db.channel('jeu-'+t+'-'+partie).on('postgres_changes',{event:'*',schema:'public',table:t,filter:'code_partie=eq.'+partie},charger).subscribe();
+  });
+  setInterval(charger,5000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)charger()});
+  window.addEventListener('focus',()=>charger());
+}
+
+let advActif=false;
+const MUS={ctx:null,on:false,timer:null,track:'plaine',step:0,gain:null};
+const TRACKS={
+  plaine:{tempo:132,lead:[72,0,76,0,79,0,76,0,81,0,79,0,76,0,74,0,72,0,76,0,79,0,84,0,79,0,76,0,74,0,0,0],bass:[48,55,52,55,53,55,48,55,50,55,52,55,48,55,50,55]},
+  ville:{tempo:100,lead:[69,0,0,72,0,0,74,0,76,0,74,72,0,0,0,0,69,0,0,72,0,0,77,0,76,0,74,0,72,0,0,0],bass:[41,48,45,48,41,48,43,48,41,48,45,48,41,48,41,48]},
+  port:{tempo:116,lead:[71,0,74,79,0,0,76,0,74,0,0,0,71,0,0,0,69,0,71,74,0,0,76,79,81,0,79,0,76,0,74,0],bass:[43,50,47,50,43,50,47,50,43,50,47,50,43,50,43,50]},
+  foret:{tempo:96,lead:[69,0,0,0,72,0,0,0,76,0,0,74,72,0,0,0,69,0,0,0,72,0,0,0,74,0,0,0,0,0,0,0],bass:[45,52,45,52,41,48,43,50,45,52,45,52,43,50,45,52]},
+  sombre:{tempo:84,lead:[62,0,0,0,0,0,65,0,64,0,0,0,0,0,0,0,62,0,0,0,0,0,69,0,67,0,65,0,64,0,0,0],bass:[38,45,38,45,36,43,38,45,38,45,38,45,36,43,38,45]},
+  combat:{tempo:152,lead:[76,0,76,0,79,0,76,0,83,0,79,0,76,0,74,0,76,0,76,0,79,0,81,0,79,0,76,0,74,0,71,0],bass:[40,40,47,40,40,40,47,40,38,38,45,38,40,40,47,47]}
+};
+function freqMus(m){return 440*Math.pow(2,(m-69)/12)}
+function beepMus(f,type,dur,vol){
+  if(!MUS.ctx)return;
+  const t=MUS.ctx.currentTime,o=MUS.ctx.createOscillator(),g=MUS.ctx.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(MUS.gain);o.start(t);o.stop(t+dur+.02);
+}
+function boucleMus(){
+  const tr=TRACKS[MUS.track]||TRACKS.plaine;
+  const s=MUS.step%tr.lead.length,n=tr.lead[s];
+  if(n)beepMus(freqMus(n),'square',.16,.04);
+  if(s%2===0){const b=tr.bass[(s>>1)%tr.bass.length];if(b)beepMus(freqMus(b),'triangle',.3,.06)}
+  MUS.step++;
+  MUS.timer=setTimeout(boucleMus,30000/tr.tempo);
+}
+
+// --- Pokédex : jingle quand un nouveau Pokémon est vu (par appareil) ---
+function sonPokedex(){if(!AC||!sonOn)return;const t0=AC.currentTime+0.02;
+  const bip=(f,t,d,v)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=f;g.gain.setValueAtTime(v||0.09,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.connect(g);g.connect(master);o.start(t);o.stop(t+d+0.03)};
+  const o=AC.createOscillator(),g=AC.createGain();o.type='sawtooth';o.frequency.setValueAtTime(480,t0);o.frequency.exponentialRampToValueAtTime(1450,t0+0.15);g.gain.setValueAtTime(0.045,t0);g.gain.exponentialRampToValueAtTime(0.001,t0+0.17);o.connect(g);g.connect(master);o.start(t0);o.stop(t0+0.19);
+  bip(1318,t0+0.20,0.07);bip(1318,t0+0.32,0.07);bip(1046,t0+0.46,0.09);bip(1318,t0+0.58,0.09);bip(1568,t0+0.70,0.18,0.11)}
+function toastDex(txt){let t=$('toast');if(!t){t=el('div');t.id='toast';document.body.append(t)}t.textContent=txt;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),3400)}
+function verifierNouveaux(liste){const especes={};(liste||[]).forEach(p=>{if(p.espece)especes[norm(p.espece)]=p.espece});
+  const cles=Object.keys(especes);if(!cles.length)return;
+  let vus=null;try{vus=JSON.parse(localStorage.getItem('dexVus')||'null')}catch(e){}
+  if(!vus){try{localStorage.setItem('dexVus',JSON.stringify(cles))}catch(e){}return}
+  const nouveaux=cles.filter(k=>vus.indexOf(k)<0);
+  if(nouveaux.length){try{localStorage.setItem('dexVus',JSON.stringify(vus.concat(nouveaux)))}catch(e){}
+    sonPokedex();toastDex('📖 Nouveau Pokémon enregistré : '+nouveaux.map(k=>especes[k]).join(', ')+' !')}}
+
+function majMusique(e){
+  if(!e)return;
+  let theme='plaine';
+  if(advActif)theme='combat';
+  else{const f=fondDepuisLieu(e.lieu||'');theme={plaine:'plaine',foret:'foret',port:'port',ville:'ville',grotte:'sombre',tour:'sombre',neige:'ville',volcan:'sombre',arene_elec:'ville'}[f]||'plaine'}
+  if(theme!==MUS.track){MUS.track=theme;MUS.step=0}
+}
+function basculeSon(){
+  const b=$('btn-son');if(!b)return;
+  if(!MUS.on){
+    MUS.on=true;try{localStorage.setItem('son','1')}catch(_){}
+    if(!MUS.ctx){const AC=window.AudioContext||window.webkitAudioContext;if(AC){MUS.ctx=new AC();MUS.gain=MUS.ctx.createGain();MUS.gain.gain.value=.6;MUS.gain.connect(MUS.ctx.destination)}}
+    if(MUS.ctx){MUS.ctx.resume();if(!MUS.timer)boucleMus()}
+    b.textContent='🔊';b.classList.add('on');
+  }else{
+    MUS.on=false;try{localStorage.setItem('son','0')}catch(_){}
+    if(MUS.timer){clearTimeout(MUS.timer);MUS.timer=null}
+    if(MUS.ctx)MUS.ctx.suspend();
+    b.textContent='🔇';b.classList.remove('on');
+  }
+}
+demarrer();
+</script>
+</body>
+</html>
