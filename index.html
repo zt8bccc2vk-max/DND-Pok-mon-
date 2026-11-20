@@ -1104,7 +1104,7 @@ function majSuggBtns(items){
 }
 function toggleSugg(i,items){
   const pos=suggSel.indexOf(i),ta=$('f-texte');
-  const propre=t=>String(t).replace(/^[🔴🟢]\s*/,'');
+  const propre=t=>String(t).replace(/^[🔴🟢]\s*/u,'');
   if(pos>=0){
     suggSel.splice(pos,1);
     if(ta){const m=propre(items[i]);
@@ -1848,7 +1848,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v81');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v82');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
