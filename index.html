@@ -1742,9 +1742,26 @@ async function envoyerAnnonce(){
     });
     if(via2===true)ok=true;else details.push(via2);
   }
+  if(!ok){
+    try{
+      const r3=await db.from('annonces').insert({code_partie:partie,joueur:joueur,texte:texte,tour:tourCourant,statut:'envoyee'});
+      if(!r3.error)ok=true;else details.push('envoi 3 : '+(r3.error.message||r3.error.code||'erreur'));
+    }catch(e){details.push('envoi 3 : '+((e&&e.message)||e))}
+  }
   btn.disabled=false;
   if(!ok){msg.textContent='❌ Envoi refusé ('+details.join(' · ')+'). Réessaie — ou écris ton annonce dans le chat, le MJ la relayera.';return}
   msg.textContent='✔ Annonce envoyée !';$('f-texte').value='';suggSel=[];suggSig='';charger();
+}
+async function testerEnvoi(){
+  const rep=$('test-envoi-rapport');if(!rep)return;
+  const joueur=(localStorage.getItem('joueurLocal')||'Test');
+  const charge={code_partie:partie,joueur:joueur,texte:'🧪 test envoi (ignore-moi)',tour:0,statut:'envoyee'};
+  const lignes=['📤 Test d’envoi — à capturer pour le MJ'];
+  const maj=()=>{rep.textContent=lignes.join('\n')};maj();
+  try{const r=await db.from('annonces').select('id').limit(1);lignes.push(r.error?('Lecture base : ❌ '+(r.error.message||r.error.code)):'Lecture base : ✔ OK')}catch(e){lignes.push('Lecture base : ❌ '+((e&&e.message)||e))}maj();
+  try{const r=await fetch(SUPABASE_URL+'/rest/v1/annonces',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(charge)});let t='';try{t=await r.text()}catch(_){} lignes.push('Envoi direct (fetch) : '+(r.ok?('✔ OK (HTTP '+r.status+')'):('❌ HTTP '+r.status+(t?(' — '+t.slice(0,100)):''))))}catch(e){lignes.push('Envoi direct (fetch) : ❌ '+((e&&e.message)||e))}maj();
+  try{const r=await db.from('annonces').insert(charge);lignes.push(r.error?('Envoi librairie (db) : ❌ '+(r.error.message||r.error.code)):'Envoi librairie (db) : ✔ OK')}catch(e){lignes.push('Envoi librairie (db) : ❌ '+((e&&e.message)||e))}maj();
+  try{const r=await fetch(SUPABASE_URL+'/rest/v1/annonces',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:new Blob([JSON.stringify(charge)],{type:'application/json'})});let t='';try{t=await r.text()}catch(_){} lignes.push('Envoi Blob : '+(r.ok?('✔ OK (HTTP '+r.status+')'):('❌ HTTP '+r.status+(t?(' — '+t.slice(0,100)):''))))}catch(e){lignes.push('Envoi Blob : ❌ '+((e&&e.message)||e))}maj();
 }
 function setConn(ok){$('dot').className='dot'+(ok?' on':'');$('conn').textContent=ok?'en direct':'hors ligne'}
 
@@ -1807,6 +1824,8 @@ function majLock(){
     z.append(el('div','lockbadge','🔒 Choisis ton personnage à l’ouverture de l’appli'));
   }
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
+  const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
+  const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
