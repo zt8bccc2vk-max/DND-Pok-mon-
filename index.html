@@ -39,6 +39,12 @@ h2{color:#fff;font-size:18px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink)}
 .mapsvg{width:100%;height:auto;display:block}
 .pulse{animation:pl 1.6s ease-in-out infinite}
 @keyframes pl{0%,100%{opacity:.95}50%{opacity:.25}}
+#carte-pois{margin-top:10px;text-align:left}
+.poititre{font-weight:800;font-size:1rem;margin-bottom:2px}
+.poi{padding:6px 0;border-top:1px dashed rgba(36,31,78,.25)}
+.poi b{display:block}
+.poi .poitxt{opacity:.85;font-size:.92rem}
+.poilock{opacity:.65;font-style:italic;padding:6px 0}
 .mapleg{font-weight:800;color:var(--mut);font-size:13px;margin-top:6px;text-align:center}
 #deco{position:absolute;top:6px;right:12px;font-size:30px;letter-spacing:6px;opacity:.85;pointer-events:none;z-index:0}
 .arena .row{position:relative;z-index:1}
@@ -523,6 +529,7 @@ html,body{overflow-x:hidden}
         <div class="mapleg">🟡 Déjà visité · 🔴 Vous êtes ici · ⚪ À venir</div>
         <div class="mapleg" id="carte-lieu"></div>
         <div id="carte-dest"></div>
+        <div id="carte-pois"></div>
       </div>
     </section>
     <section class="panel" id="p-sac"><div id="sac"></div></section>
@@ -1224,6 +1231,29 @@ const LIEUX=[
   {nom:"Cramois'Île",court:"Cramois'Île",x:14,y:88,ico:'🌋',etape:13,mots:['cramois'],desc:"L'île volcan du sud. Un laboratoire, un manoir en ruines, et l'Arène de Blaine."},
   {nom:'Plateau Indigo',court:'Plateau Indigo',x:11,y:29,ico:'🏆',etape:14,mots:['indigo','plateau'],desc:"Le siège de la Ligue Pokémon. L'arrivée de tous les voyages — avec les huit badges."}
 ];
+const POIS={
+'Bourg Palette':[["Maison d’Axel","Le point de départ de l’aventure — et de ses retours."],["Maison de Julien","Juste à côté : les deux dresseurs ont grandi voisins."],["Laboratoire du Professeur Chen","Tenu par Léo pendant la tournée du Professeur. C’est ici que tout a commencé."]],
+'Jadielle':[["Arène de Jadielle","Ses portes sont closes : « Le champion est en voyage. » On y repassera."],["Centre Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."],["Boutique Pokémon","Balls, Potions et indispensables du voyage, aux prix fixes affichés."]],
+'Forêt de Jade':[["Territoire des Pikachu","Le groupe y a cartographié la colonie de Pikachu de la forêt."],["Clairière aux baies brûlées","Une clairière marquée par un ancien incident — des baies brûlées, et des questions."],["Hautes herbes","Aspicot, Chenipan et leurs évolutions y pullulent."]],
+'Argenta':[["Arène d’Argenta","L’arène de Pierre, champion Roche. Le Badge Roche y a été gagné."],["Musée des sciences","Fossiles et squelettes géants : la préhistoire de Kanto y est exposée."],["Centre Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."],["Boutique Pokémon","Balls, Potions et indispensables du voyage, aux prix fixes affichés."]],
+'Mont Sélénite':[["Danse des Mélofée","Les Mélofée s’y rassemblent à la pleine lune autour d’une pierre pâle. Mélodie y a été capturée."],["Gisement de fossiles","Les parois livrent parfois des fossiles très anciens."],["Grottes","Nosferapti et Racaillou y nichent dans le noir."]],
+'Azuria':[["Arène d’Azuria","L’arène-piscine d’Ondine, championne Eau. Le Badge Cascade y a été gagné en 21 rounds."],["Pont Pépite","Au nord de la ville : les dresseurs y défient les passants en enfilade."],["Maison de Bill","Sur la côte, le cottage du créateur du « PC de quelqu’un »."],["Centre Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."],["Boutique Pokémon","Balls, Potions et indispensables du voyage, aux prix fixes affichés."]],
+'Carmin sur Mer':[["Arène de Carmin — Entrepôt 17","L’arène du Major Bob, champion Électrik. Le Badge Foudre y a été arraché au bout de 45 rounds."],["Le port et l’Océane","Le grand port de Kanto et son paquebot de croisière, à quai — billets au guichet croisière."],["Fan Club Pokémon","Le club des passionnés et son Président : on y raconte ses Pokémon préférés pendant des heures."],["Les quais","Casiers, dockers et les frères pêcheurs — l’aîné prête sa Vieille Canne aux dresseurs de passage."],["Centre Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."],["Boutique Pokémon","Balls, Potions et indispensables du voyage, aux prix fixes affichés."]],
+'Lavanville':[["Tour Pokémon","La tour-cimetière des Pokémon. On y parle bas, et les souvenirs y restent."],["Maison Pokémon","Le refuge de M. Fuji pour les Pokémon abandonnés et orphelins."],["Centre Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."],["Boutique Pokémon","Balls, Potions et indispensables du voyage, aux prix fixes affichés."]],
+'Céladopole':[["Arène de Céladopole","L’arène d’Erika, championne Plante, nichée dans ses serres parfumées."],["Casino de Céladopole","Machines à sous, jetons et prix à échanger — et un fond sonore signé Axel."],["Grand magasin","Le plus grand magasin de Kanto : objets rares, pierres d’évolution, CT… et un distributeur de boissons sur le toit."],["Manoir de Céladopole","Un vieil immeuble dont le dernier étage serait occupé par des créateurs de jeux."],["Centre Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."]],
+'Safrania':[["Arène de Safrania","L’arène de Morgane, championne Psy — on y entre rarement comme on en sort."],["Silph SARL","Le siège de la grande entreprise technologique de Kanto, au cœur de la ville."],["Dojo de combat","Juste à côté de l’arène : on s’y entraîne dur, à mains nues et à Pokémon."],["Centre Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."],["Boutique Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."]],
+'Parmanie':[["Zone Safari","Le grand parc où l’on capture sans combattre, avec des Safari Balls."],["Arène de Parmanie","L’arène de Koga, champion Poison — elle n’est jamais là où on l’attend."],["Maison du pêcheur","Un des trois frères pêcheurs y garde sa plus belle canne."],["Centre Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."]],
+'Cramois’Île':[["Arène de Cramois’Île","L’arène de Blaine, champion Feu, cachée sur l’île volcan."],["Laboratoire Pokémon","On y étudie les fossiles… et on sait parfois les ramener à la vie."],["Manoir Pokémon","Un manoir en ruines, plein de journaux jaunis et de serrures rouillées."],["Centre Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."]],
+'Plateau Indigo':[["Hall de la Ligue","L’entrée du Plateau : on ne passe qu’avec les huit badges en poche."],["Conseil 4","Les quatre dresseurs les plus forts de Kanto, puis le Maître. L’arrivée de tous les voyages."]]
+};
+function rendrePois(affiche,curE){
+  const z=$('carte-pois');if(!z)return;z.replaceChildren();
+  if(!affiche)return;
+  const liste=POIS[affiche.nom];if(!liste)return;
+  if(affiche.etape>curE){z.append(el('div','poilock','🔒 Points d’intérêt — à découvrir sur place'));return}
+  z.append(el('div','poititre','📌 Points d’intérêt — '+affiche.nom));
+  liste.forEach(p=>{const d=el('div','poi');d.append(el('b','',p[0]));d.append(el('div','poitxt',p[1]));z.append(d)});
+}
 let lieuChoisi=null;
 function lieuDepuisNom(lieu){
   const s=(lieu||'').toLowerCase();
@@ -1273,6 +1303,7 @@ function renderCarte(lieu){
       dc2.append(dt);dz.append(dc2);
     }
   }
+  rendrePois(affiche,curE);
 }
 function renderCarteSVG(lieu){
   const z=$('carte');if(!z)return;
@@ -1308,6 +1339,7 @@ function renderCarteSVG(lieu){
     const fait=affiche.etape<=curE, ici=curL&&affiche.nom===curL.nom;
     info.textContent=(ici?'📍 Vous êtes ici — ':'')+affiche.ico+' '+affiche.nom+' : '+affiche.desc+(affiche.pres?' · 👥 '+affiche.pres:'')+(fait?'':' · (à venir)');
   } else info.textContent=lieu?('📍 Position actuelle : '+lieu):'';
+  rendrePois(affiche,curE);
 }
 const ST_ANN={envoyee:'📤 Envoyée',vue:'👀 Vue par le MJ',resolue:'✅ Résolue'};
 let persosCache=[];let pokesCache=[];
@@ -1848,7 +1880,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v82');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v83');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
@@ -1955,17 +1987,17 @@ function verifierNouveaux(liste){const especes={};(liste||[]).forEach(p=>{if(p.e
     sonPokedex();toastDex('📖 Nouveau Pokémon enregistré : '+nouveaux.map(k=>especes[k]).join(', ')+' !')}}
 
 const POINTS_BOUCLAGE={
-'pokemon-rgby-gym-leader-battle-music.ogg':[1.00,62.47],'pokemon-rgby-pokemon-center-music.ogg':[1.00,34.03],
-'pokemon-rgby-vermilion-city-music.ogg':[1.00,28.71],'pokemon-rgby-gym-music.ogg':[1.00,36.18],
-'pokemon-rgby-celadon-city-music.ogg':[1.00,35.76],'pokemon-rgby-cerulean-fuchsia-city-music.ogg':[1.00,37.47],
-'pokemon-rgby-cinnabar-island-music.ogg':[1.00,26.81],'pokemon-rgby-game-corner-music.ogg':[1.00,44.14],
-'pokemon-rgby-indigo-plateau-music.ogg':[1.00,34.95],'pokemon-rgby-lavender-town-music.ogg':[1.00,164.17],
-'pokemon-rgby-mt-moon-music.ogg':[1.00,87.66],'pokemon-rgby-pallet-town-music.ogg':[1.00,37.09],
-'pokemon-rgby-pokemon-mansion-music.ogg':[1.00,69.86],'pokemon-rgby-pokemon-tower-music.ogg':[1.00,66.84],
-'pokemon-rgby-professor-oaks-laboratory-music.ogg':[1.00,34.14],'pokemon-rgby-rocket-hideout-music.ogg':[1.00,73.43],
-'pokemon-rgby-route-1-music.ogg':[1.00,28.07],'pokemon-rgby-safari-zone-music.ogg':[1.00,12.72],
-'pokemon-rgby-silph-co-music.ogg':[1.00,65.27],'pokemon-rgby-ss-anne-music.ogg':[1.00,37.19],
-'pokemon-rgby-viridian-forest-music.ogg':[1.00,105.78],'pokemon-rgby-viridian-pewter-saffron-city-music.ogg':[1.00,62.45]};
+'pokemon-rgby-gym-leader-battle-music.mp3':[1.00,62.47],'pokemon-rgby-pokemon-center-music.mp3':[1.00,34.03],
+'pokemon-rgby-vermilion-city-music.mp3':[1.00,28.71],'pokemon-rgby-gym-music.mp3':[1.00,36.18],
+'pokemon-rgby-celadon-city-music.mp3':[1.00,35.76],'pokemon-rgby-cerulean-fuchsia-city-music.mp3':[1.00,37.47],
+'pokemon-rgby-cinnabar-island-music.mp3':[1.00,26.81],'pokemon-rgby-game-corner-music.mp3':[1.00,44.14],
+'pokemon-rgby-indigo-plateau-music.mp3':[1.00,34.95],'pokemon-rgby-lavender-town-music.mp3':[1.00,164.17],
+'pokemon-rgby-mt-moon-music.mp3':[1.00,87.66],'pokemon-rgby-pallet-town-music.mp3':[1.00,37.09],
+'pokemon-rgby-pokemon-mansion-music.mp3':[1.00,69.86],'pokemon-rgby-pokemon-tower-music.mp3':[1.00,66.84],
+'pokemon-rgby-professor-oaks-laboratory-music.mp3':[1.00,34.14],'pokemon-rgby-rocket-hideout-music.mp3':[1.00,73.43],
+'pokemon-rgby-route-1-music.mp3':[1.00,28.07],'pokemon-rgby-safari-zone-music.mp3':[1.00,12.72],
+'pokemon-rgby-silph-co-music.mp3':[1.00,65.27],'pokemon-rgby-ss-anne-music.mp3':[1.00,37.19],
+'pokemon-rgby-viridian-forest-music.mp3':[1.00,105.78],'pokemon-rgby-viridian-pewter-saffron-city-music.mp3':[1.00,62.45]};
 function nomFichierAudio(url){return String(url||'').split('/').pop()}
 class BoucleAudio{
   constructor(){this.els=[new Audio(),new Audio()];this.els.forEach(x=>{x.preload='auto';x.loop=false});this.i=0;this.url=null;this.lecture=false;
@@ -1986,9 +2018,9 @@ class BoucleAudio{
   amorcer(){this.els.forEach(x=>{if(x.src&&x.paused){x.muted=true;const pr=x.play();
     if(pr&&pr.then)pr.then(()=>{setTimeout(()=>{x.pause();x.muted=false;try{x.currentTime=this.pts()[0]}catch(e){}},60)}).catch(()=>{x.muted=false})}})}
 }
-const lecteurCombat=new BoucleAudio();lecteurCombat.setSource('https://www.nayuki.io/res/transcription-of-pokemon-game-boy-music/pokemon-rgby-gym-leader-battle-music.ogg');
+const lecteurCombat=new BoucleAudio();lecteurCombat.setSource('pokemon-rgby-gym-leader-battle-music.mp3');
 function majAudio(combat){if(gateOuvert()){lecteurCombat.pause();return}if(combat&&MUS.on)lecteurCombat.play();else lecteurCombat.pause()}
-const NAYUKI='https://www.nayuki.io/res/transcription-of-pokemon-game-boy-music/';
+const NAYUKI='';
 const lecteurLieu=new BoucleAudio();
 const lecteurAccueil=new Audio();lecteurAccueil.src='theme-accueil-selection.mp3';lecteurAccueil.loop=true;lecteurAccueil.preload='auto';lecteurAccueil.volume=.55;
 function gateOuvert(){const g=$('gate');return !!g&&g.style.display!=='none'}
@@ -2017,7 +2049,7 @@ async function lancerTestSon(){
   });
   await essai('theme-accueil-selection.mp3','1️⃣ Thème de sélection (MP3)');
   T.textContent=L.join('\n')+'\n⏳ suite du test…';
-  await essai(NAYUKI+'pokemon-rgby-vermilion-city-music.ogg','2️⃣ Musique des lieux (streaming .ogg)');
+  await essai(NAYUKI+'pokemon-rgby-vermilion-city-music.mp3','2️⃣ Musique des lieux (MP3 local)');
   try{
     if(!MUS.ctx){const AC=window.AudioContext||window.webkitAudioContext;if(AC){MUS.ctx=new AC();MUS.gain=MUS.ctx.createGain();MUS.gain.gain.value=.6;MUS.gain.connect(MUS.ctx.destination)}}
     if(!MUS.ctx)throw new Error('WebAudio indisponible');
@@ -2033,29 +2065,29 @@ async function lancerTestSon(){
 const tg0=$('testson-go');if(tg0)tg0.onclick=()=>{lancerTestSon()};
 const tx0=$('testson-x');if(tx0)tx0.onclick=()=>{fermerTestSon()};
 const MUS_LIEUX=[
-  ['casino','pokemon-rgby-game-corner-music.ogg'],
-  ['tour pokémon','pokemon-rgby-pokemon-tower-music.ogg'],['tour pokemon','pokemon-rgby-pokemon-tower-music.ogg'],
-  ['centre pokémon','pokemon-rgby-pokemon-center-music.ogg'],['centre pokemon','pokemon-rgby-pokemon-center-music.ogg'],
-  ['sylphe','pokemon-rgby-silph-co-music.ogg'],
-  ['repaire','pokemon-rgby-rocket-hideout-music.ogg'],
-  ['parc safari','pokemon-rgby-safari-zone-music.ogg'],
-  ['manoir','pokemon-rgby-pokemon-mansion-music.ogg'],
-  ['laboratoire','pokemon-rgby-professor-oaks-laboratory-music.ogg'],
-  ['forêt de jade','pokemon-rgby-viridian-forest-music.ogg'],['foret de jade','pokemon-rgby-viridian-forest-music.ogg'],
-  ['mont sélénite','pokemon-rgby-mt-moon-music.ogg'],['mont selenite','pokemon-rgby-mt-moon-music.ogg'],
-  ['océane','pokemon-rgby-ss-anne-music.ogg'],['ss anne','pokemon-rgby-ss-anne-music.ogg'],['bateau','pokemon-rgby-ss-anne-music.ogg'],
-  ['plateau indigo','pokemon-rgby-indigo-plateau-music.ogg'],
-  ['arène','pokemon-rgby-gym-music.ogg'],['arene','pokemon-rgby-gym-music.ogg'],
-  ['lavanville','pokemon-rgby-lavender-town-music.ogg'],
-  ['céladopole','pokemon-rgby-celadon-city-music.ogg'],['celadopole','pokemon-rgby-celadon-city-music.ogg'],
-  ['carmin','pokemon-rgby-vermilion-city-music.ogg'],
-  ['azuria','pokemon-rgby-cerulean-fuchsia-city-music.ogg'],
-  ['parmanie','pokemon-rgby-cerulean-fuchsia-city-music.ogg'],
-  ['cramois','pokemon-rgby-cinnabar-island-music.ogg'],
-  ['bourg palette','pokemon-rgby-pallet-town-music.ogg'],
-  ['jadielle','pokemon-rgby-viridian-pewter-saffron-city-music.ogg'],
-  ['argenta','pokemon-rgby-viridian-pewter-saffron-city-music.ogg'],
-  ['safrania','pokemon-rgby-viridian-pewter-saffron-city-music.ogg']
+  ['casino','theme-casino-celadopole.mp3'],
+  ['tour pokémon','pokemon-rgby-pokemon-tower-music.mp3'],['tour pokemon','pokemon-rgby-pokemon-tower-music.mp3'],
+  ['centre pokémon','pokemon-rgby-pokemon-center-music.mp3'],['centre pokemon','pokemon-rgby-pokemon-center-music.mp3'],
+  ['sylphe','pokemon-rgby-silph-co-music.mp3'],
+  ['repaire','pokemon-rgby-rocket-hideout-music.mp3'],
+  ['parc safari','pokemon-rgby-safari-zone-music.mp3'],
+  ['manoir','pokemon-rgby-pokemon-mansion-music.mp3'],
+  ['laboratoire','pokemon-rgby-professor-oaks-laboratory-music.mp3'],
+  ['forêt de jade','pokemon-rgby-viridian-forest-music.mp3'],['foret de jade','pokemon-rgby-viridian-forest-music.mp3'],
+  ['mont sélénite','pokemon-rgby-mt-moon-music.mp3'],['mont selenite','pokemon-rgby-mt-moon-music.mp3'],
+  ['océane','theme-oceane.mp3'],['ss anne','theme-oceane.mp3'],['bateau','theme-oceane.mp3'],
+  ['plateau indigo','pokemon-rgby-indigo-plateau-music.mp3'],
+  ['arène','pokemon-rgby-gym-music.mp3'],['arene','pokemon-rgby-gym-music.mp3'],
+  ['lavanville','pokemon-rgby-lavender-town-music.mp3'],
+  ['céladopole','pokemon-rgby-celadon-city-music.mp3'],['celadopole','pokemon-rgby-celadon-city-music.mp3'],
+  ['carmin','pokemon-rgby-vermilion-city-music.mp3'],
+  ['azuria','pokemon-rgby-cerulean-fuchsia-city-music.mp3'],
+  ['parmanie','pokemon-rgby-cerulean-fuchsia-city-music.mp3'],
+  ['cramois','pokemon-rgby-cinnabar-island-music.mp3'],
+  ['bourg palette','pokemon-rgby-pallet-town-music.mp3'],
+  ['jadielle','pokemon-rgby-viridian-pewter-saffron-city-music.mp3'],
+  ['argenta','pokemon-rgby-viridian-pewter-saffron-city-music.mp3'],
+  ['safrania','pokemon-rgby-viridian-pewter-saffron-city-music.mp3']
 ];
 function pisteLieu(lieu){
   const s=String(lieu||'').toLowerCase();
@@ -2066,7 +2098,7 @@ let dernierEtat=null;
 function majAudioLieu(e,combat){
   if(gateOuvert()){lecteurLieu.pause();return}
   let url=combat?null:pisteLieu(e.lieu||'');
-  if(!url&&!combat){const f=fondDepuisLieu(e.lieu||'');url={plaine:NAYUKI+'pokemon-rgby-route-1-music.ogg',foret:NAYUKI+'pokemon-rgby-viridian-forest-music.ogg',grotte:NAYUKI+'pokemon-rgby-mt-moon-music.ogg',tour:NAYUKI+'pokemon-rgby-pokemon-tower-music.ogg',port:NAYUKI+'pokemon-rgby-vermilion-city-music.ogg',volcan:NAYUKI+'pokemon-rgby-cinnabar-island-music.ogg',arene_elec:NAYUKI+'pokemon-rgby-gym-music.ogg'}[f]||null}
+  if(!url&&!combat){const f=fondDepuisLieu(e.lieu||'');url={plaine:NAYUKI+'pokemon-rgby-route-1-music.mp3',foret:NAYUKI+'pokemon-rgby-viridian-forest-music.mp3',grotte:NAYUKI+'pokemon-rgby-mt-moon-music.mp3',tour:NAYUKI+'pokemon-rgby-pokemon-tower-music.mp3',port:NAYUKI+'pokemon-rgby-vermilion-city-music.mp3',volcan:NAYUKI+'pokemon-rgby-cinnabar-island-music.mp3',arene_elec:NAYUKI+'pokemon-rgby-gym-music.mp3'}[f]||null}
   MUS.lieuActif=!!url;
   if(!url){lecteurLieu.pause();lecteurLieu.setSource(null);return}
   lecteurLieu.setSource(url);
