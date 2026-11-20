@@ -1880,7 +1880,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v84');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v85');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
@@ -1945,7 +1945,7 @@ async function demarrer(){
 }
 
 let advActif=false;
-const MUS={ctx:null,on:false,timer:null,track:'plaine',step:0,gain:null};
+const MUS={ctx:null,on:false,timer:null,track:'plaine',step:0,gain:null,tournoi:false};try{MUS.tournoi=localStorage.getItem('musiqueTournoi')==='1'}catch(_){}
 const TRACKS={
   plaine:{tempo:132,lead:[72,0,76,0,79,0,76,0,81,0,79,0,76,0,74,0,72,0,76,0,79,0,84,0,79,0,76,0,74,0,0,0],bass:[48,55,52,55,53,55,48,55,50,55,52,55,48,55,50,55]},
   ville:{tempo:100,lead:[69,0,0,72,0,0,74,0,76,0,74,72,0,0,0,0,69,0,0,72,0,0,77,0,76,0,74,0,72,0,0,0],bass:[41,48,45,48,41,48,43,48,41,48,45,48,41,48,41,48]},
@@ -2019,13 +2019,14 @@ class BoucleAudio{
     if(pr&&pr.then)pr.then(()=>{setTimeout(()=>{x.pause();x.muted=false;try{x.currentTime=this.pts()[0]}catch(e){}},60)}).catch(()=>{x.muted=false})}})}
 }
 const lecteurCombat=new BoucleAudio();lecteurCombat.setSource('pokemon-rgby-gym-leader-battle-music.mp3');
-function majAudio(combat){if(gateOuvert()){lecteurCombat.pause();return}if(combat&&MUS.on)lecteurCombat.play();else lecteurCombat.pause()}
+const lecteurTournoi=new BoucleAudio();lecteurTournoi.setSource('theme-tournoi-combat.mp3');
+function majAudio(combat){if(gateOuvert()){lecteurCombat.pause();lecteurTournoi.pause();return}const actif=MUS.tournoi?lecteurTournoi:lecteurCombat,inactif=MUS.tournoi?lecteurCombat:lecteurTournoi;inactif.pause();if(combat&&MUS.on)actif.play();else actif.pause()}
 const NAYUKI='';
 const lecteurLieu=new BoucleAudio();
 const lecteurAccueil=new Audio();lecteurAccueil.src='theme-accueil-selection.mp3';lecteurAccueil.loop=true;lecteurAccueil.preload='auto';lecteurAccueil.volume=.55;
 function gateOuvert(){const g=$('gate');return !!g&&g.style.display!=='none'}
 function majAccueil(){
-  if(gateOuvert()&&MUS.on){lecteurLieu.pause();lecteurCombat.pause();if(lecteurAccueil.paused)lecteurAccueil.play().catch(()=>{})}
+  if(gateOuvert()&&MUS.on){lecteurLieu.pause();lecteurCombat.pause();lecteurTournoi.pause();if(lecteurAccueil.paused)lecteurAccueil.play().catch(()=>{})}
   else if(!lecteurAccueil.paused)lecteurAccueil.pause();
 }
 function majGateSon(){const b=$('gate-son');if(b)b.textContent=MUS.on?'🔊 Musique : oui':'🔇 Musique : non'}
@@ -2036,7 +2037,7 @@ const lecteurChant=new Audio();lecteurChant.preload='auto';
 let duckJusqua=0;
 function appliquerDuck(){
   const d=Date.now()<duckJusqua?0.42:1;
-  [lecteurLieu,lecteurCombat].forEach(L=>L.els.forEach(x=>{x.volume=d}));
+  [lecteurLieu,lecteurCombat,lecteurTournoi].forEach(L=>L.els.forEach(x=>{x.volume=d}));
   lecteurAccueil.volume=.55*d;
 }
 function jouerChant(nom){
@@ -2047,6 +2048,7 @@ function jouerChant(nom){
   setTimeout(appliquerDuck,10300);
 }
 function declencherEvenement(ev){
+  if(ev&&ev.type==='musique-tournoi'){MUS.tournoi=!!ev.actif;try{localStorage.setItem('musiqueTournoi',MUS.tournoi?'1':'0')}catch(_){}if(dernierEtat)majMusique(dernierEtat);return}
   if(ev&&ev.type==='chant'){jouerChant(ev.pokemon);return}
   jouerAnim(ev);
 }
@@ -2078,6 +2080,7 @@ async function lancerTestSon(){
     L.push('3️⃣ Jingles synthétisés : ▶️ OK (contexte '+MUS.ctx.state+')');
   }catch(e){L.push('3️⃣ Jingles synthétisés : ❌ '+(e.name||e.message||e))}
   await essai('chant-kibagon.mp3','4️⃣ Chant de Kibagon (MP3)');
+  await essai('theme-tournoi-combat.mp3','5️⃣ Thème de tournoi (MP3)');
   L.push('');
   L.push('📸 Capture cet écran et envoie-la à Axel.');
   T.textContent=L.join('\n');
@@ -2143,13 +2146,13 @@ function basculeSon(){
     if(MUS.ctx){MUS.ctx.resume();if(!MUS.timer)boucleMus()}
     if(MUS.track==='combat')majAudio(true);
     if(dernierEtat)majMusique(dernierEtat);
-    lecteurCombat.amorcer();lecteurLieu.amorcer();
+    lecteurCombat.amorcer();lecteurLieu.amorcer();lecteurTournoi.amorcer();
     b.textContent='🔊';b.classList.add('on');
   }else{
     MUS.on=false;try{localStorage.setItem('son','0')}catch(_){}
     if(MUS.timer){clearTimeout(MUS.timer);MUS.timer=null}
     if(MUS.ctx)MUS.ctx.suspend();
-    lecteurCombat.pause();lecteurLieu.pause();
+    lecteurCombat.pause();lecteurLieu.pause();lecteurTournoi.pause();
     b.textContent='🔇';b.classList.remove('on');
   }
   majAccueil();majGateSon();
