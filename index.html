@@ -1209,7 +1209,7 @@ function renderEtat(e){
   renderCarte(e.lieu);majMusique(e);
   if(e.evenement&&e.evenement_id){
     let vu=0;try{vu=+localStorage.getItem('evVu')||0}catch(_){}
-    if(e.evenement_id>vu){try{localStorage.setItem('evVu',e.evenement_id);jouerAnim(JSON.parse(e.evenement))}catch(_){}}
+    if(e.evenement_id>vu){try{localStorage.setItem('evVu',e.evenement_id);declencherEvenement(JSON.parse(e.evenement))}catch(_){}}
   }
 }
 const LIEUX=[
@@ -1880,7 +1880,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v83');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v84');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
@@ -2031,6 +2031,25 @@ function majAccueil(){
 function majGateSon(){const b=$('gate-son');if(b)b.textContent=MUS.on?'🔊 Musique : oui':'🔇 Musique : non'}
 const gs0=$('gate-son');if(gs0)gs0.onclick=()=>{basculeSon()};
 const gt0=$('gate-test');if(gt0)gt0.onclick=()=>{ouvrirTestSon()};
+const CHANTS={'Kibagon':'chant-kibagon.mp3'};
+const lecteurChant=new Audio();lecteurChant.preload='auto';
+let duckJusqua=0;
+function appliquerDuck(){
+  const d=Date.now()<duckJusqua?0.42:1;
+  [lecteurLieu,lecteurCombat].forEach(L=>L.els.forEach(x=>{x.volume=d}));
+  lecteurAccueil.volume=.55*d;
+}
+function jouerChant(nom){
+  const f=CHANTS[nom];if(!f||!MUS.on)return;
+  lecteurChant.src=f;lecteurChant.currentTime=0;
+  duckJusqua=Date.now()+10000;appliquerDuck();
+  lecteurChant.play().catch(()=>{});
+  setTimeout(appliquerDuck,10300);
+}
+function declencherEvenement(ev){
+  if(ev&&ev.type==='chant'){jouerChant(ev.pokemon);return}
+  jouerAnim(ev);
+}
 function ouvrirTestSon(){const t=$('testson');if(t)t.style.display='flex'}
 function fermerTestSon(){const t=$('testson');if(t)t.style.display='none'}
 async function lancerTestSon(){
@@ -2058,6 +2077,7 @@ async function lancerTestSon(){
     o.start();g.gain.exponentialRampToValueAtTime(.001,MUS.ctx.currentTime+.4);o.stop(MUS.ctx.currentTime+.42);
     L.push('3️⃣ Jingles synthétisés : ▶️ OK (contexte '+MUS.ctx.state+')');
   }catch(e){L.push('3️⃣ Jingles synthétisés : ❌ '+(e.name||e.message||e))}
+  await essai('chant-kibagon.mp3','4️⃣ Chant de Kibagon (MP3)');
   L.push('');
   L.push('📸 Capture cet écran et envoie-la à Axel.');
   T.textContent=L.join('\n');
