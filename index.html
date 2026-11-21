@@ -495,7 +495,7 @@ html,body{overflow-x:hidden}
       </div>
       <h2 id="conv-h" hidden>🎬 La conversation</h2>
       <div class="card" id="convcard" hidden></div>
-      <h2>⚔️ Le combat</h2>
+      <h2 id="combat-h">⚔️ Le combat</h2>
       <div class="arena"><div id="scene" hidden></div><div id="deco"></div><div class="row" id="foes"></div><div class="row" id="allies"></div></div>
       <h2>📣 À vos annonces</h2>
       <div class="card"><div id="ann-status"></div><div class="ann" id="annonces"></div></div>
@@ -661,17 +661,19 @@ function renderArena(list){
   if(sig===arenaSig)return;
   arenaSig=sig;
   F.replaceChildren();A.replaceChildren();
+  const ch=$('combat-h');if(ch)ch.textContent=foes.length?'⚔️ Le combat':'📍 En ce moment';
+  F.style.display=A.style.display=foes.length?'':'none';
   const ar=document.querySelector('.arena');if(ar)ar.classList.toggle('compact',!foes.length);
   const sc=$('scene');
   if(sc){
     const ill=foes.length?null:illusLieu(lieuCourant);
     if(ill){
       sc.hidden=false;
-      if(sc.dataset.k!==ill){sc.dataset.k=ill;sc.replaceChildren();const im=new Image();im.src=ill;im.alt=lieuCourant;im.style.width='100%';im.style.display='block';im.onerror=()=>{sc.hidden=true;sc.replaceChildren();delete sc.dataset.k};sc.append(im);const cap=el('div','scap','📍 '+lieuCourant);cap.append(el('small','','Hors combat — votre équipe active, ci-dessous.'));sc.append(cap)}
+      if(sc.dataset.k!==ill){sc.dataset.k=ill;sc.replaceChildren();const im=new Image();im.src=ill;im.alt=lieuCourant;im.style.width='100%';im.style.display='block';im.onerror=()=>{sc.hidden=true;sc.replaceChildren();delete sc.dataset.k};sc.append(im);const cap=el('div','scap','📍 '+lieuCourant);sc.append(cap)}
     }else{sc.hidden=true;sc.replaceChildren();delete sc.dataset.k}
   }
-  foes.forEach(p=>F.append(slot(p,true)));al.forEach(p=>A.append(slot(p,false)));
-  if(!al.length)A.append(el('div','vide','Aucun Pokémon allié en jeu.'));
+  foes.forEach(p=>F.append(slot(p,true)));
+  if(foes.length){al.forEach(p=>A.append(slot(p,false)));if(!al.length)A.append(el('div','vide','Aucun Pokémon allié en jeu.'))}
 }
 function lignePoke(p,avecPv){
   const r=el('div','poke');r.dataset.pid=p.id;
@@ -1884,7 +1886,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v86');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v87');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
