@@ -534,11 +534,7 @@ html,body{overflow-x:hidden}
       <div class="card"><div id="ann-status"></div><div class="ann" id="annonces"></div></div>
       <h2>📜 Dernier résultat</h2>
       <div class="card" id="lastres"><div class="vide">Aucun résultat pour l’instant.</div></div>
-      <div class="card" id="sugg-card" hidden>
-        <h2>🎯 Le MJ te propose — rien que pour toi</h2>
-        <div id="sugg-list"></div>
-        <div class="fmsg" id="sugg-msg">Touche jusqu’à 2 propositions, dans l’ordre où tu veux les jouer : elles s’ajoutent à ton annonce, l’une après l’autre. Retouche un choix actif pour le retirer — et tu peux toujours écrire librement.</div>
-      </div>
+      <button id="sugg-open" class="go big" type="button" hidden onclick="ouvrirChoix()">🎯 Choix du MJ — voir les propositions</button>
       <div class="card">
         <h2>✍️ Écrire mon annonce</h2>
         <button id="btn-notif" class="go" type="button">🔔 Activer les notifications</button>
@@ -593,6 +589,7 @@ html,body{overflow-x:hidden}
 <div id="attaque" hidden><div class="passfull"><button class="pclose" onclick="fermerAttaque()" aria-label="Fermer">✖</button><div id="atk-body"></div><button class="go" onclick="fermerAttaque()">⬅ Retour à la fiche</button></div></div>
 <div id="objet" hidden><div class="passfull" id="objet-body"></div></div>
 <div id="pokedex" hidden><div class="passfull" id="pokedex-body"></div></div>
+<div id="choix" hidden><div class="passfull" id="choix-body"><button class="pclose" type="button" onclick="fermerChoix()" aria-label="Fermer">✖</button><h2>🎯 Le MJ te propose — rien que pour toi</h2><div id="sugg-list"></div><div class="fmsg" id="sugg-msg">Touche jusqu’à 2 propositions, dans l’ordre où tu veux les jouer : elles s’ajoutent à ton annonce, l’une après l’autre. Retouche un choix actif pour le retirer — et tu peux toujours écrire librement.</div><button class="go" type="button" onclick="fermerChoix()">✔ C’est choisi</button></div></div>
 <script>
 const SUPABASE_URL='https://kybylakwlqwsmbyawjlu.supabase.co';
 const SUPABASE_KEY='sb_publishable_jQDj0u0fcMavgsp0MDI7lg_witetarV';
@@ -1220,8 +1217,10 @@ function typeObjet(n){
   return '🎒 Divers';
 }
 let suggSel=[],suggSig='';
+function ouvrirChoix(){const z=$('choix');if(z){z.hidden=false;z.scrollTop=0}}
+function fermerChoix(){const z=$('choix');if(z)z.hidden=true}
 function renderSuggestions(obj){
-  const card=$('sugg-card'),list=$('sugg-list');if(!card||!list)return;
+  const card=$('sugg-open'),list=$('sugg-list');if(!card||!list)return;
   const jl=localStorage.getItem('joueurLocal');
   const row=(jl==='Axel'||jl==='Julien')?(obj||[]).find(o=>o.categorie===(jl==='Julien'?'mj_suggestions_julien':'mj_suggestions')):null;
   let d=null;if(row){try{d=JSON.parse(row.texte)}catch(e){d=null}}
@@ -2144,7 +2143,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v100');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v101');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
