@@ -428,6 +428,17 @@ html,body{overflow-x:hidden}
 .pball::after{content:'';position:absolute;left:50%;top:50%;width:10px;height:10px;transform:translate(-50%,-50%);border-radius:50%;background:#e8e8f0;border:3px solid #22223a;box-sizing:border-box}
 @keyframes pbspin{to{transform:rotate(360deg)}}
 .loadtxt{font-weight:900;color:var(--ink);font-size:15px}
+.dancers{position:relative;display:flex;align-items:flex-end;gap:6px;height:158px;padding:0 26px}
+.dancer{height:140px;width:auto;filter:drop-shadow(0 7px 7px rgba(14,10,38,.28));transform-origin:50% 100%}
+.dancer.d1{animation:aptdanse .42s ease-in-out infinite alternate}
+.dancer.d2{animation:aptdanse2 .42s ease-in-out infinite alternate}
+@keyframes aptdanse{from{transform:translateY(0) rotate(-3.5deg) scale(1,.985)}to{transform:translateY(-13px) rotate(3deg) scale(.99,1.01)}}
+@keyframes aptdanse2{from{transform:translateY(-13px) rotate(3.5deg) scale(.99,1.01)}to{transform:translateY(0) rotate(-3deg) scale(1,.985)}}
+.note{position:absolute;font-size:21px;opacity:0;animation:noteup 1.5s ease-in infinite;pointer-events:none}
+.note.n1{left:2px;top:26px}
+.note.n2{right:2px;top:14px;animation-delay:.5s}
+.note.n3{left:44%;top:0;animation-delay:1s;font-size:17px}
+@keyframes noteup{0%{transform:translateY(8px) scale(.7) rotate(-6deg);opacity:0}25%{opacity:1}100%{transform:translateY(-30px) scale(1.12) rotate(10deg);opacity:0}}
 .ivev{margin-top:12px;background:#e6e1ff;border:2px dashed #8a84b8;border-radius:12px;padding:8px 10px;font-weight:800;color:#5a5480;text-align:center}
 
 .passfull .phead{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;margin-bottom:6px}
@@ -580,7 +591,7 @@ html,body{overflow-x:hidden}
 <div id="floatnav"></div>
 <div id="lecture" hidden><div class="lec-box"><button id="lec-x" class="go" type="button">✖ Fermer</button> <button id="lec-hist" class="go" type="button">🎬 Mode histoire</button><h2 id="lec-t"></h2><div id="lec-dice" class="dice"></div><div id="lec-txt" class="lec-txt"></div></div></div>
 <div id="histoire" hidden><img id="hist-bg" alt=""><div class="hist-shade"></div><div id="hist-prog"></div><button id="hist-x" type="button">✖ Fermer</button><img id="hist-port" alt="" hidden><div id="hist-pokes"></div><div class="hist-nav"><button id="hist-prec" type="button">◀ Préc.</button><button id="hist-suiv" type="button">Suiv. ▶</button></div><div id="hist-wrap"><div id="hist-name" hidden></div><div id="hist-box"><div id="hist-txt"></div></div><div class="hist-next">▼</div></div></div>
-<div id="loader"><div class="pball"></div><div class="loadtxt">Chargement…</div></div>
+<div id="loader"><div class="dancers"><span class="note n1">🎵</span><span class="note n2">🎶</span><span class="note n3">🎵</span><img class="dancer d1" src="axel-joyeux-cut.webp" alt="Axel"><img class="dancer d2" src="julien-joyeux-cut.webp" alt="Julien"></div><div class="loadtxt">Chargement…</div></div>
 <div id="passeport" hidden><div class="passfull" id="passeport-body"></div></div>
 <div id="fiche" hidden><div class="passfull" id="fiche-body"></div></div>
 <div id="attaque" hidden><div class="passfull"><button class="pclose" onclick="fermerAttaque()" aria-label="Fermer">✖</button><div id="atk-body"></div><button class="go" onclick="fermerAttaque()">⬅ Retour à la fiche</button></div></div>
@@ -2059,7 +2070,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v90');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v91');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
