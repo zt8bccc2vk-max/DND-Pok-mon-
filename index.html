@@ -157,7 +157,7 @@ h2{color:#fff;font-size:18px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink)}
 .sugg:active{transform:translateY(2px);box-shadow:none}
 #f-send{touch-action:manipulation}
 .sugg.sel{background:var(--yel)}
-#floatnav{position:fixed;left:50%;transform:translateX(-50%);bottom:auto;top:-200px;z-index:150;display:none;gap:2px;background:#fff;border:3px solid var(--ink);border-radius:99px;box-shadow:0 5px 0 #0e0a26;padding:5px 7px;max-width:96vw;overflow-x:auto}
+#floatnav{position:absolute;left:50%;transform:translateX(-50%);top:0;z-index:150;display:none;gap:2px;background:#fff;border:3px solid var(--ink);border-radius:99px;box-shadow:0 5px 0 #0e0a26;padding:5px 7px;max-width:96vw;overflow-x:auto}
 #floatnav.show{display:flex}
 #floatnav button{border:2px solid transparent;background:transparent;font:inherit;font-size:12.5px;font-weight:800;color:var(--ink);padding:5px 8px;border-radius:99px;white-space:nowrap;cursor:pointer}
 #floatnav button.on{background:var(--yel);border-color:var(--ink)}
@@ -398,10 +398,36 @@ html,body{overflow-x:hidden}
 .subsec{margin-top:12px;border-top:2px dashed #d9d6ee;padding-top:8px}
 #fiche{position:fixed;inset:0;z-index:290;background:rgba(20,16,46,.82);overflow-y:auto;padding:max(14px,env(safe-area-inset-top)) 12px max(20px,env(safe-area-inset-bottom))}
 .fiche-head{display:flex;gap:12px;align-items:center}
-.fiche-sprite{width:96px;height:96px;image-rendering:pixelated}
+.fiche-sprite{width:96px;height:96px;image-rendering:pixelated;border:3px solid var(--navy);border-radius:14px;background:#fff;padding:4px;box-sizing:border-box}
 .frow{display:flex;gap:10px;padding:5px 2px;border-bottom:2px solid #eee9d8}
 .frow .fk{flex:0 0 104px;font-weight:900;color:#5a5480;font-size:13px}
 .frow .fv{font-weight:700;font-size:14px}
+.fiche-ht{flex:1;min-width:0}
+.fiche-ht .hptext{text-align:right}
+.fiche-rows{border:2.5px solid var(--navy);border-radius:12px;overflow:hidden;background:#fff}
+.fiche-rows .frow{border-bottom:2px solid #eee9d8;padding:7px 10px}
+.fiche-rows .frow:last-child{border-bottom:none}
+.fiche-rows .frow:nth-child(odd){background:#fdf6dd}
+.fv .tdesc{font-weight:600;font-size:12.5px;color:#44405e;margin-top:1px}
+.atkpill{display:inline-flex;align-items:center;border:2.5px solid var(--navy);border-radius:999px;padding:6px 13px;font-weight:800;font-size:.85rem;color:#fff;cursor:pointer;box-shadow:0 2px 0 #0e0a26;font-family:inherit;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.lscount{float:right;background:#fdf3d8;border:2px solid #d9a92c;color:#7a5b00;border-radius:999px;padding:1px 10px;font-size:.75rem;font-weight:900;margin-top:10px}
+.lsrow{display:flex;align-items:center;gap:9px;background:#fff;border:2.5px solid var(--navy);border-radius:12px;padding:6px 10px;margin-bottom:6px}
+.lsrow .lspill{flex:0 0 auto;background:#fdf3d8;border:2px solid #d9a92c;color:#7a5b00;border-radius:8px;padding:2px 8px;font-size:.75rem;font-weight:900}
+.lsrow .lsnom{flex:1;font-weight:800}
+.lsrow .tpill{font-size:.7rem;padding:2px 9px}
+.lsok{color:#2e9e4f;font-weight:900;font-size:1.05rem}
+.lsrow.fut{opacity:.55;filter:grayscale(.85)}
+.objligne{cursor:pointer}
+.obj-emoji{display:flex;align-items:center;justify-content:center;width:96px;height:96px;font-size:44px;border:3px solid var(--navy);border-radius:14px;background:#fff;box-sizing:border-box;flex:0 0 auto}
+.obj-sprite{width:96px;height:96px;object-fit:contain;border:3px solid var(--navy);border-radius:14px;background:#fff;padding:8px;box-sizing:border-box;flex:0 0 auto}
+#loader{position:fixed;inset:0;z-index:400;background:#fdf6dd;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .35s ease}
+#loader.hide{opacity:0;pointer-events:none}
+#loader[hidden]{display:none}
+.pball{width:88px;height:88px;border-radius:50%;border:4px solid #22223a;background:linear-gradient(#e3352c 0 44%,#22223a 44% 56%,#ffffff 56% 100%);position:relative;animation:pbspin .9s linear infinite;box-shadow:0 8px 20px rgba(14,10,38,.3)}
+.pball::before{content:'';position:absolute;left:50%;top:50%;width:24px;height:24px;transform:translate(-50%,-50%);border-radius:50%;background:#fff;border:4px solid #22223a;box-sizing:border-box}
+.pball::after{content:'';position:absolute;left:50%;top:50%;width:10px;height:10px;transform:translate(-50%,-50%);border-radius:50%;background:#e8e8f0;border:3px solid #22223a;box-sizing:border-box}
+@keyframes pbspin{to{transform:rotate(360deg)}}
+.loadtxt{font-weight:900;color:var(--ink);font-size:15px}
 .ivev{margin-top:12px;background:#e6e1ff;border:2px dashed #8a84b8;border-radius:12px;padding:8px 10px;font-weight:800;color:#5a5480;text-align:center}
 
 .passfull .phead{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;margin-bottom:6px}
@@ -554,9 +580,11 @@ html,body{overflow-x:hidden}
 <div id="floatnav"></div>
 <div id="lecture" hidden><div class="lec-box"><button id="lec-x" class="go" type="button">✖ Fermer</button> <button id="lec-hist" class="go" type="button">🎬 Mode histoire</button><h2 id="lec-t"></h2><div id="lec-dice" class="dice"></div><div id="lec-txt" class="lec-txt"></div></div></div>
 <div id="histoire" hidden><img id="hist-bg" alt=""><div class="hist-shade"></div><div id="hist-prog"></div><button id="hist-x" type="button">✖ Fermer</button><img id="hist-port" alt="" hidden><div id="hist-pokes"></div><div class="hist-nav"><button id="hist-prec" type="button">◀ Préc.</button><button id="hist-suiv" type="button">Suiv. ▶</button></div><div id="hist-wrap"><div id="hist-name" hidden></div><div id="hist-box"><div id="hist-txt"></div></div><div class="hist-next">▼</div></div></div>
+<div id="loader"><div class="pball"></div><div class="loadtxt">Chargement…</div></div>
 <div id="passeport" hidden><div class="passfull" id="passeport-body"></div></div>
 <div id="fiche" hidden><div class="passfull" id="fiche-body"></div></div>
 <div id="attaque" hidden><div class="passfull"><button class="pclose" onclick="fermerAttaque()" aria-label="Fermer">✖</button><div id="atk-body"></div><button class="go" onclick="fermerAttaque()">⬅ Retour à la fiche</button></div></div>
+<div id="objet" hidden><div class="passfull" id="objet-body"></div></div>
 <script>
 const SUPABASE_URL='https://kybylakwlqwsmbyawjlu.supabase.co';
 const SUPABASE_KEY='sb_publishable_jQDj0u0fcMavgsp0MDI7lg_witetarV';
@@ -791,6 +819,8 @@ let eqSel=null,eqShowDepot=false,eqShowLibres=false,ficheId=null;
 function estLibre(p){return /libre/i.test(p.statut||'')}
 function estMystere(p){return !p.espece}
 const TYPE_COUL={'Normal':'#A8A77A','Feu':'#EE8130','Eau':'#6390F0','Électrik':'#C79A00','Plante':'#5CA62E','Glace':'#6FBFB8','Combat':'#C22E28','Poison':'#A33EA1','Sol':'#C7A33F','Vol':'#A98FF3','Psy':'#F95587','Insecte':'#A6B91A','Roche':'#B6A136','Spectre':'#735797','Dragon':'#6F35FC','Ténèbres':'#705746','Acier':'#8E8EA8','Fée':'#D685AD'};
+const LEARNSETS={"35": [[1, "Berceuse", "Normal"], [1, "Boul’Armure", "Normal"], [1, "Charme", "Fée"], [1, "Doux Baiser", "Fée"], [1, "Photocopie", "Normal"], [1, "Rugissement", "Normal"], [1, "Trempette", "Normal"], [1, "Voix Enjôleuse", "Fée"], [1, "Écras’Face", "Normal"], [4, "Force Ajoutée", "Psy"], [8, "Encore", "Normal"], [12, "Après Vous", "Normal"], [16, "Fontaine de Vie", "Eau"], [20, "Métronome", "Normal"], [24, "Rayon Lune", "Fée"], [28, "Gravité", "Psy"], [32, "Poing Météore", "Acier"], [36, "Par Ici", "Normal"], [40, "Force Cosmique", "Psy"], [44, "Rayon Lune", "Fée"], [48, "Vœu Soin", "Psy"]], "143": [[1, "Avale", "Normal"], [1, "Barrage", "Normal"], [1, "Boul’Armure", "Normal"], [1, "Charge", "Normal"], [1, "Dernier Recours", "Normal"], [1, "Dégommage", "Ténèbres"], [1, "Gigotage", "Normal"], [1, "Grincement", "Normal"], [1, "Implore", "Normal"], [1, "Léchouille", "Spectre"], [1, "Métronome", "Normal"], [1, "Recyclage", "Normal"], [1, "Stockage", "Normal"], [12, "Bâillement", "Normal"], [16, "Morsure", "Ténèbres"], [20, "Blabla Dodo", "Normal"], [20, "Repos", "Psy"], [20, "Ronflement", "Normal"], [24, "Mâchouille", "Ténèbres"], [28, "Plaquage", "Normal"], [32, "Tacle Lourd", "Acier"], [36, "Amnésie", "Psy"], [40, "Cavalerie Lourde", "Sol"], [44, "Marto-Poing", "Combat"], [48, "Cognobidon", "Normal"], [52, "Éructation", "Poison"], [56, "Giga Impact", "Normal"]], "81": [[1, "Charge", "Normal"], [1, "Éclair", "Électrik"], [4, "Ultrason", "Normal"], [8, "Cage Éclair", "Électrik"], [12, "Boule Élek", "Électrik"], [16, "Gyroballe", "Acier"], [20, "Étincelle", "Électrik"], [24, "Grincement", "Normal"], [28, "Vol Magnétik", "Électrik"], [32, "Luminocanon", "Acier"], [36, "Coup d’Jus", "Électrik"], [40, "Strido-Son", "Acier"], [44, "Mur Lumière", "Psy"], [48, "Verrouillage", "Normal"], [52, "Élecanon", "Électrik"]], "15": [[1, "Armure", "Normal"], [1, "Dard-Venin", "Poison"], [1, "Furie", "Normal"], [1, "Piqûre", "Insecte"], [1, "Sécrétion", "Insecte"], [11, "Taillade", "Insecte"], [14, "Affilage", "Normal"], [20, "Puissance", "Normal"], [23, "Choc Venin", "Poison"], [26, "Assurance", "Ténèbres"], [29, "Pics Toxik", "Poison"], [32, "Dard-Nuée", "Insecte"], [35, "Direct Toxik", "Poison"], [38, "Hâte", "Psy"], [41, "Effort", "Normal"], [44, "Dard Mortel", "Insecte"]], "70": [[1, "Croissance", "Normal"], [1, "Fouet Lianes", "Plante"], [1, "Ligotage", "Normal"], [13, "Poudre Dodo", "Plante"], [15, "Poudre Toxik", "Poison"], [17, "Para-Spore", "Plante"], [24, "Acide", "Poison"], [29, "Sabotage", "Ténèbres"], [32, "Doux Parfum", "Normal"], [39, "Suc Digestif", "Poison"], [44, "Tranch’Herbe", "Plante"], [47, "Direct Toxik", "Poison"], [54, "Souplesse", "Normal"], [58, "Mégafouet", "Plante"]], "17": [[1, "Charge", "Normal"], [1, "Jet de Sable", "Sol"], [1, "Tornade", "Vol"], [13, "Vive-Attaque", "Normal"], [17, "Cyclone", "Normal"], [22, "Ouragan", "Dragon"], [27, "Danse Plumes", "Vol"], [32, "Hâte", "Psy"], [37, "Cru-Ailes", "Vol"], [42, "Atterrissage", "Vol"], [47, "Vent Arrière", "Vol"], [52, "Aéropique", "Vol"], [57, "Lame d’Air", "Vol"], [62, "Vent Violent", "Vol"]], "20": [[1, "Charge", "Normal"], [1, "Danse Lames", "Normal"], [1, "Grimace", "Normal"], [1, "Mimi-Queue", "Normal"], [1, "Puissance", "Normal"], [1, "Vive-Attaque", "Normal"], [10, "Morsure", "Ténèbres"], [13, "Affilage", "Normal"], [16, "Bélier", "Normal"], [19, "Assurance", "Ténèbres"], [24, "Mâchouille", "Ténèbres"], [29, "Coup Bas", "Ténèbres"], [34, "Croc Fatal", "Normal"], [39, "Damoclès", "Normal"], [44, "Effort", "Normal"]], "44": [[1, "Acide", "Poison"], [1, "Croissance", "Normal"], [1, "Doux Parfum", "Normal"], [1, "Vole-Vie", "Plante"], [12, "Méga-Sangsue", "Plante"], [14, "Poudre Toxik", "Poison"], [16, "Para-Spore", "Plante"], [18, "Poudre Dodo", "Plante"], [20, "Giga-Sangsue", "Plante"], [26, "Toxik", "Poison"], [32, "Rayon Lune", "Fée"], [38, "Champ Herbu", "Plante"], [44, "Rayon Lune", "Fée"], [50, "Danse Fleurs", "Plante"]], "100": [[1, "Charge", "Normal"], [1, "Chargeur", "Électrik"], [4, "Éclair", "Électrik"], [6, "Ondes Étranges", "Électrik"], [9, "Étincelle", "Électrik"], [11, "Roulade", "Roche"], [13, "Grincement", "Normal"], [16, "Rayon Chargé", "Électrik"], [20, "Météores", "Normal"], [22, "Boule Élek", "Électrik"], [26, "Destruction", "Normal"], [29, "Mur Lumière", "Psy"], [34, "Vol Magnétik", "Électrik"], [37, "Coup d’Jus", "Électrik"], [41, "Explosion", "Normal"], [46, "Gyroballe", "Acier"], [50, "Voile Miroir", "Psy"]], "64": [[1, "Choc Mental", "Psy"], [1, "Entrave", "Normal"], [1, "Télékinésie", "Psy"], [1, "Téléport", "Psy"], [5, "Rafale Psy", "Psy"], [10, "Protection", "Psy"], [15, "Interversion", "Psy"], [20, "Coupe Psycho", "Psy"], [25, "Soin", "Normal"], [30, "Choc Psy", "Psy"], [35, "Psyko", "Psy"], [40, "Imitation", "Psy"], [45, "Prescience", "Psy"], [50, "Plénitude", "Psy"]], "446": [[1, "Charge", "Normal"], [1, "Léchouille", "Spectre"], [4, "Boul’Armure", "Normal"], [8, "Recyclage", "Normal"], [12, "Implore", "Normal"], [16, "Morsure", "Ténèbres"], [20, "Avale", "Normal"], [20, "Stockage", "Normal"], [24, "Grincement", "Normal"], [28, "Plaquage", "Normal"], [32, "Dégommage", "Ténèbres"], [36, "Amnésie", "Psy"], [40, "Métronome", "Normal"], [44, "Gigotage", "Normal"], [48, "Cognobidon", "Normal"], [52, "Dernier Recours", "Normal"]], "116": [[1, "Groz’Yeux", "Normal"], [1, "Pistolet à O", "Eau"], [5, "Brouillard", "Normal"], [10, "Ouragan", "Dragon"], [15, "Puissance", "Normal"], [20, "Draco-Souffle", "Dragon"], [25, "Bulles d’O", "Eau"], [30, "Hâte", "Psy"], [35, "Vibraqua", "Eau"], [40, "Draco-Choc", "Dragon"], [45, "Hydrocanon", "Eau"], [50, "Danse Draco", "Dragon"], [55, "Danse Pluie", "Eau"]], "39": [[1, "Berceuse", "Normal"], [1, "Boul’Armure", "Normal"], [1, "Charme", "Fée"], [1, "Doux Baiser", "Fée"], [1, "Entrave", "Normal"], [1, "Photocopie", "Normal"], [1, "Voix Enjôleuse", "Fée"], [1, "Écras’Face", "Normal"], [4, "Écho", "Normal"], [8, "Implore", "Normal"], [12, "Avale", "Normal"], [12, "Relâche", "Normal"], [12, "Stockage", "Normal"], [16, "Chant Canon", "Normal"], [20, "Repos", "Psy"], [24, "Plaquage", "Normal"], [28, "Copie", "Normal"], [32, "Gyroballe", "Acier"], [36, "Mégaphone", "Normal"], [44, "Damoclès", "Normal"]], "133": [[1, "Charge", "Normal"], [1, "Coup d’Main", "Normal"], [1, "Implore", "Normal"], [1, "Mimi-Queue", "Normal"], [1, "Rugissement", "Normal"], [5, "Jet de Sable", "Sol"], [10, "Vive-Attaque", "Normal"], [15, "Regard Touchant", "Fée"], [20, "Météores", "Normal"], [25, "Morsure", "Ténèbres"], [30, "Photocopie", "Normal"], [35, "Relais", "Normal"], [40, "Bélier", "Normal"], [45, "Charme", "Fée"], [50, "Damoclès", "Normal"], [55, "Dernier Recours", "Normal"]], "96": [[1, "Hypnose", "Psy"], [1, "Écras’Face", "Normal"], [5, "Entrave", "Normal"], [9, "Choc Mental", "Psy"], [13, "Coup d’Boule", "Normal"], [17, "Gaz Toxik", "Poison"], [21, "Rafale Psy", "Psy"], [25, "Boost", "Normal"], [29, "Psykoud’Boul", "Psy"], [33, "Vantardise", "Normal"], [37, "Psyko", "Psy"], [41, "Machination", "Ténèbres"], [45, "Choc Psy", "Psy"], [49, "Prescience", "Psy"]], "107": [[1, "Bluff", "Normal"], [1, "Charge", "Normal"], [1, "Coup d’Main", "Normal"], [1, "Puissance", "Normal"], [1, "Ruse", "Normal"], [1, "Vampi-Poing", "Combat"], [4, "Mach Punch", "Combat"], [8, "Onde Vide", "Combat"], [12, "Détection", "Combat"], [16, "Pisto-Poing", "Acier"], [21, "Prévention", "Combat"], [24, "Poing Feu", "Feu"], [24, "Poing Glace", "Glace"], [24, "Poing Éclair", "Électrik"], [28, "Hâte", "Psy"], [32, "Ultimapoing", "Normal"], [36, "Close Combat", "Combat"], [40, "Riposte", "Combat"], [44, "Mitra-Poing", "Combat"]], "131": [[1, "Pistolet à O", "Eau"], [1, "Rugissement", "Normal"], [5, "Berceuse", "Normal"], [10, "Brume", "Glace"], [15, "Fontaine de Vie", "Eau"], [20, "Éclats Glace", "Glace"], [25, "Onde Folie", "Spectre"], [30, "Vibraqua", "Eau"], [35, "Saumure", "Eau"], [40, "Plaquage", "Normal"], [45, "Laser Glace", "Glace"], [50, "Danse Pluie", "Eau"], [55, "Hydrocanon", "Eau"], [60, "Requiem", "Normal"], [65, "Glaciation", "Glace"]]};
+const MOVE_STATS={"ecrasface": {"t": "Normal", "c": "physique", "p": 40, "a": 100, "pp": 35}, "ultimapoing": {"t": "Normal", "c": "physique", "p": 80, "a": 85, "pp": 20}, "poingfeu": {"t": "Feu", "c": "physique", "p": 75, "a": 100, "pp": 15}, "poingglace": {"t": "Glace", "c": "physique", "p": 75, "a": 100, "pp": 15}, "poingeclair": {"t": "Électrik", "c": "physique", "p": 75, "a": 100, "pp": 15}, "danselames": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 20}, "tornade": {"t": "Vol", "c": "speciale", "p": 40, "a": 100, "pp": 35}, "cruailes": {"t": "Vol", "c": "physique", "p": 60, "a": 100, "pp": 35}, "cyclone": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 20}, "souplesse": {"t": "Normal", "c": "physique", "p": 80, "a": 75, "pp": 20}, "fouetlianes": {"t": "Plante", "c": "physique", "p": 45, "a": 100, "pp": 25}, "jetdesable": {"t": "Sol", "c": "statut", "p": null, "a": 100, "pp": 15}, "coupdboule": {"t": "Normal", "c": "physique", "p": 70, "a": 100, "pp": 15}, "ventviolent": {"t": "Vol", "c": "speciale", "p": 110, "a": 70, "pp": 10}, "furie": {"t": "Normal", "c": "physique", "p": 15, "a": 85, "pp": 20}, "charge": {"t": "Normal", "c": "physique", "p": 40, "a": 100, "pp": 35}, "plaquage": {"t": "Normal", "c": "physique", "p": 85, "a": 100, "pp": 15}, "ligotage": {"t": "Normal", "c": "physique", "p": 15, "a": 90, "pp": 20}, "belier": {"t": "Normal", "c": "physique", "p": 90, "a": 85, "pp": 20}, "damocles": {"t": "Normal", "c": "physique", "p": 120, "a": 100, "pp": 15}, "mimiqueue": {"t": "Normal", "c": "statut", "p": null, "a": 100, "pp": 30}, "dardvenin": {"t": "Poison", "c": "physique", "p": 15, "a": 100, "pp": 35}, "dardnuee": {"t": "Insecte", "c": "physique", "p": 25, "a": 95, "pp": 20}, "grozyeux": {"t": "Normal", "c": "statut", "p": null, "a": 100, "pp": 30}, "morsure": {"t": "Ténèbres", "c": "physique", "p": 60, "a": 100, "pp": 25}, "rugissement": {"t": "Normal", "c": "statut", "p": null, "a": 100, "pp": 40}, "berceuse": {"t": "Normal", "c": "statut", "p": null, "a": 55, "pp": 15}, "ultrason": {"t": "Normal", "c": "statut", "p": null, "a": 55, "pp": 20}, "eructation": {"t": "Poison", "c": "speciale", "p": 120, "a": 90, "pp": 10}, "acide": {"t": "Poison", "c": "speciale", "p": 40, "a": 100, "pp": 30}, "entrave": {"t": "Normal", "c": "statut", "p": null, "a": 100, "pp": 20}, "dardmortel": {"t": "Insecte", "c": "physique", "p": 50, "a": 100, "pp": 25}, "brume": {"t": "Glace", "c": "statut", "p": null, "a": null, "pp": 30}, "pistoletao": {"t": "Eau", "c": "speciale", "p": 40, "a": 100, "pp": 25}, "hydrocanon": {"t": "Eau", "c": "speciale", "p": 110, "a": 80, "pp": 5}, "laserglace": {"t": "Glace", "c": "speciale", "p": 90, "a": 100, "pp": 10}, "rafalepsy": {"t": "Psy", "c": "speciale", "p": 65, "a": 100, "pp": 20}, "bullesdo": {"t": "Eau", "c": "speciale", "p": 65, "a": 100, "pp": 20}, "voixenjoleuse": {"t": "Fée", "c": "speciale", "p": 40, "a": null, "pp": 15}, "champherbu": {"t": "Plante", "c": "statut", "p": null, "a": null, "pp": 10}, "riposte": {"t": "Combat", "c": "physique", "p": null, "a": 100, "pp": 20}, "volevie": {"t": "Plante", "c": "speciale", "p": 20, "a": 100, "pp": 25}, "megasangsue": {"t": "Plante", "c": "speciale", "p": 40, "a": 100, "pp": 15}, "pouvoirlunaire": {"t": "Fée", "c": "speciale", "p": 95, "a": 100, "pp": 15}, "croissance": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 20}, "tranchherbe": {"t": "Plante", "c": "physique", "p": 55, "a": 95, "pp": 25}, "poudretoxik": {"t": "Poison", "c": "statut", "p": null, "a": 75, "pp": 35}, "paraspore": {"t": "Plante", "c": "statut", "p": null, "a": 75, "pp": 30}, "poudredodo": {"t": "Plante", "c": "statut", "p": null, "a": 75, "pp": 15}, "dansefleurs": {"t": "Plante", "c": "speciale", "p": 120, "a": 100, "pp": 10}, "secretion": {"t": "Insecte", "c": "statut", "p": null, "a": 95, "pp": 40}, "eclair": {"t": "Électrik", "c": "speciale", "p": 40, "a": 100, "pp": 30}, "cageeclair": {"t": "Électrik", "c": "statut", "p": null, "a": 90, "pp": 20}, "ondesetranges": {"t": "Électrik", "c": "statut", "p": null, "a": 100, "pp": 15}, "toxik": {"t": "Poison", "c": "statut", "p": null, "a": 90, "pp": 10}, "chocmental": {"t": "Psy", "c": "speciale", "p": 50, "a": 100, "pp": 25}, "psyko": {"t": "Psy", "c": "speciale", "p": 90, "a": 100, "pp": 10}, "hypnose": {"t": "Psy", "c": "statut", "p": null, "a": 60, "pp": 20}, "regardtouchant": {"t": "Fée", "c": "statut", "p": null, "a": 100, "pp": 30}, "hate": {"t": "Psy", "c": "statut", "p": null, "a": null, "pp": 30}, "viveattaque": {"t": "Normal", "c": "physique", "p": 40, "a": 100, "pp": 30}, "teleport": {"t": "Psy", "c": "statut", "p": null, "a": null, "pp": 20}, "copie": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 10}, "grincement": {"t": "Normal", "c": "statut", "p": null, "a": 85, "pp": 40}, "soin": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 5}, "armure": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 30}, "brouillard": {"t": "Normal", "c": "statut", "p": null, "a": 100, "pp": 20}, "ondefolie": {"t": "Spectre", "c": "statut", "p": null, "a": 100, "pp": 10}, "boularmure": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 40}, "murlumiere": {"t": "Psy", "c": "statut", "p": null, "a": null, "pp": 30}, "protection": {"t": "Psy", "c": "statut", "p": null, "a": null, "pp": 20}, "puissance": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 30}, "metronome": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 10}, "destruction": {"t": "Normal", "c": "physique", "p": 200, "a": 100, "pp": 5}, "lechouille": {"t": "Spectre", "c": "physique", "p": 30, "a": 100, "pp": 30}, "meteores": {"t": "Normal", "c": "speciale", "p": 60, "a": null, "pp": 20}, "amnesie": {"t": "Psy", "c": "statut", "p": null, "a": null, "pp": 20}, "telekinesie": {"t": "Psy", "c": "statut", "p": null, "a": 80, "pp": 15}, "gaztoxik": {"t": "Poison", "c": "statut", "p": null, "a": 90, "pp": 40}, "trempette": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 40}, "explosion": {"t": "Normal", "c": "physique", "p": 250, "a": 100, "pp": 5}, "cavalerielourde": {"t": "Sol", "c": "physique", "p": 95, "a": 95, "pp": 10}, "repos": {"t": "Psy", "c": "statut", "p": null, "a": null, "pp": 5}, "affilage": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 30}, "crocfatal": {"t": "Normal", "c": "physique", "p": null, "a": 90, "pp": 10}, "ronflement": {"t": "Normal", "c": "speciale", "p": 50, "a": 100, "pp": 15}, "gigotage": {"t": "Normal", "c": "physique", "p": null, "a": 100, "pp": 15}, "machpunch": {"t": "Combat", "c": "physique", "p": 40, "a": 100, "pp": 30}, "grimace": {"t": "Normal", "c": "statut", "p": null, "a": 100, "pp": 10}, "douxbaiser": {"t": "Fée", "c": "statut", "p": null, "a": 75, "pp": 10}, "cognobidon": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 10}, "elecanon": {"t": "Électrik", "c": "speciale", "p": 120, "a": 50, "pp": 5}, "requiem": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 5}, "detection": {"t": "Combat", "c": "statut", "p": null, "a": null, "pp": 5}, "verrouillage": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 5}, "gigasangsue": {"t": "Plante", "c": "speciale", "p": 75, "a": 100, "pp": 10}, "charme": {"t": "Fée", "c": "statut", "p": null, "a": 100, "pp": 20}, "roulade": {"t": "Roche", "c": "physique", "p": 30, "a": 90, "pp": 20}, "vantardise": {"t": "Normal", "c": "statut", "p": null, "a": 85, "pp": 15}, "etincelle": {"t": "Électrik", "c": "physique", "p": 65, "a": 100, "pp": 20}, "taillade": {"t": "Insecte", "c": "physique", "p": 40, "a": 95, "pp": 20}, "blabladodo": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 10}, "dracosouffle": {"t": "Dragon", "c": "speciale", "p": 60, "a": 100, "pp": 20}, "relais": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 40}, "encore": {"t": "Normal", "c": "statut", "p": null, "a": 100, "pp": 5}, "douxparfum": {"t": "Normal", "c": "statut", "p": null, "a": 100, "pp": 20}, "rayonlune": {"t": "Fée", "c": "speciale", "p": 95, "a": 100, "pp": 15}, "ouragan": {"t": "Dragon", "c": "speciale", "p": 40, "a": 100, "pp": 20}, "dansepluie": {"t": "Eau", "c": "statut", "p": null, "a": null, "pp": 5}, "machouille": {"t": "Ténèbres", "c": "physique", "p": 80, "a": 100, "pp": 15}, "voilemiroir": {"t": "Psy", "c": "speciale", "p": null, "a": 100, "pp": 20}, "boost": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 10}, "prescience": {"t": "Psy", "c": "speciale", "p": 120, "a": 100, "pp": 10}, "bluff": {"t": "Normal", "c": "physique", "p": 40, "a": 100, "pp": 10}, "stockage": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 20}, "relache": {"t": "Normal", "c": "speciale", "p": null, "a": 100, "pp": 10}, "avale": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 10}, "mitrapoing": {"t": "Combat", "c": "physique", "p": 150, "a": 100, "pp": 20}, "parici": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 20}, "chargeur": {"t": "Électrik", "c": "statut", "p": null, "a": null, "pp": 20}, "coupdmain": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 20}, "imitation": {"t": "Psy", "c": "statut", "p": null, "a": null, "pp": 10}, "recyclage": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 10}, "fontainedevie": {"t": "Eau", "c": "statut", "p": null, "a": null, "pp": 10}, "baillement": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 10}, "sabotage": {"t": "Ténèbres", "c": "physique", "p": 65, "a": 100, "pp": 20}, "effort": {"t": "Normal", "c": "physique", "p": null, "a": 100, "pp": 5}, "danseplumes": {"t": "Vol", "c": "statut", "p": null, "a": 100, "pp": 15}, "megaphone": {"t": "Normal", "c": "speciale", "p": 90, "a": 100, "pp": 10}, "poingmeteore": {"t": "Acier", "c": "physique", "p": 90, "a": 90, "pp": 10}, "stridoson": {"t": "Acier", "c": "statut", "p": null, "a": 85, "pp": 40}, "forcecosmique": {"t": "Psy", "c": "statut", "p": null, "a": null, "pp": 20}, "glaciation": {"t": "Glace", "c": "speciale", "p": null, "a": 30, "pp": 5}, "aeropique": {"t": "Vol", "c": "physique", "p": 60, "a": null, "pp": 20}, "barrage": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 5}, "implore": {"t": "Normal", "c": "physique", "p": 60, "a": 100, "pp": 25}, "plenitude": {"t": "Psy", "c": "statut", "p": null, "a": null, "pp": 20}, "dansedraco": {"t": "Dragon", "c": "statut", "p": null, "a": null, "pp": 20}, "vibraqua": {"t": "Eau", "c": "speciale", "p": 60, "a": 100, "pp": 20}, "atterrissage": {"t": "Vol", "c": "statut", "p": null, "a": null, "pp": 5}, "gravite": {"t": "Psy", "c": "statut", "p": null, "a": null, "pp": 5}, "martopoing": {"t": "Combat", "c": "physique", "p": 100, "a": 90, "pp": 10}, "gyroballe": {"t": "Acier", "c": "physique", "p": null, "a": 100, "pp": 5}, "vusoin": {"t": "Psy", "c": "statut", "p": null, "a": null, "pp": 10}, "saumure": {"t": "Eau", "c": "speciale", "p": 65, "a": 100, "pp": 10}, "ruse": {"t": "Normal", "c": "physique", "p": 30, "a": 100, "pp": 10}, "ventarriere": {"t": "Vol", "c": "statut", "p": null, "a": null, "pp": 15}, "closecombat": {"t": "Combat", "c": "physique", "p": 120, "a": 100, "pp": 5}, "assurance": {"t": "Ténèbres", "c": "physique", "p": 60, "a": 100, "pp": 10}, "degommage": {"t": "Ténèbres", "c": "physique", "p": null, "a": 100, "pp": 10}, "sucdigestif": {"t": "Poison", "c": "statut", "p": null, "a": 100, "pp": 10}, "photocopie": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 20}, "dernierrecours": {"t": "Normal", "c": "physique", "p": 140, "a": 100, "pp": 5}, "coupbas": {"t": "Ténèbres", "c": "physique", "p": 70, "a": 100, "pp": 5}, "picstoxik": {"t": "Poison", "c": "statut", "p": null, "a": null, "pp": 20}, "volmagnetik": {"t": "Électrik", "c": "statut", "p": null, "a": null, "pp": 10}, "directtoxik": {"t": "Poison", "c": "physique", "p": 80, "a": 100, "pp": 20}, "lamedair": {"t": "Vol", "c": "speciale", "p": 75, "a": 95, "pp": 15}, "dracochoc": {"t": "Dragon", "c": "speciale", "p": 85, "a": 100, "pp": 10}, "vampipoing": {"t": "Combat", "c": "physique", "p": 75, "a": 100, "pp": 10}, "ondevide": {"t": "Combat", "c": "speciale", "p": 40, "a": 100, "pp": 30}, "gigaimpact": {"t": "Normal", "c": "physique", "p": 150, "a": 90, "pp": 5}, "machination": {"t": "Ténèbres", "c": "statut", "p": null, "a": null, "pp": 20}, "pistopoing": {"t": "Acier", "c": "physique", "p": 40, "a": 100, "pp": 30}, "eclatsglace": {"t": "Glace", "c": "physique", "p": 40, "a": 100, "pp": 30}, "coupepsycho": {"t": "Psy", "c": "physique", "p": 70, "a": 100, "pp": 20}, "psykoudboul": {"t": "Psy", "c": "physique", "p": 80, "a": 90, "pp": 15}, "luminocanon": {"t": "Acier", "c": "speciale", "p": 80, "a": 100, "pp": 10}, "coupdjus": {"t": "Électrik", "c": "speciale", "p": 80, "a": 100, "pp": 15}, "megafouet": {"t": "Plante", "c": "physique", "p": 120, "a": 85, "pp": 10}, "piqure": {"t": "Insecte", "c": "physique", "p": 60, "a": 100, "pp": 20}, "rayoncharge": {"t": "Électrik", "c": "speciale", "p": 50, "a": 90, "pp": 10}, "chocpsy": {"t": "Psy", "c": "speciale", "p": 80, "a": 100, "pp": 10}, "chocvenin": {"t": "Poison", "c": "speciale", "p": 65, "a": 100, "pp": 10}, "taclelourd": {"t": "Acier", "c": "physique", "p": null, "a": 100, "pp": 10}, "bouleelek": {"t": "Électrik", "c": "speciale", "p": null, "a": 100, "pp": 10}, "apresvous": {"t": "Normal", "c": "statut", "p": null, "a": null, "pp": 15}, "chantcanon": {"t": "Normal", "c": "speciale", "p": 60, "a": 100, "pp": 15}, "echo": {"t": "Normal", "c": "speciale", "p": 40, "a": 100, "pp": 15}, "forceajoutee": {"t": "Psy", "c": "speciale", "p": 20, "a": 100, "pp": 10}, "prevention": {"t": "Combat", "c": "statut", "p": null, "a": null, "pp": 15}, "interversion": {"t": "Psy", "c": "statut", "p": null, "a": null, "pp": 15}, "vivepoing": {"t": "Combat", "c": "physique", "p": 40, "a": 100, "pp": 30}, "tomberoche": {"t": "Roche", "c": "physique", "p": 60, "a": 95, "pp": 15}};
 const REF_ATTAQUES={
 'acide':{c:'speciale',p:40,a:100,e:'Peut baisser la Défense Spéciale de la cible.',j:'Corrosion (validée en jeu) : chaque Acide réussie ajoute +1 aux dégâts subis par la cible, cumulable jusqu’à +3.'},
 'apresvous':{c:'statut',p:null,a:null,e:'Force la cible à agir juste après le lanceur, ce tour-ci.'},
@@ -843,71 +873,164 @@ const REF_ATTAQUES={
 'echo':{c:'speciale',p:40,a:100,e:'Sa puissance double à chaque utilisation consécutive par l’équipe (maximum 200).'},
 'eclair':{c:'speciale',p:40,a:100,e:'Peut paralyser la cible.'},
 'ecrasface':{c:'physique',p:40,a:100,e:'Dégâts simples, sans effet ajouté.'},
-'etincelle':{c:'physique',p:65,a:100,e:'Peut paralyser la cible.'}
+'etincelle':{c:'physique',p:65,a:100,e:'Peut paralyser la cible.'},
+'affilage':{"c": "statut", "p": null, "a": null, "e": "Augmente l’Attaque et la Précision du lanceur."},
+'assurance':{"c": "physique", "p": 60, "a": 100, "e": "Si la cible a déjà subi des dégâts ce tour-ci, la puissance est doublée."},
+'belier':{"c": "physique", "p": 90, "a": 85, "e": "Le lanceur subit aussi un quart des dégâts infligés (recul)."},
+'blabladodo':{"c": "statut", "p": null, "a": null, "e": "Utilise une attaque au hasard parmi celles du lanceur — seulement s’il dort."},
+'brouillard':{"c": "statut", "p": null, "a": 100, "e": "Baisse la Précision de la cible."},
+'chocmental':{"c": "speciale", "p": 50, "a": 100, "e": "Peut rendre la cible confuse."},
+'chocvenin':{"c": "speciale", "p": 65, "a": 100, "e": "Dégâts doublés si la cible est empoisonnée.", "j": "Le cœur du combo « Piège Toxique » d’Axel : sur une cible empoisonnée par Groot, Choc Venin frappe deux fois plus fort."},
+'coupdboule':{"c": "physique", "p": 70, "a": 100, "e": "Peut apeurer la cible."},
+'coupepsycho':{"c": "physique", "p": 70, "a": 100, "e": "Taux de coups critiques élevé."},
+'cyclone':{"c": "statut", "p": null, "a": null, "e": "Force la cible à quitter le combat (en combat de dresseurs : échange forcé avec un autre Pokémon)."},
+'danselames':{"c": "statut", "p": null, "a": null, "e": "Augmente l’Attaque du lanceur de deux niveaux."},
+'dracosouffle':{"c": "speciale", "p": 60, "a": 100, "e": "Peut paralyser la cible."},
+'eclatsglace':{"c": "physique", "p": 40, "a": 100, "e": "Attaque prioritaire : elle frappe avant les attaques normales."},
+'fontainedevie':{"c": "statut", "p": null, "a": null, "e": "Restaure un quart des PV du lanceur et de ses alliés."},
+'furie':{"c": "physique", "p": 15, "a": 85, "e": "Frappe 2 à 5 fois dans le même tour."},
+'gigasangsue':{"c": "speciale", "p": 75, "a": 100, "e": "Convertit la moitié des dégâts infligés en PV pour le lanceur."},
+'grimace':{"c": "statut", "p": null, "a": 100, "e": "Baisse la Défense de la cible."},
+'hypnose':{"c": "statut", "p": null, "a": 60, "e": "Endort la cible.", "j": "Mêmes règles de sommeil que Berceuse (voir sa fiche)."},
+'interversion':{"c": "statut", "p": null, "a": null, "e": "Le lanceur échange sa place avec un allié."},
+'machouille':{"c": "physique", "p": 80, "a": 100, "e": "Peut baisser la Défense de la cible."},
+'megasangsue':{"c": "speciale", "p": 40, "a": 100, "e": "Convertit la moitié des dégâts infligés en PV pour le lanceur."},
+'meteores':{"c": "speciale", "p": 60, "a": null, "e": "Ne rate jamais sa cible."},
+'ondefolie':{"c": "statut", "p": null, "a": 100, "e": "Rend la cible confuse."},
+'ouragan':{"c": "speciale", "p": 40, "a": 100, "e": "Peut apeurer la cible. Dégâts doublés sur une cible en plein vol."},
+'paraspore':{"c": "statut", "p": null, "a": 75, "e": "Paralyse la cible."},
+'pistoletao':{"c": "speciale", "p": 40, "a": 100, "e": "Dégâts simples, sans effet ajouté."},
+'poingeclair':{"c": "physique", "p": 75, "a": 100, "e": "Peut paralyser la cible."},
+'poingfeu':{"c": "physique", "p": 75, "a": 100, "e": "Peut brûler la cible."},
+'poingglace':{"c": "physique", "p": 75, "a": 100, "e": "Peut geler la cible."},
+'poudredodo':{"c": "statut", "p": null, "a": 75, "e": "Endort la cible.", "j": "Mêmes règles de sommeil que Berceuse (voir sa fiche)."},
+'poudretoxik':{"c": "statut", "p": null, "a": 75, "e": "Empoisonne la cible.", "j": "Poison : −2 PV en fin de round. L’Acier est immunisé au poison."},
+'protection':{"c": "statut", "p": null, "a": null, "e": "Érige un écran qui réduit les dégâts des attaques physiques reçus par l’équipe pendant plusieurs tours.", "n": "C’est l’attaque « Reflect » des jeux — « Protection » est son nom français historique, celui retenu dans notre campagne."},
+'rafalepsy':{"c": "speciale", "p": 65, "a": 100, "e": "Peut rendre la cible confuse."},
+'rayoncharge':{"c": "speciale", "p": 50, "a": 90, "e": "Peut augmenter l’Attaque Spéciale du lanceur."},
+'rayonlune':{"c": "speciale", "p": 95, "a": 100, "e": "Peut baisser l’Attaque Spéciale de la cible.", "n": "« Pouvoir Lunaire » dans les jeux récents — « Rayon Lune » est le nom retenu dans notre campagne."},
+'repos':{"c": "statut", "p": null, "a": null, "e": "Le lanceur s’endort et récupère tous ses PV ; son statut est soigné.", "j": "Dans notre JDR : sommeil de Repos, restauration complète constatée au réveil (Caul Isuspect, tour n°200). Le réveil suit les règles du sommeil."},
+'ronflement':{"c": "speciale", "p": 50, "a": 100, "e": "Utilisable seulement si le lanceur dort. Peut apeurer la cible."},
+'roulade':{"c": "physique", "p": 30, "a": 90, "e": "La puissance double à chaque tour consécutif d’utilisation (cinq tours au maximum)."},
+'taillade':{"c": "physique", "p": 40, "a": 95, "e": "La puissance augmente à chaque utilisation consécutive réussie."},
+'telekinesie':{"c": "statut", "p": null, "a": 80, "e": "Baisse la Précision de la cible.", "n": "C’est « Kinesis » des jeux — à ne pas confondre avec Lévikinésie."},
+'tornade':{"c": "speciale", "p": 40, "a": 100, "e": "Dégâts simples, sans effet ajouté. Dégâts doublés sur une cible en plein vol."},
+'vivepoing':{"c": "physique", "p": 40, "a": 100, "e": "Attaque prioritaire : elle frappe avant les attaques normales."}
 };
 function ouvrirAttaque(a){
   const z=$('attaque'),b=$('atk-body');if(!z||!b)return;
   const ref=REF_ATTAQUES[norm(a.nom)];
+  const st=MOVE_STATS[norm(a.nom)];
   b.replaceChildren();
   b.append(el('h3','',a.nom));
   const row=el('div','badges');
   const pill=el('span','tpill',a.type||'Normal');pill.style.background=TYPE_COUL[a.type]||'#888';row.append(pill);
   if(ref&&ref.maison)row.append(el('span','chip','🏠 Attaque maison'));
-  else if(ref)row.append(el('span','chip',ref.c==='physique'?'💥 Physique':ref.c==='speciale'?'🌀 Spéciale':'✨ Statut'));
+  else{const cat=ref?ref.c:(st?st.c:null);if(cat)row.append(el('span','chip',cat==='physique'?'💥 Physique':cat==='speciale'?'🌀 Spéciale':'✨ Statut'))}
   b.append(row);
   b.append(el('div','vide',a.source==='CT'?'Apprise par CT':a.source==='don'?'Apprise par don / événement':'Apprise au niveau '+(a.niveau||1)));
-  if(ref&&!ref.maison){
-    const g=el('div','grid2');
-    const s1=el('div','stat');s1.append(el('b','',ref.p==null?'—':String(ref.p)));s1.append(el('span','','Puissance'));g.append(s1);
-    const s2=el('div','stat');s2.append(el('b','',ref.a==null?'—':ref.a+' %'));s2.append(el('span','','Précision'));g.append(s2);
-    b.append(g);
-    b.append(el('h4','','📖 Effet officiel'));
-    b.append(el('p','',ref.e));
-    if(ref.n)b.append(el('div','vide',ref.n));
-  }
   if(ref&&ref.maison)b.append(el('div','vide','Attaque maison — pas d’équivalent officiel.'));
+  else{
+    const pu=ref?ref.p:(st?st.p:null),ac=ref?ref.a:(st?st.a:null),pp=st?st.pp:null;
+    if(pu!=null||ac!=null||pp!=null){
+      const g=el('div','grid2');if(pp!=null)g.style.gridTemplateColumns='repeat(3,1fr)';
+      const s1=el('div','stat');s1.append(el('b','',pu==null?'—':String(pu)));s1.append(el('span','','Puissance'));g.append(s1);
+      const s2=el('div','stat');s2.append(el('b','',ac==null?'—':ac+' %'));s2.append(el('span','','Précision'));g.append(s2);
+      if(pp!=null){const s3=el('div','stat');s3.append(el('b','',String(pp)));s3.append(el('span','','PP'));g.append(s3)}
+      b.append(g);
+    }
+    if(ref&&ref.e){
+      b.append(el('h4','','📖 Effet officiel'));
+      b.append(el('p','',ref.e));
+      if(ref.n)b.append(el('div','vide',ref.n));
+    }else if(st)b.append(el('div','vide','Stats officielles (source : PokeAPI). Description de l’effet : à compléter par le MJ.'));
+    else b.append(el('div','vide','Détails officiels : à compléter par le MJ.'));
+  }
   if(ref&&ref.j){
     b.append(el('h4','','📜 Dans notre JDR'));
     b.append(el('div','jdrbox',ref.j));
   }
-  if(!ref)b.append(el('div','vide','Détails officiels : à compléter par le MJ.'));
   z.hidden=false;z.scrollTop=0;
 }
 function fermerAttaque(){const z=$('attaque');if(z)z.hidden=true}
-function ouvrirFiche(id){const p=((passData&&passData.list)||[]).find(x=>x.id===id);if(!p||estMystere(p))return;ficheId=id;const z=$('fiche');if(z){z.hidden=false;z.scrollTop=0}renderFiche()}
+function traitSplit(t){
+  if(!t)return null;
+  const s=String(t).trim();
+  let nom='',reste=s;
+  const m=s.match(/^«\s*([^»]+)»\s*[—:\-]?\s*(.*)$/)||s.match(/^([^()]+?)\s*\((.*)\)\s*$/);
+  if(m){nom=m[1].trim();reste=m[2].trim()}
+  if(!/[+−]/.test(reste))return{nom:nom||s,plus:'',moins:''};
+  const parts=reste.split(/\s*;\s*/);
+  let plus='',moins='';
+  parts.forEach(pt=>{
+    if(!pt)return;
+    if(/−/.test(pt)||/\-\s*1/.test(pt))moins=moins?moins+' ; '+pt:pt;
+    else if(/\+/.test(pt))plus=plus?plus+' ; '+pt:pt;
+    else if(plus&&!moins)moins=pt;
+    else if(!plus)plus=pt;
+    else moins=moins+' ; '+pt;
+  });
+  return{nom,plus,moins};
+}
+function ouvrirFiche(id){const p=((passData&&passData.list)||[]).find(x=>x.id===id);if(!p||estMystere(p))return;ficheId=id;showLoader(450);requestAnimationFrame(()=>{const z=$('fiche');if(z){z.hidden=false;z.scrollTop=0}renderFiche();hideLoader()})}
 function fermerFiche(){ficheId=null;fermerAttaque();const z=$('fiche');if(z)z.hidden=true}
 function renderFiche(){
   const body=$('fiche-body');if(!body||ficheId==null||!passData)return;
   const p=(passData.list||[]).find(x=>x.id===ficheId);
   if(!p||estMystere(p)){fermerFiche();return}
   body.replaceChildren();
-  const bx=el('button','go','✖ Fermer');bx.style.float='right';bx.onclick=fermerFiche;body.append(bx);
+  const bk0=el('button','go','⬅ Retour aux Équipes');bk0.onclick=fermerFiche;body.append(bk0);
   const head=el('div','fiche-head');
   const id=dexId(p);
   if(id){const im=new Image();im.className='fiche-sprite';im.src=spriteUrl(id,false);im.alt=p.espece||'';im.onerror=()=>{im.onerror=null;im.src=officialUrl(id)};head.append(im)}
-  const ht=el('div','');
-  ht.append(el('div','dnom',p.nom));
-  ht.append(el('div','pt',(p.espece||'???')+' · Niv. '+(p.niveau||'?')+(id?' · N° '+id:'')));
-  head.append(ht);body.append(head);
-  const hp=el('div','hp');const bar=el('div','hpbar'),fill=el('div','hpfill '+hpClass(p));fill.style.width=pct(p)+'%';bar.append(fill);hp.append(bar,el('div','hptext',p.pv_actuel+'/'+p.pv_max+' PV'));body.append(hp);
-  body.append(el('h3','ph3','🪪 Identité'));
   const sp=p.statut_pokemon||'actif';
-  const rows=[['Espèce',p.espece||'—'],['Surnom',p.nom],['Niveau',String(p.niveau||'—')],['N° Pokédex',id?String(id):'—'],['Dresseur',p.proprietaire||'—'],['Statut',sp==='depot'?'Au PC (dépôt)':(sp==='parti'?'Parti':(estLibre(p)?'Compagnon libre':'En équipe'))]];
-  if(p.trait)rows.push(['Trait',p.trait]);
+  const ko=(p.pv_actuel<=0)||sp==='ko';
+  const statutTxt=ko?'K.O.':(sp==='depot'?'Au PC (dépôt)':(sp==='parti'?'Parti':(estLibre(p)?'Compagnon libre':'En équipe')));
+  const ht=el('div','fiche-ht');
+  ht.append(el('div','dnom',p.nom));
+  ht.append(el('div','pt',(p.espece||'???')+' · niv. '+(p.niveau||'?')+' · '+statutTxt));
+  const hp=el('div','hp');const bar=el('div','hpbar'),fill=el('div','hpfill '+hpClass(p));fill.style.width=pct(p)+'%';bar.append(fill);hp.append(bar,el('div','hptext','PV '+p.pv_actuel+'/'+p.pv_max));ht.append(hp);
+  head.append(ht);body.append(head);
+  body.append(el('h3','ph3','🪪 Identité'));
+  const rows=[['Espèce',p.espece||'—'],['Surnom',(p.nom&&p.nom!==p.espece)?p.nom:'Aucun surnom'],['Niveau',String(p.niveau||'—')],['N° Pokédex',id?('N° '+id):'—'],['Dresseur',p.proprietaire||'—']];
+  const ts=traitSplit(p.trait);
+  if(ts&&(ts.plus||ts.moins)){
+    if(ts.plus)rows.push(['Trait +',{nom:ts.nom,desc:ts.plus}]);
+    if(ts.moins)rows.push(['Trait −',{nom:ts.nom,desc:ts.moins}]);
+  }else if(p.trait)rows.push(['Trait',p.trait]);
   if(p.statut&&!estLibre(p))rows.push(['État',p.statut]);
   const tb=el('div','fiche-rows');
-  rows.forEach(r=>{const d=el('div','frow');d.append(el('span','fk',r[0]),el('span','fv',r[1]));tb.append(d)});
+  rows.forEach(r=>{const d=el('div','frow');d.append(el('span','fk',r[0]));const fv=el('span','fv');if(r[1]&&typeof r[1]==='object'){fv.append(el('b','',r[1].nom||''));if(r[1].desc)fv.append(el('div','tdesc',r[1].desc))}else fv.textContent=r[1];d.append(fv);tb.append(d)});
   body.append(tb);
   const atks=Array.isArray(p.attaques)?p.attaques:[];
-  body.append(el('h3','ph3','⚔️ Attaques connues ('+atks.length+')'));
-  if(atks.length){const wrap=el('div','atklist');atks.forEach(a=>{const extra=a.source==='CT'?'CT':(a.source==='don'?'don':(a.niveau?'niv. '+a.niveau:''));const btn=el('button','atkbtn'+((a.source&&a.source!=='niveau')?' or':''));const pill=el('span','tpill',a.type||'Normal');pill.style.background=TYPE_COUL[a.type]||'#888';btn.append(pill);btn.append(el('span','',a.nom));if(extra)btn.append(el('span','sfx',extra));btn.onclick=()=>ouvrirAttaque(a);wrap.append(btn)});body.append(wrap);body.append(el('div','vide','Touche une attaque pour ouvrir sa fiche détaillée.'))}
+  body.append(el('h3','ph3','⚔️ Attaques connues'));
+  body.append(el('div','vide','(Touche une attaque pour ouvrir sa fiche détaillée.)'));
+  if(atks.length){const wrap=el('div','atklist');atks.forEach(a=>{const btn=el('button','atkpill');btn.style.background=TYPE_COUL[a.type]||'#888';btn.textContent=a.nom+(a.source==='CT'?' · CT':(a.source==='don'?' · don':(a.niveau?' niv. '+a.niveau:'')));btn.onclick=()=>ouvrirAttaque(a);wrap.append(btn)});body.append(wrap)}
   else body.append(el('div','vide','Aucune attaque enregistrée.'));
+  const ls=id?LEARNSETS[id]:null;
+  const knownN=new Set(atks.map(a=>norm(a.nom)));
+  if(ls&&ls.length){
+    const nbC=ls.filter(e=>knownN.has(norm(e[1]))).length;
+    body.append(el('div','lscount',nbC+' / '+ls.length+' ✓ connue'));
+  }
+  body.append(el('h3','ph3','📈 Attaques par montée de niveau'));
+  if(ls&&ls.length){
+    ls.forEach(e=>{
+      const connue=knownN.has(norm(e[1]));
+      const fut=!connue&&(p.niveau||0)<e[0];
+      const d=el('div','lsrow'+(fut?' fut':''));
+      d.append(el('span','lspill','niv. '+e[0]));
+      d.append(el('span','lsnom',e[1]));
+      const pill=el('span','tpill',e[2]);pill.style.background=TYPE_COUL[e[2]]||'#888';d.append(pill);
+      if(connue)d.append(el('span','lsok','✓'));
+      body.append(d);
+    });
+  }else body.append(el('div','vide','Liste complète des attaques de l’espèce : à compléter par le MJ.'));
   const rubs=(passData.objectifs||[]).filter(o=>o.categorie==='ruban').map(o=>{try{return JSON.parse(o.texte)}catch(e){return null}}).filter(r=>r&&r.pokemon_id===p.id);
   if(rubs.length){
     body.append(el('h3','ph3','🎀 Rubans ('+rubs.length+')'));
     rubs.forEach(r=>{const dv=el('div','ruban');dv.append(el('div','rub-nom','🎀 '+r.nom));dv.append(el('div','rub-txt',r.texte));if(r.ref)dv.append(el('div','rub-ref',r.ref));body.append(dv)});
   }
-  body.append(el('div','ivev','📊 IV / EV : données non définies'));
   const bk=el('button','go','⬅ Retour aux Équipes');bk.style.marginTop='14px';bk.onclick=fermerFiche;body.append(bk);
 }
 const eqOrdre={},eqOrdreRow={};
@@ -1145,15 +1268,19 @@ function spriteObjet(n){
   for(const [k,v] of M){if(s.includes(k))return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/'+v+'.png'}
   return null;
 }
+let sacCache=[];
 function ligneObjet(i){
   const d=el('div','objligne');
   const url=spriteObjet(i.nom);
   if(url){const img=new Image();img.src=url;img.className='iimg';img.alt='';img.onerror=()=>img.replaceWith(document.createTextNode((i.icone||'🎒')+' '));d.append(img)}
   else d.append(document.createTextNode((i.icone||'🎒')+' '));
   d.append(document.createTextNode(i.nom+(i.quantite>1?' ×'+i.quantite:'')+(i.note?' — '+i.note:'')));
+  d.style.cursor='pointer';d.title='Toucher pour voir la fiche de l’objet';
+  d.onclick=()=>ouvrirObjet(i.id);
   return d;
 }
 function renderSac(inv){
+  sacCache=inv||[];
   const z=$('sac');if(!z)return;z.replaceChildren();
   const ic=el('div','card');ic.append(el('h3','','🎒 Inventaire'));
   const ORDRE=['💊 Soins','⚪ Balls','💿 CT','🔑 Objets clés','🍱 Nourriture','🎒 Divers'];
@@ -1166,6 +1293,29 @@ function renderSac(inv){
   } else ic.append(el('div','vide','Rien pour l’instant.'));
   z.append(ic);
 }
+function ouvrirObjet(id){
+  const it=(sacCache||[]).find(x=>x.id===id);if(!it)return;
+  const z=$('objet'),body=$('objet-body');if(!z||!body)return;
+  body.replaceChildren();
+  const bk0=el('button','go','⬅ Retour à l’Inventaire');bk0.onclick=fermerObjet;body.append(bk0);
+  const head=el('div','fiche-head');
+  const url=spriteObjet(it.nom);
+  if(url){const img=new Image();img.className='obj-sprite';img.src=url;img.alt=it.nom;img.onerror=()=>{const s=el('div','obj-emoji',it.icone||'🎒');img.replaceWith(s)};head.append(img)}
+  else head.append(el('div','obj-emoji',it.icone||'🎒'));
+  const ht=el('div','fiche-ht');
+  ht.append(el('div','dnom',it.nom));
+  ht.append(el('div','pt','×'+(it.quantite||1)+' · '+(it.dresseur==='commun'?'Sac commun':'Sac de '+it.dresseur)));
+  head.append(ht);body.append(head);
+  body.append(el('h3','ph3','🧾 Détails'));
+  const rows=[['Nom',it.nom],['Quantité','×'+(it.quantite||1)],['Propriétaire',it.dresseur==='commun'?'Commun':'Sac de '+it.dresseur]];
+  if(it.note)rows.push(['Origine',it.note]);
+  const tb=el('div','fiche-rows');
+  rows.forEach(r=>{const d=el('div','frow');d.append(el('span','fk',r[0]),el('span','fv',r[1]));tb.append(d)});
+  body.append(tb);
+  const bk=el('button','go','⬅ Retour à l’Inventaire');bk.style.marginTop='14px';bk.onclick=fermerObjet;body.append(bk);
+  z.hidden=false;z.scrollTop=0;
+}
+function fermerObjet(){const z=$('objet');if(z)z.hidden=true}
 const FONDS={
   plaine:{bg:'linear-gradient(#9fd8ff 0 46%,#86c95a 46%)',deco:'☁️🌳'},
   arene_elec:{bg:'linear-gradient(#3a3f5c 0 46%,#5c5f75 46%)',deco:'⚡🏭'},
@@ -1407,7 +1557,7 @@ const ppOv=$('passeport');if(ppOv)ppOv.addEventListener('click',e=>{if(e.target=
     b.onclick=()=>{t.click();window.scrollTo({top:0,behavior:'smooth'})};
     fn.append(b);
   });
-  const placer=()=>{if(!fn.classList.contains('show'))return;const vv=window.visualViewport;const h=fn.offsetHeight||56;const cible=(vv?vv.offsetTop+vv.height:window.innerHeight)-h-24;fn.style.top=cible+'px';const r=fn.getBoundingClientRect();const ecart=cible-r.top;if(Math.abs(ecart)>2)fn.style.top=(cible+ecart)+'px'};
+  const placer=()=>{if(!fn.classList.contains('show'))return;const h=fn.offsetHeight||56;let top=window.scrollY+window.innerHeight-h-24;fn.style.top=top+'px';const r=fn.getBoundingClientRect();const ecart=(window.innerHeight-24)-r.bottom;if(Math.abs(ecart)>2){top+=ecart;fn.style.top=top+'px'}};
   const maj=()=>{fn.classList.toggle('show',window.scrollY>500);
     fn.querySelectorAll('button[data-t]').forEach(b=>{const t=document.querySelector('.tab[data-t="'+b.dataset.t+'"]');b.classList.toggle('on',!!(t&&t.classList.contains('on')))});placer()};
   window.addEventListener('scroll',maj,{passive:true});
@@ -1827,7 +1977,29 @@ async function testerEnvoi(){
 function setConn(ok){$('dot').className='dot'+(ok?' on':'');$('conn').textContent=ok?'en direct':'hors ligne'}
 
 let enCharge=false,enAttente=false;
-async function charger(){if(enCharge){enAttente=true;return}enCharge=true;try{await chargerInterne()}catch(err){const eb=$('errbox');if(eb){eb.hidden=false;eb.textContent='⚠️ Erreur de chargement — '+((err&&err.message)||err)}setConn(false)}finally{enCharge=false;if(enAttente){enAttente=false;charger()}}}
+let loaderVuA=0,loaderMinMs=0,pageCacheeA=0;
+function showLoader(minMs){
+  const z=$('loader');if(!z)return;
+  loaderVuA=Date.now();loaderMinMs=minMs||0;
+  z.hidden=false;
+  requestAnimationFrame(()=>{z.classList.remove('hide')});
+  clearTimeout(window._ldT);
+  window._ldT=setTimeout(()=>hideLoader(true),10000);
+}
+function hideLoader(force){
+  const z=$('loader');if(!z||z.hidden)return;
+  const reste=(loaderMinMs||0)-(Date.now()-loaderVuA);
+  if(reste>0&&!force){setTimeout(()=>hideLoader(true),reste);return}
+  clearTimeout(window._ldT);
+  z.classList.add('hide');
+  setTimeout(()=>{z.hidden=true},380);
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){pageCacheeA=Date.now();return}
+  if(pageCacheeA&&Date.now()-pageCacheeA>20000)showLoader(500);
+});
+showLoader(600);
+async function charger(){if(enCharge){enAttente=true;return}enCharge=true;try{await chargerInterne()}catch(err){const eb=$('errbox');if(eb){eb.hidden=false;eb.textContent='⚠️ Erreur de chargement — '+((err&&err.message)||err)}setConn(false)}finally{enCharge=false;hideLoader();if(enAttente){enAttente=false;charger()}}}
 async function chargerInterne(){
   const errs=[];
   const safe=(nom,fn)=>{try{fn()}catch(err){errs.push(nom+' : '+((err&&err.message)||err))}};
@@ -1887,7 +2059,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v88');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v90');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
