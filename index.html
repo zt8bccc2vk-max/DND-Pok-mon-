@@ -104,6 +104,7 @@ h2{color:#fff;font-size:18px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink)}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--low);margin-right:6px}.dot.on{background:#7ddc7a}
 .slits{display:flex;gap:6px;transform:rotate(-20deg)}.slits i{width:6px;height:34px;border-radius:4px;background:var(--ink)}
 .dice{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;margin:10px 0}
+.reslock{margin:10px 0;padding:14px 12px;border:2px dashed #241f4e;border-radius:12px;text-align:center;font-weight:800;background:rgba(36,31,78,.07)}
 .dw{text-align:center}
 .die{position:relative;width:68px;height:68px;margin:0 auto;cursor:pointer;background:var(--ink);clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)}
 .die::before{content:"";position:absolute;inset:4px;background:linear-gradient(#e5483c 0 43%,var(--ink) 43% 57%,#fff 57%);clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)}
@@ -1580,6 +1581,33 @@ const ppOv=$('passeport');if(ppOv)ppOv.addEventListener('click',e=>{if(e.target=
 })();
 let REV;try{REV=new Set(JSON.parse(localStorage.getItem('rev')||'[]'))}catch(e){REV=new Set()}
 function saveRev(){try{localStorage.setItem('rev',JSON.stringify([...REV]))}catch(e){}}
+const TOUR_PAR_ID={};const VERROUS=[];
+function cleReveal(tour){return 'reveal:'+(localStorage.getItem('joueurLocal')||'invite')+':'+tour}
+function desReveles(row){const d=row.des_json||[],s=new Set();try{(JSON.parse(localStorage.getItem(cleReveal(row.tour))||'[]')).forEach(i=>s.add(+i))}catch(e){}for(let i=0;i<d.length;i++){if(REV.has(row.id+'-'+i)||REV.has('jouer-'+row.id+'-'+i))s.add(i)}return s}
+function tourDebloque(row){const d=row.des_json||[];if(!d.length)return true;const s=desReveles(row);return d.every((_,i)=>s.has(i))}
+function noteDeRevele(tour,i){const k=cleReveal(tour);let arr=[];try{arr=JSON.parse(localStorage.getItem(k)||'[]')}catch(e){}if(!arr.includes(i)){arr.push(i);try{localStorage.setItem(k,JSON.stringify(arr))}catch(e){}}majVerrous(tour)}
+function hookDeRevele(key){const m=String(key).replace(/^jouer-/,'');const p=m.lastIndexOf('-');if(p<0)return;const id=m.slice(0,p),i=+m.slice(p+1);const tour=TOUR_PAR_ID[id];if(tour!=null)noteDeRevele(tour,i)}
+function blocResolution(row,mode){
+  const texte=row.texte_resolution||'';
+  const contenu=mode==='plein'?texte:mode==='apercu'?(texte.slice(0,300)+(texte.length>300?'…':'')):(texte.slice(0,80)+'…');
+  const balise=mode==='snippet'?'span':'div';
+  if(tourDebloque(row))return el(balise,'',contenu);
+  const m=el(balise,'reslock','🎲 Lance les dés pour découvrir la résolution');
+  VERROUS.push({tour:row.tour,row:row,el:m,contenu:contenu,balise:balise});
+  return m;
+}
+function majVerrous(tour){
+  let conv=false;
+  for(let k=VERROUS.length-1;k>=0;k--){const v=VERROUS[k];
+    if(!v.conv&&!v.surPlace&&!v.el.isConnected){VERROUS.splice(k,1);continue}
+    if(v.tour!==tour)continue;
+    if(!tourDebloque(v.row))continue;
+    if(v.conv){conv=true;VERROUS.splice(k,1);continue}
+    if(v.surPlace){v.el.textContent=v.contenu;v.el.classList.remove('reslock')}
+    else{const d=el(v.balise,'',v.contenu);v.el.replaceWith(d)}
+    VERROUS.splice(k,1)}
+  if(conv)renderConversation();
+}
 function dieEl(key,x){
   const w=el('div','dw'),d=el('div','die'),f=el('div','face'),n=el('span','','?'),res=el('div','res');
   const nat=x.total-(x.mod||0);
@@ -1592,7 +1620,7 @@ function dieEl(key,x){
     const max=+String(x.de).replace(/\D/g,'')||20;
     d.classList.add('roll');
     const t=setInterval(()=>{n.textContent=1+Math.floor(Math.random()*max)},70);
-    setTimeout(()=>{clearInterval(t);d.classList.remove('roll');REV.add(key);saveRev();show();
+    setTimeout(()=>{clearInterval(t);d.classList.remove('roll');REV.add(key);saveRev();show();hookDeRevele(key);
       const cont=w.parentElement;
       if(cont&&[...cont.querySelectorAll('.die')].every(dd=>dd.classList.contains('revealed'))){
         setTimeout(()=>{cont.classList.add('gone');const b=cont.parentElement?cont.parentElement.querySelector('.go'):null;if(b)b.style.display='none';
@@ -1613,7 +1641,7 @@ function dieElJ(key,x){
     const max=+String(x.de).replace(/\D/g,'')||20;
     d.classList.add('roll');
     const t=setInterval(()=>{n.textContent=1+Math.floor(Math.random()*max)},70);
-    setTimeout(()=>{clearInterval(t);d.classList.remove('roll');REV.add(key);saveRev();show();
+    setTimeout(()=>{clearInterval(t);d.classList.remove('roll');REV.add(key);saveRev();show();hookDeRevele(key);
       const cont=w.parentElement;
       if(cont&&[...cont.querySelectorAll('.die')].every(dd=>dd.classList.contains('revealed'))){
         const card=w.closest('.card'),b=card?card.querySelector('.go'):null;if(b)b.style.display='none';
@@ -1623,6 +1651,7 @@ function dieElJ(key,x){
 }
 function renderJournal(rows){
   const z=$('journal');z.replaceChildren();
+  rows.forEach(r=>{TOUR_PAR_ID[r.id]=r.tour});
   if(!rows.length){const c=el('div','card');c.append(el('div','vide','Aucun tour résolu pour l’instant.'));z.append(c);return}
   const lr=$('lastres');
   if(lr){lr.replaceChildren();lr.append(el('div','jh','Tour n°'+rows[0].tour+' — résolu par le MJ'));
@@ -1636,7 +1665,7 @@ function renderJournal(rows){
     btnJ.onclick=()=>{const t=document.querySelector('.tab[data-t="journal"]');if(t)t.click();window.scrollTo({top:0,behavior:'smooth'})};
     const btnH=el('button','go','🎬 Mode histoire');
     btnH.onclick=()=>ouvrirHistoire(r0);
-    lr.append(dice0,el('div','',r0.texte_resolution),btnJ,btnH)}
+    lr.append(dice0,blocResolution(r0,'plein'),btnJ,btnH)}
   rows.forEach((r,idx)=>{
     if(idx===0){
       const c=el('div','card'),dice=el('div','dice'),des=r.des_json||[];
@@ -1649,7 +1678,7 @@ function renderJournal(rows){
         c.append(go);
       }
       const txt=r.texte_resolution||'';
-      c.append(dice,el('div','',txt.slice(0,300)+(txt.length>300?'…':'')));
+      c.append(dice,blocResolution(r,'apercu'));
       const bl=el('button','go','📖 Lire l’épisode');bl.style.marginTop='8px';bl.onclick=()=>ouvrirLecture(r);
       const bh=el('button','go','🎬 Mode histoire');bh.style.marginTop='8px';bh.style.marginLeft='8px';bh.onclick=()=>ouvrirHistoire(r);
       c.append(bl,bh);z.append(c);
@@ -1658,7 +1687,7 @@ function renderJournal(rows){
       const b=el('button','eprow');b.type='button';
       const th=el('span','epthumb');th.style.display='grid';th.style.placeItems='center';th.style.fontSize='26px';th.textContent='📜';
       const tt=el('span','ept');
-      tt.append(el('b','','Tour n°'+r.tour+' — résolu par le MJ'),el('span','',(r.texte_resolution||'').slice(0,80)+'…'));
+      tt.append(el('b','','Tour n°'+r.tour+' — résolu par le MJ'),blocResolution(r,'snippet'));
       b.append(th,tt,el('span','epgo','›'));
       b.onclick=()=>ouvrirLecture(r);
       z.append(b);
@@ -1672,7 +1701,11 @@ function ouvrirLecture(r){
   $('lec-t').textContent='Tour n°'+r.tour+' — résolu par le MJ';
   const dz=$('lec-dice');dz.replaceChildren();
   (r.des_json||[]).forEach((x,i)=>dz.append(dieElJ(r.id+'-'+i,x)));
-  $('lec-txt').textContent=r.texte_resolution||'';
+  TOUR_PAR_ID[r.id]=r.tour;
+  const lt=$('lec-txt');
+  for(let k=VERROUS.length-1;k>=0;k--){if(VERROUS[k].el===lt)VERROUS.splice(k,1)}
+  if(tourDebloque(r)){lt.textContent=r.texte_resolution||'';lt.classList.remove('reslock')}
+  else{lt.textContent='🎲 Lance les dés pour découvrir la résolution';lt.classList.add('reslock');VERROUS.push({tour:r.tour,row:r,el:lt,contenu:r.texte_resolution||'',surPlace:true})}
   z.hidden=false;z.scrollTop=0;
 }
 function fermerLecture(){const z=$('lecture');if(z)z.hidden=true}
@@ -1725,6 +1758,7 @@ function histSegments(texte){
   return segs;
 }
 function ouvrirHistoire(r){
+  if(r&&!tourDebloque(r)){ouvrirLecture(r);return}
   histSegs=histSegments(r&&r.texte_resolution);
   if(!histSegs.length)histSegs=[{qui:null,img:null,texte:'(Aucun texte pour ce tour.)'}];
   histIdx=0;
@@ -1760,6 +1794,7 @@ function renderConversation(rows){
   z.hidden=false;if(h)h.hidden=false;
   const r=rs[0],cle=r.id+'|'+(persosCache||[]).length;
   if(!convRow||convCle!==cle){convRow=r;convSegs=histSegments(r.texte_resolution);if(!convSegs.length)convSegs=[{qui:null,img:null,texte:'(Aucun texte pour ce tour.)'}];convCle=cle;convIdx=0;convSig=''}
+  if(!tourDebloque(r)){z.replaceChildren();const m=el('div','reslock','🎲 Lance les dés pour découvrir la résolution');VERROUS.push({tour:r.tour,row:r,el:m,conv:true});z.append(m);return}
   convAffiche();
 }
 function convAffiche(){
@@ -2071,7 +2106,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v94');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v96');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
@@ -2280,6 +2315,7 @@ const tg0=$('testson-go');if(tg0)tg0.onclick=()=>{lancerTestSon()};
 const tx0=$('testson-x');if(tx0)tx0.onclick=()=>{fermerTestSon()};
 const MUS_LIEUX=[
   ['casino','theme-casino-celadopole.mp3'],
+  ['tour pokémon','theme-lugubre-lavanville.mp3'],['tour pokemon','theme-lugubre-lavanville.mp3'],
   ['tour pokémon','pokemon-rgby-pokemon-tower-music.mp3'],['tour pokemon','pokemon-rgby-pokemon-tower-music.mp3'],
   ['centre pokémon','pokemon-rgby-pokemon-center-music.mp3'],['centre pokemon','pokemon-rgby-pokemon-center-music.mp3'],
   ['sylphe','pokemon-rgby-silph-co-music.mp3'],
