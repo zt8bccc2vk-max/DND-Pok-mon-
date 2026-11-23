@@ -428,17 +428,6 @@ html,body{overflow-x:hidden}
 .pball::after{content:'';position:absolute;left:50%;top:50%;width:10px;height:10px;transform:translate(-50%,-50%);border-radius:50%;background:#e8e8f0;border:3px solid #22223a;box-sizing:border-box}
 @keyframes pbspin{to{transform:rotate(360deg)}}
 .loadtxt{font-weight:900;color:var(--ink);font-size:15px}
-.dancers{position:relative;display:flex;align-items:flex-end;gap:6px;height:158px;padding:0 26px}
-.dancer{height:140px;width:auto;filter:drop-shadow(0 7px 7px rgba(14,10,38,.28));transform-origin:50% 100%}
-.dancer.d1{animation:aptdanse .42s ease-in-out infinite alternate}
-.dancer.d2{animation:aptdanse2 .42s ease-in-out infinite alternate}
-@keyframes aptdanse{from{transform:translateY(0) rotate(-3.5deg) scale(1,.985)}to{transform:translateY(-13px) rotate(3deg) scale(.99,1.01)}}
-@keyframes aptdanse2{from{transform:translateY(-13px) rotate(3.5deg) scale(.99,1.01)}to{transform:translateY(0) rotate(-3deg) scale(1,.985)}}
-.note{position:absolute;font-size:21px;opacity:0;animation:noteup 1.5s ease-in infinite;pointer-events:none}
-.note.n1{left:2px;top:26px}
-.note.n2{right:2px;top:14px;animation-delay:.5s}
-.note.n3{left:44%;top:0;animation-delay:1s;font-size:17px}
-@keyframes noteup{0%{transform:translateY(8px) scale(.7) rotate(-6deg);opacity:0}25%{opacity:1}100%{transform:translateY(-30px) scale(1.12) rotate(10deg);opacity:0}}
 .ivev{margin-top:12px;background:#e6e1ff;border:2px dashed #8a84b8;border-radius:12px;padding:8px 10px;font-weight:800;color:#5a5480;text-align:center}
 
 .passfull .phead{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;margin-bottom:6px}
@@ -591,7 +580,7 @@ html,body{overflow-x:hidden}
 <div id="floatnav"></div>
 <div id="lecture" hidden><div class="lec-box"><button id="lec-x" class="go" type="button">✖ Fermer</button> <button id="lec-hist" class="go" type="button">🎬 Mode histoire</button><h2 id="lec-t"></h2><div id="lec-dice" class="dice"></div><div id="lec-txt" class="lec-txt"></div></div></div>
 <div id="histoire" hidden><img id="hist-bg" alt=""><div class="hist-shade"></div><div id="hist-prog"></div><button id="hist-x" type="button">✖ Fermer</button><img id="hist-port" alt="" hidden><div id="hist-pokes"></div><div class="hist-nav"><button id="hist-prec" type="button">◀ Préc.</button><button id="hist-suiv" type="button">Suiv. ▶</button></div><div id="hist-wrap"><div id="hist-name" hidden></div><div id="hist-box"><div id="hist-txt"></div></div><div class="hist-next">▼</div></div></div>
-<div id="loader"><div class="dancers"><span class="note n1">🎵</span><span class="note n2">🎶</span><span class="note n3">🎵</span><img class="dancer d1" src="axel-joyeux-cut.webp" alt="Axel"><img class="dancer d2" src="julien-joyeux-cut.webp" alt="Julien"></div><div class="loadtxt">Chargement…</div></div>
+<div id="loader"><div class="pball"></div><div class="loadtxt">Chargement…</div></div>
 <div id="passeport" hidden><div class="passfull" id="passeport-body"></div></div>
 <div id="fiche" hidden><div class="passfull" id="fiche-body"></div></div>
 <div id="attaque" hidden><div class="passfull"><button class="pclose" onclick="fermerAttaque()" aria-label="Fermer">✖</button><div id="atk-body"></div><button class="go" onclick="fermerAttaque()">⬅ Retour à la fiche</button></div></div>
@@ -1386,13 +1375,19 @@ const LIEUX=[
   {nom:'Argenta',court:'Argenta',x:28,y:26,ico:'🏘️',etape:5,mots:['argenta'],desc:"La ville de pierre. L'Arène de Pierre, les carrières, et Anselme, le plus vieux lecteur de Gonkabi de Kanto. Le Badge Roche y a été gagné contre Pierre.",pres:'Pierre — champion · Anselme — au Centre'},
   {nom:'Mont Sélénite',court:'Mont Sélénite',x:52,y:12,ico:'⛰️',etape:6,mots:['sélénite','selenite','mont'],desc:"La montagne des Mélofée et des fossiles. La danse de la pleine lune, Barnabé le berger, et une pierre pâle encore dans la paroi. Mélodie y a été capturée sous la pleine lune."},
   {nom:'Azuria',court:'Azuria',x:84,y:27,ico:'🏘️',etape:7,mots:['azuria'],desc:"La ville d'eau. L'Arène d'Ondine, gagnée en 21 rounds dans la piscine — Staross terrassé par le poison d'Aiguillon. Groot y a été capturé dans les hautes herbes.",pres:'Ondine — championne'},
-  {nom:'Carmin sur Mer',court:'Carmin sur Mer',x:72,y:81,ico:'⚓',etape:8,mots:['carmin'],desc:"Le grand port de Kanto. L'Arène du Major Bob, les quais… et l'Océane, le bateau de croisière, à quai. La revanche contre Bob a duré 45 rounds : Badge Foudre gagné sur le Fouet Lianes de Groot.",pres:'Major Bob — champion · Oscar — son Second'},
-  {nom:'Lavanville',court:'Lavanville',x:87,y:57,ico:'🗼',etape:9,mots:['lavanville'],desc:"La ville mauve, au pied de la Tour Pokémon. On y parle bas, et les souvenirs y restent."},
-  {nom:'Céladopole',court:'Céladopole',x:45,y:43,ico:'🏙️',etape:10,mots:['céladopole','celadopole'],desc:"La plus grande ville de l'ouest : grand magasin, casino, restaurants… et l'Arène d'Erika."},
-  {nom:'Safrania',court:'Safrania',x:71,y:42,ico:'🏙️',etape:11,mots:['safrania'],desc:"La ville dorée au centre de Kanto. La Silph SARL, et l'Arène de Morgane."},
-  {nom:'Parmanie',court:'Parmanie',x:45,y:76,ico:'🏘️',etape:12,mots:['parmanie'],desc:"La ville du sud, porte de la Zone Safari. L'Arène de Koga n'est jamais là où on l'attend."},
-  {nom:"Cramois'Île",court:"Cramois'Île",x:14,y:88,ico:'🌋',etape:13,mots:['cramois'],desc:"L'île volcan du sud. Un laboratoire, un manoir en ruines, et l'Arène de Blaine."},
-  {nom:'Plateau Indigo',court:'Plateau Indigo',x:11,y:29,ico:'🏆',etape:14,mots:['indigo','plateau'],desc:"Le siège de la Ligue Pokémon. L'arrivée de tous les voyages — avec les huit badges."}
+  {nom:'Caverne Azurée',court:'Caverne Azurée',x:75,y:20,ico:'🌑',etape:8,verrou:1,mots:['caverne','azurée','azuree'],desc:"Une grotte mystérieuse au bord de la rivière, à l’ouest d’Azuria. Personne n’en parle volontiers."},
+  {nom:'Tunnel Rocheux',court:'Tunnel Rocheux',x:90,y:43,ico:'⛏️',etape:9,verrou:1,mots:['tunnel','rocheux'],desc:"Le tunnel qui traverse la montagne entre Azuria et Lavanville. Noir comme un four, du premier pas au dernier."},
+  {nom:'Centrale électrique',court:'Centrale électrique',x:91,y:24,ico:'⚡',etape:10,verrou:1,mots:['centrale','électrique','electrique'],desc:"Une centrale abandonnée au bord de la rivière, sur la route 10, au nord de Lavanville. Elle bourdonne encore."},
+  {nom:'Carmin sur Mer',court:'Carmin sur Mer',x:72,y:81,ico:'⚓',etape:11,mots:['carmin'],desc:"Le grand port de Kanto. L'Arène du Major Bob, les quais… et l'Océane, le bateau de croisière, à quai. La revanche contre Bob a duré 45 rounds : Badge Foudre gagné sur le Fouet Lianes de Groot.",pres:'Major Bob — champion · Oscar — son Second'},
+  {nom:'Grotte Digda',court:'Grotte Digda',x:81,y:73,ico:'🐾',etape:12,verrou:1,mots:['digda','grotte digda'],desc:"Le tunnel des Taupiqueur : un raccourci souterrain entre les environs de Carmin sur Mer et la route d’Argenta."},
+  {nom:'Lavanville',court:'Lavanville',x:87,y:57,ico:'🗼',etape:13,mots:['lavanville'],desc:"La ville mauve, au pied de la Tour Pokémon. On y parle bas, et les souvenirs y restent."},
+  {nom:'Céladopole',court:'Céladopole',x:45,y:43,ico:'🏙️',etape:14,mots:['céladopole','celadopole'],desc:"La plus grande ville de l'ouest : grand magasin, casino, restaurants… et l'Arène d'Erika."},
+  {nom:'Safrania',court:'Safrania',x:71,y:42,ico:'🏙️',etape:15,mots:['safrania'],desc:"La ville dorée au centre de Kanto. La Silph SARL, et l'Arène de Morgane."},
+  {nom:'Parmanie',court:'Parmanie',x:45,y:76,ico:'🏘️',etape:16,mots:['parmanie'],desc:"La ville du sud, porte de la Zone Safari. L'Arène de Koga n'est jamais là où on l'attend."},
+  {nom:'Îles Écumes',court:'Îles Écumes',x:28,y:87,ico:'❄️',etape:17,mots:['écume','ecume','îles','iles'],desc:"Deux îlots de grottes gelées au milieu de la mer, entre Parmanie et Cramois’Île."},
+  {nom:"Cramois'Île",court:"Cramois'Île",x:14,y:88,ico:'🌋',etape:18,mots:['cramois'],desc:"L'île volcan du sud. Un laboratoire, un manoir en ruines, et l'Arène de Blaine."},
+  {nom:'Route Victoire',court:'Route Victoire',x:12,y:37,ico:'🏅',etape:19,mots:['victoire'],desc:"La route finale des dresseurs à huit badges, aux portes du Plateau Indigo."},
+  {nom:'Plateau Indigo',court:'Plateau Indigo',x:11,y:29,ico:'🏆',etape:20,mots:['indigo','plateau'],desc:"Le siège de la Ligue Pokémon. L'arrivée de tous les voyages — avec les huit badges."}
 ];
 const POIS={
 'Bourg Palette':[["Maison d’Axel","Le point de départ de l’aventure — et de ses retours."],["Maison de Julien","Juste à côté : les deux dresseurs ont grandi voisins."],["Laboratoire du Professeur Chen","Tenu par Léo pendant la tournée du Professeur. C’est ici que tout a commencé."]],
@@ -1407,13 +1402,19 @@ const POIS={
 'Safrania':[["Arène de Safrania","L’arène de Morgane, championne Psy — on y entre rarement comme on en sort."],["Silph SARL","Le siège de la grande entreprise technologique de Kanto, au cœur de la ville."],["Dojo de combat","Juste à côté de l’arène : on s’y entraîne dur, à mains nues et à Pokémon."],["Centre Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."],["Boutique Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."]],
 'Parmanie':[["Zone Safari","Le grand parc où l’on capture sans combattre, avec des Safari Balls."],["Arène de Parmanie","L’arène de Koga, champion Poison — elle n’est jamais là où on l’attend."],["Maison du pêcheur","Un des trois frères pêcheurs y garde sa plus belle canne."],["Centre Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."]],
 'Cramois’Île':[["Arène de Cramois’Île","L’arène de Blaine, champion Feu, cachée sur l’île volcan."],["Laboratoire Pokémon","On y étudie les fossiles… et on sait parfois les ramener à la vie."],["Manoir Pokémon","Un manoir en ruines, plein de journaux jaunis et de serrures rouillées."],["Centre Pokémon","On y soigne l’équipe, et le terminal PC permet de réorganiser équipe et dépôt."]],
-'Plateau Indigo':[["Hall de la Ligue","L’entrée du Plateau : on ne passe qu’avec les huit badges en poche."],["Conseil 4","Les quatre dresseurs les plus forts de Kanto, puis le Maître. L’arrivée de tous les voyages."]]
+'Plateau Indigo':[["Hall de la Ligue","L’entrée du Plateau : on ne passe qu’avec les huit badges en poche."],["Conseil 4","Les quatre dresseurs les plus forts de Kanto, puis le Maître. L’arrivée de tous les voyages."]],
+'Caverne Azurée':[["La grotte au bord de l’eau","Une caverne sombre dont l’entrée s’ouvre sur la rivière, à l’ouest d’Azuria."],["Profondeurs froides","L’eau y est profonde et glacée — un lieu pour les dresseurs aguerris."]],
+'Tunnel Rocheux':[["Le tunnel noir","Un long passage sous la montagne, entre la route 9 et la route 10. Sans lumière, on n’y voit pas à deux pas."],["Habitants du noir","Racaillou, Machoc et Nosferapti y vivent loin du jour."]],
+'Centrale électrique':[["La vieille centrale","Une centrale désaffectée au bord de la rivière. L’air y crépite d’électricité statique."],["Salle des générateurs","Des Voltorbe y ont élu domicile — on les confond facilement avec des Poké Balls."]],
+'Grotte Digda':[["Le passage des Taupiqueur","Des galeries creusées par des générations de Taupiqueur, qui relient la route 11 à la route 2."],["Galeries basses","On y avance courbé, entre les terriers."]],
+'Îles Écumes':[["Les îles jumelles","Deux îlots rocheux sur les routes maritimes 19 et 20."],["Grottes de glace","Des galeries gelées, balayées par des courants marins puissants."]],
+'Route Victoire':[["La dernière route","Un chemin d’épreuves réservé aux dresseurs qui portent les huit badges."],["Les portes des badges","Chaque porte de la route ne s’ouvre que pour le badge qui lui correspond."]]
 };
 function rendrePois(affiche,curE){
   const z=$('carte-pois');if(!z)return;z.replaceChildren();
   if(!affiche)return;
   const liste=POIS[affiche.nom];if(!liste)return;
-  if(affiche.etape>curE){z.append(el('div','poilock','🔒 Points d’intérêt — à découvrir sur place'));return}
+  if(affiche.verrou||affiche.etape>curE){z.append(el('div','poilock','🔒 Points d’intérêt — à découvrir sur place'));return}
   z.append(el('div','poititre','📌 Points d’intérêt — '+affiche.nom));
   liste.forEach(p=>{const d=el('div','poi');d.append(el('b','',p[0]));d.append(el('div','poitxt',p[1]));z.append(d)});
 }
@@ -1433,11 +1434,11 @@ function renderCarte(lieu){
   const affiche=sel||curL;
   let s='<div class="mapwrap"><img class="mapimg" src="carte-kanto-illustree.webp" alt="Carte de Kanto">';
   LIEUX.forEach(L=>{
-    const fait=L.etape<=curE, ici=curL&&L.nom===curL.nom;
+    const fait=(L.etape<=curE&&!L.verrou), ici=curL&&L.nom===curL.nom;
     s+='<button class="pin'+(ici?' ici':(fait?' fait':' avenir'))+(L.petit?' petit':'')+'" data-nom="'+L.nom+'" style="left:'+L.x+'%;top:'+L.y+'%" title="'+L.nom+'">'+L.ico+'</button>';
   });
   const ordre=LIEUX.filter(L=>!L.petit).slice().sort((a,b)=>a.etape-b.etape);
-  const ptsFait=ordre.filter(L=>L.etape<=curE);
+  const ptsFait=ordre.filter(L=>L.etape<=curE&&!L.verrou);
   s+='<svg class="routeov" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="'+ordre.map(L=>L.x+','+L.y).join(' ')+'" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-dasharray="3 2.4" opacity="0.9" vector-effect="non-scaling-stroke"/>';
   if(ptsFait.length>1)s+='<polyline points="'+ptsFait.map(L=>L.x+','+L.y).join(' ')+'" fill="none" stroke="#e63946" stroke-width="2.2" opacity="0.95" vector-effect="non-scaling-stroke"/>';
   s+='</svg></div>';
@@ -1447,7 +1448,7 @@ function renderCarte(lieu){
   z.querySelectorAll('.pin').forEach(b=>b.addEventListener('click',()=>{lieuChoisi=b.getAttribute('data-nom');renderCarte(lieu)}));
   const info=$('carte-lieu');
   if(affiche){
-    const fait=affiche.etape<=curE, ici=curL&&affiche.nom===curL.nom;
+    const fait=(affiche.etape<=curE&&!affiche.verrou), ici=curL&&affiche.nom===curL.nom;
     info.textContent=(ici?'📍 Vous êtes ici — ':'')+affiche.ico+' '+affiche.nom+' : '+affiche.desc+(affiche.pres?' · 👥 '+affiche.pres:'')+(fait?'':' · (à venir)');
   } else info.textContent=lieu?('📍 Position actuelle : '+lieu):'';
   const dz=$('carte-dest');
@@ -1480,9 +1481,9 @@ function renderCarteSVG(lieu){
   s+='<ellipse cx="15" cy="94" rx="10" ry="5.5" fill="#f2e3ac" stroke="#241f4e" stroke-width="0.6"/>';
   const ordre=LIEUX.filter(L=>!L.petit).slice().sort((a,b)=>a.etape-b.etape);
   s+='<polyline points="'+ordre.map(L=>L.x+','+L.y).join(' ')+'" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-dasharray="2.5 2" opacity="0.85"/>';
-  if(curE>=0)s+='<polyline points="'+ordre.filter(L=>L.etape<=curE).map(L=>L.x+','+L.y).join(' ')+'" fill="none" stroke="#e63946" stroke-width="1.5"/>';
+  if(curE>=0)s+='<polyline points="'+ordre.filter(L=>L.etape<=curE&&!L.verrou).map(L=>L.x+','+L.y).join(' ')+'" fill="none" stroke="#e63946" stroke-width="1.5"/>';
   LIEUX.forEach(L=>{
-    const fait=L.etape<=curE, ici=curL&&L.nom===curL.nom;
+    const fait=(L.etape<=curE&&!L.verrou), ici=curL&&L.nom===curL.nom;
     const r=L.petit?2.6:3.4, op=fait?1:0.45;
     if(ici)s+='<circle cx="'+L.x+'" cy="'+L.y+'" r="5.6" fill="none" stroke="#e63946" stroke-width="0.9" class="pulse"/>';
     s+='<g class="pin" data-nom="'+L.nom+'" opacity="'+op+'" style="cursor:pointer">';
@@ -1499,7 +1500,7 @@ function renderCarteSVG(lieu){
   z.querySelectorAll('.pin').forEach(g=>g.addEventListener('click',()=>{lieuChoisi=g.getAttribute('data-nom');renderCarte(lieu)}));
   const info=$('carte-lieu');
   if(affiche){
-    const fait=affiche.etape<=curE, ici=curL&&affiche.nom===curL.nom;
+    const fait=(affiche.etape<=curE&&!affiche.verrou), ici=curL&&affiche.nom===curL.nom;
     info.textContent=(ici?'📍 Vous êtes ici — ':'')+affiche.ico+' '+affiche.nom+' : '+affiche.desc+(affiche.pres?' · 👥 '+affiche.pres:'')+(fait?'':' · (à venir)');
   } else info.textContent=lieu?('📍 Position actuelle : '+lieu):'';
   rendrePois(affiche,curE);
@@ -2070,7 +2071,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v91');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v94');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
