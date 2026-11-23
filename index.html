@@ -454,6 +454,12 @@ html,body{overflow-x:hidden}
 .destcard .dimg svg{display:block;width:100%;height:auto}
 .destcard .dtxt{flex:1;min-width:0}
 .destcard .dtxt b{font-size:18px}
+.dexbtn{background:#c0392b !important;color:#fff !important;border:2px solid #7b241c;font-weight:800}
+.deximg{width:170px;height:170px;object-fit:contain;display:block;margin:8px auto}
+.dexevt{text-align:center;font-weight:800;font-size:19px;margin:4px 0}
+.dexname{text-align:center;font-size:24px;font-weight:900;margin:2px 0}
+.dexh{text-align:center;letter-spacing:2px}
+.dexaudio{width:100%;margin-top:10px}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -579,13 +585,14 @@ html,body{overflow-x:hidden}
 
 <div id="anim" hidden><div id="anim-stage"></div><div id="anim-txt"></div><button id="anim-x" type="button">Continuer</button></div>
 <div id="floatnav"></div>
-<div id="lecture" hidden><div class="lec-box"><button id="lec-x" class="go" type="button">✖ Fermer</button> <button id="lec-hist" class="go" type="button">🎬 Mode histoire</button><h2 id="lec-t"></h2><div id="lec-dice" class="dice"></div><div id="lec-txt" class="lec-txt"></div></div></div>
+<div id="lecture" hidden><div class="lec-box"><button id="lec-x" class="go" type="button">✖ Fermer</button> <button id="lec-hist" class="go" type="button">🎬 Mode histoire</button><h2 id="lec-t"></h2><div id="lec-dice" class="dice"></div><div id="lec-evt"></div><div id="lec-txt" class="lec-txt"></div></div></div>
 <div id="histoire" hidden><img id="hist-bg" alt=""><div class="hist-shade"></div><div id="hist-prog"></div><button id="hist-x" type="button">✖ Fermer</button><img id="hist-port" alt="" hidden><div id="hist-pokes"></div><div class="hist-nav"><button id="hist-prec" type="button">◀ Préc.</button><button id="hist-suiv" type="button">Suiv. ▶</button></div><div id="hist-wrap"><div id="hist-name" hidden></div><div id="hist-box"><div id="hist-txt"></div></div><div class="hist-next">▼</div></div></div>
 <div id="loader"><div class="pball"></div><div class="loadtxt">Chargement…</div></div>
 <div id="passeport" hidden><div class="passfull" id="passeport-body"></div></div>
 <div id="fiche" hidden><div class="passfull" id="fiche-body"></div></div>
 <div id="attaque" hidden><div class="passfull"><button class="pclose" onclick="fermerAttaque()" aria-label="Fermer">✖</button><div id="atk-body"></div><button class="go" onclick="fermerAttaque()">⬅ Retour à la fiche</button></div></div>
 <div id="objet" hidden><div class="passfull" id="objet-body"></div></div>
+<div id="pokedex" hidden><div class="passfull" id="pokedex-body"></div></div>
 <script>
 const SUPABASE_URL='https://kybylakwlqwsmbyawjlu.supabase.co';
 const SUPABASE_KEY='sb_publishable_jQDj0u0fcMavgsp0MDI7lg_witetarV';
@@ -1214,7 +1221,8 @@ function typeObjet(n){
 let suggSel=[],suggSig='';
 function renderSuggestions(obj){
   const card=$('sugg-card'),list=$('sugg-list');if(!card||!list)return;
-  const row=localStorage.getItem('joueurLocal')==='Axel'?(obj||[]).find(o=>o.categorie==='mj_suggestions'):null;
+  const jl=localStorage.getItem('joueurLocal');
+  const row=(jl==='Axel'||jl==='Julien')?(obj||[]).find(o=>o.categorie===(jl==='Julien'?'mj_suggestions_julien':'mj_suggestions')):null;
   let d=null;if(row){try{d=JSON.parse(row.texte)}catch(e){d=null}}
   if(!d||d.tour!==tourCourant||!Array.isArray(d.items)||!d.items.length){card.hidden=true;suggSig='';suggSel=[];return}
   const sig=d.tour+'|'+row.texte;
@@ -1585,6 +1593,29 @@ const TOUR_PAR_ID={};const VERROUS=[];
 function cleReveal(tour){return 'reveal:'+(localStorage.getItem('joueurLocal')||'invite')+':'+tour}
 function desReveles(row){const d=row.des_json||[],s=new Set();try{(JSON.parse(localStorage.getItem(cleReveal(row.tour))||'[]')).forEach(i=>s.add(+i))}catch(e){}for(let i=0;i<d.length;i++){if(REV.has(row.id+'-'+i)||REV.has('jouer-'+row.id+'-'+i))s.add(i)}return s}
 function tourDebloque(row){const d=row.des_json||[];if(!d.length)return true;const s=desReveles(row);return d.every((_,i)=>s.has(i))}
+let EVT_PAR_TOUR={};
+function chargerEvenements(rows){EVT_PAR_TOUR={};(rows||[]).filter(o=>o.categorie==='evenement_pokedex').forEach(o=>{try{const d=JSON.parse(o.texte);if(d&&d.tour&&d.audio)EVT_PAR_TOUR[d.tour]=d}catch(e){}})}
+function evtPourTour(t){return EVT_PAR_TOUR[t]||null}
+const EVT_LABELS={eclosion:'🥚 Éclosion !',evolution:'✨ Évolution !',decouverte:'🔍 Nouveau Pokémon découvert !'};
+function boutonEvt(evt){const b=el('button','go dexbtn','📟 Événement Pokédex !');b.type='button';b.onclick=()=>ouvrirPokedex(evt);return b}
+function ouvrirPokedex(evt){
+  const z=$('pokedex'),bd=$('pokedex-body');if(!z||!bd)return;
+  fermerPokedex();
+  bd.replaceChildren();
+  const x=el('button','pclose','✖');x.type='button';x.setAttribute('aria-label','Fermer');x.onclick=fermerPokedex;bd.append(x);
+  bd.append(el('h2','dexh','📟 POKÉDEX'));
+  bd.append(el('div','dexevt',EVT_LABELS[evt.type]||'✨ Événement !'));
+  const id=dexId({espece:evt.espece||evt.nom||''});
+  if(id){const im=el('img','deximg');im.src=officialUrl(id);im.alt=evt.nom||evt.espece||'';im.onerror=()=>im.remove();bd.append(im)}
+  bd.append(el('div','dexname',evt.nom||evt.espece||'Pokémon'));
+  if(evt.texte)bd.append(el('div','lec-txt',evt.texte));
+  const au=el('audio','dexaudio');au.controls=true;au.src=evt.audio;au.autoplay=true;bd.append(au);
+  window._dexAudio=au;au.play().catch(()=>{});
+  const f=el('button','go','✖ Fermer');f.type='button';f.style.marginTop='10px';f.onclick=fermerPokedex;bd.append(f);
+  z.hidden=false;z.scrollTop=0;
+}
+function fermerPokedex(){const z=$('pokedex');if(z)z.hidden=true;if(window._dexAudio){try{window._dexAudio.pause()}catch(e){}window._dexAudio=null}}
+function majLecEvt(){const z=$('lec-evt');if(!z)return;z.replaceChildren();const r=window._lecRow;if(!r)return;const evt=evtPourTour(r.tour);if(evt&&tourDebloque(r))z.append(boutonEvt(evt))}
 function noteDeRevele(tour,i){const k=cleReveal(tour);let arr=[];try{arr=JSON.parse(localStorage.getItem(k)||'[]')}catch(e){}if(!arr.includes(i)){arr.push(i);try{localStorage.setItem(k,JSON.stringify(arr))}catch(e){}}majVerrous(tour)}
 function hookDeRevele(key){const m=String(key).replace(/^jouer-/,'');const p=m.lastIndexOf('-');if(p<0)return;const id=m.slice(0,p),i=+m.slice(p+1);const tour=TOUR_PAR_ID[id];if(tour!=null)noteDeRevele(tour,i)}
 function blocResolution(row,mode){
@@ -1607,6 +1638,7 @@ function majVerrous(tour){
     else{const d=el(v.balise,'',v.contenu);v.el.replaceWith(d)}
     VERROUS.splice(k,1)}
   if(conv)renderConversation();
+  try{if(window._lecRow&&window._lecRow.tour===tour)majLecEvt()}catch(e){}
 }
 function dieEl(key,x){
   const w=el('div','dw'),d=el('div','die'),f=el('div','face'),n=el('span','','?'),res=el('div','res');
@@ -1665,7 +1697,9 @@ function renderJournal(rows){
     btnJ.onclick=()=>{const t=document.querySelector('.tab[data-t="journal"]');if(t)t.click();window.scrollTo({top:0,behavior:'smooth'})};
     const btnH=el('button','go','🎬 Mode histoire');
     btnH.onclick=()=>ouvrirHistoire(r0);
-    lr.append(dice0,blocResolution(r0,'plein'),btnJ,btnH)}
+    const ev0=evtPourTour(r0.tour);
+    if(ev0&&tourDebloque(r0))lr.append(dice0,boutonEvt(ev0),blocResolution(r0,'plein'),btnJ,btnH);
+    else lr.append(dice0,blocResolution(r0,'plein'),btnJ,btnH)}
   rows.forEach((r,idx)=>{
     if(idx===0){
       const c=el('div','card'),dice=el('div','dice'),des=r.des_json||[];
@@ -1679,6 +1713,7 @@ function renderJournal(rows){
       }
       const txt=r.texte_resolution||'';
       c.append(dice,blocResolution(r,'apercu'));
+      const evJ=evtPourTour(r.tour);if(evJ&&tourDebloque(r))c.append(boutonEvt(evJ));
       const bl=el('button','go','📖 Lire l’épisode');bl.style.marginTop='8px';bl.onclick=()=>ouvrirLecture(r);
       const bh=el('button','go','🎬 Mode histoire');bh.style.marginTop='8px';bh.style.marginLeft='8px';bh.onclick=()=>ouvrirHistoire(r);
       c.append(bl,bh);z.append(c);
@@ -1701,6 +1736,7 @@ function ouvrirLecture(r){
   $('lec-t').textContent='Tour n°'+r.tour+' — résolu par le MJ';
   const dz=$('lec-dice');dz.replaceChildren();
   (r.des_json||[]).forEach((x,i)=>dz.append(dieElJ(r.id+'-'+i,x)));
+  majLecEvt();
   TOUR_PAR_ID[r.id]=r.tour;
   const lt=$('lec-txt');
   for(let k=VERROUS.length-1;k>=0;k--){if(VERROUS[k].el===lt)VERROUS.splice(k,1)}
@@ -2080,6 +2116,7 @@ async function chargerInterne(){
   safe('sac',()=>renderSac(iv.error?[]:(iv.data||[])));
   safe('quêtes',()=>renderQuetes(ob.error?[]:(ob.data||[])));
   safe('suggestions',()=>renderSuggestions(ob.error?[]:(ob.data||[])));
+  safe('evenements',()=>{chargerEvenements(ob.error?[]:(ob.data||[]));renderJournal(j.data||[])});
   safe('souvenirs',()=>{renderSouvenirs(ob.error?[]:(ob.data||[]));renderPrecedemment(ob.error?[]:(ob.data||[]))});
   const rc=await db.from('rencontres').select('*').eq('code_partie',partie);
   if(rc.error)errs.push('rencontres : '+(rc.error.message||rc.error.code||'?'));
@@ -2106,7 +2143,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v96');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v99');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
@@ -2172,6 +2209,18 @@ async function demarrer(){
 
 let advActif=false;
 const MUS={ctx:null,on:false,timer:null,track:'plaine',step:0,gain:null,tournoi:false};try{MUS.tournoi=localStorage.getItem('musiqueTournoi')==='1'}catch(_){}
+try{MUS.on=localStorage.getItem('son')==='1'}catch(_){}
+let sonPret=false;
+function lancerSonSiActif(){
+  if(sonPret||!MUS.on)return;
+  sonPret=true;
+  if(!MUS.ctx){const AC=window.AudioContext||window.webkitAudioContext;if(AC){MUS.ctx=new AC();MUS.gain=MUS.ctx.createGain();MUS.gain.gain.value=.6;MUS.gain.connect(MUS.ctx.destination)}}
+  if(MUS.ctx){MUS.ctx.resume();if(!MUS.timer)boucleMus()}
+  if(dernierEtat)majMusique(dernierEtat);
+  try{lecteurCombat.amorcer();lecteurLieu.amorcer();lecteurTournoi.amorcer()}catch(_){}
+}
+document.addEventListener('pointerdown',lancerSonSiActif);
+try{majGateSon()}catch(_){}
 const TRACKS={
   plaine:{tempo:132,lead:[72,0,76,0,79,0,76,0,81,0,79,0,76,0,74,0,72,0,76,0,79,0,84,0,79,0,76,0,74,0,0,0],bass:[48,55,52,55,53,55,48,55,50,55,52,55,48,55,50,55]},
   ville:{tempo:100,lead:[69,0,0,72,0,0,74,0,76,0,74,72,0,0,0,0,69,0,0,72,0,0,77,0,76,0,74,0,72,0,0,0],bass:[41,48,45,48,41,48,43,48,41,48,45,48,41,48,41,48]},
@@ -2255,7 +2304,7 @@ function majAccueil(){
   if(gateOuvert()&&MUS.on){lecteurLieu.pause();lecteurCombat.pause();lecteurTournoi.pause();if(lecteurAccueil.paused)lecteurAccueil.play().catch(()=>{})}
   else if(!lecteurAccueil.paused)lecteurAccueil.pause();
 }
-function majGateSon(){const b=$('gate-son');if(b)b.textContent=MUS.on?'🔊 Musique : oui':'🔇 Musique : non'}
+function majGateSon(){const b=$('gate-son');if(b)b.textContent=MUS.on?'🔊 Musique : oui':'🔇 Musique : non';const h=$('btn-son');if(h){h.textContent=MUS.on?'🔊':'🔇';h.classList.toggle('on',MUS.on)}}
 const gs0=$('gate-son');if(gs0)gs0.onclick=()=>{basculeSon()};
 const gt0=$('gate-test');if(gt0)gt0.onclick=()=>{ouvrirTestSon()};
 const CHANTS={'Kibagon':'chant-kibagon.mp3'};
