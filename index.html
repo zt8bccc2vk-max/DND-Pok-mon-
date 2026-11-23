@@ -397,7 +397,7 @@ html,body{overflow-x:hidden}
 .eqbtns{display:flex;gap:10px;margin-top:12px}
 .eqbtns .go{flex:1}
 .subsec{margin-top:12px;border-top:2px dashed #d9d6ee;padding-top:8px}
-#fiche{position:fixed;inset:0;z-index:290;background:rgba(20,16,46,.82);overflow-y:auto;padding:max(14px,env(safe-area-inset-top)) 12px max(20px,env(safe-area-inset-bottom))}
+#fiche{position:fixed;inset:0;z-index:290;background:rgba(20,16,46,.82);overflow-y:auto;padding:max(14px,env(safe-area-inset-top)) 12px max(20px,env(safe-area-inset-bottom))}#perso{position:fixed;inset:0;z-index:291;background:rgba(20,16,46,.82);overflow-y:auto;padding:max(14px,env(safe-area-inset-top)) 12px max(20px,env(safe-area-inset-bottom))}#objet{position:fixed;inset:0;z-index:292;background:rgba(20,16,46,.82);overflow-y:auto;padding:max(14px,env(safe-area-inset-top)) 12px max(20px,env(safe-area-inset-bottom))}#choix{position:fixed;inset:0;z-index:293;background:rgba(20,16,46,.82);overflow-y:auto;padding:max(14px,env(safe-area-inset-top)) 12px max(20px,env(safe-area-inset-bottom))}#pokedex{position:fixed;inset:0;z-index:294;background:rgba(20,16,46,.82);overflow-y:auto;padding:max(14px,env(safe-area-inset-top)) 12px max(20px,env(safe-area-inset-bottom))}
 .fiche-head{display:flex;gap:12px;align-items:center}
 .fiche-sprite{width:96px;height:96px;image-rendering:pixelated;border:3px solid var(--navy);border-radius:14px;background:#fff;padding:4px;box-sizing:border-box}
 .frow{display:flex;gap:10px;padding:5px 2px;border-bottom:2px solid #eee9d8}
@@ -2143,7 +2143,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v101');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v102');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
