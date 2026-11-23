@@ -441,9 +441,9 @@ html,body{overflow-x:hidden}
 .passfull .pteam figcaption{font-size:10.5px;font-weight:700;color:#5a5480;max-width:66px;text-align:center;line-height:1.15}
 .badges8{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 6px;justify-items:center;margin-top:2px}
 .bmedal{display:flex;flex-direction:column;align-items:center;gap:3px}
-.bmedal svg{width:58px;height:58px;filter:drop-shadow(0 2px 2px rgba(14,10,38,.35))}
+.bmedal svg,.bmedal img{width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(14,10,38,.35))}
 .bmedal .bn{font-size:11.5px;font-weight:800;color:var(--ink);text-align:center}
-.bmedal.off svg{filter:grayscale(1);opacity:.38}
+.bmedal.off svg,.bmedal.off img{filter:grayscale(1);opacity:.38}
 .bmedal.off .bn{color:#8b86a8}
 .pteam .empty{width:42px;height:42px;border:2px dashed var(--mut);border-radius:50%;display:inline-grid;place-items:center;color:var(--mut);font-size:16px;opacity:.55}
 .toptabs{display:flex;gap:8px;padding:0 14px 10px}
@@ -754,14 +754,14 @@ function statsJournal(rows,list){
 }
 const MEDAILLE_CADRE='<circle cx="24" cy="24" r="22.5" fill="#f7c948" stroke="#a86e00" stroke-width="2"/><circle cx="24" cy="24" r="17.5" fill="#fff8e1" stroke="#d9a92c" stroke-width="1"/>';
 const BADGES8=[
-  {nom:'Badge Roche',court:'Roche',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<polygon points="37,24 33.2,33.2 24,37 14.8,33.2 11,24 14.8,14.8 24,11 33.2,14.8" fill="#9aa3ad" stroke="#626a73" stroke-width="2" stroke-linejoin="round"/></svg>'},
-  {nom:'Badge Cascade',court:'Cascade',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<path d="M24 10.5 C24 10.5 13.5 23.5 13.5 29 a10.5 10.5 0 0 0 21 0 C34.5 23.5 24 10.5 24 10.5 Z" fill="#35a3e8" stroke="#1c6fb8" stroke-width="2" stroke-linejoin="round"/></svg>'},
-  {nom:'Badge Foudre',court:'Foudre',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<g fill="#ffd23e" stroke="#d99a00" stroke-width="1.8" stroke-linejoin="round"><rect x="14.5" y="14.5" width="19" height="19"/><rect x="14.5" y="14.5" width="19" height="19" transform="rotate(45 24 24)"/></g></svg>'},
-  {nom:'Badge Prisme',court:'Prisme',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<g stroke="none"><circle cx="24" cy="15.4" r="4.8" fill="#e74c3c"/><circle cx="31.45" cy="19.7" r="4.8" fill="#e67e22"/><circle cx="31.45" cy="28.3" r="4.8" fill="#f1c40f"/><circle cx="24" cy="32.6" r="4.8" fill="#2ecc71"/><circle cx="16.55" cy="28.3" r="4.8" fill="#3498db"/><circle cx="16.55" cy="19.7" r="4.8" fill="#9b59b6"/></g><circle cx="24" cy="24" r="3.8" fill="#fff" stroke="#d9a92c" stroke-width="1.2"/></svg>'},
-  {nom:'Badge Âme',court:'Âme',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<path d="M24 36.5 C11 27 12.5 12.5 20 12.5 C22.8 12.5 24 14.8 24 16.2 C24 14.8 25.2 12.5 28 12.5 C35.5 12.5 37 27 24 36.5 Z" fill="#f472b6" stroke="#c7438b" stroke-width="2" stroke-linejoin="round"/></svg>'},
-  {nom:'Badge Marais',court:'Marais',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<circle cx="24" cy="24" r="12.5" fill="#f5c542" stroke="#c9930a" stroke-width="2"/><circle cx="24" cy="24" r="6.5" fill="none" stroke="#c9930a" stroke-width="2.2"/><circle cx="24" cy="24" r="1.8" fill="#c9930a"/></svg>'},
-  {nom:'Badge Volcan',court:'Volcan',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<path d="M24 8.5 C27 14.5 33 18.5 33 26.5 a9 9 0 0 1 -18 0 C15 19.5 20.5 15.5 24 8.5 Z" fill="#e2483d" stroke="#a92c22" stroke-width="2" stroke-linejoin="round"/><path d="M24 20.5 C25.8 23.2 27.8 24.8 27.8 28.2 a3.8 3.8 0 0 1 -7.6 0 C20.2 25.2 22.2 23.2 24 20.5 Z" fill="#f6b73c"/></svg>'},
-  {nom:'Badge Terre',court:'Terre',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<path d="M24 9 C31 14 33.5 23.5 24 39 C14.5 23.5 17 14 24 9 Z" fill="#57b368" stroke="#35804a" stroke-width="2" stroke-linejoin="round"/><path d="M24 13.5 L24 34.5" stroke="#35804a" stroke-width="2" stroke-linecap="round"/></svg>'}
+  {nom:'Badge Roche',court:'Roche',img:'badge-roche.png',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<polygon points="37,24 33.2,33.2 24,37 14.8,33.2 11,24 14.8,14.8 24,11 33.2,14.8" fill="#9aa3ad" stroke="#626a73" stroke-width="2" stroke-linejoin="round"/></svg>'},
+  {nom:'Badge Cascade',court:'Cascade',img:'badge-cascade.png',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<path d="M24 10.5 C24 10.5 13.5 23.5 13.5 29 a10.5 10.5 0 0 0 21 0 C34.5 23.5 24 10.5 24 10.5 Z" fill="#35a3e8" stroke="#1c6fb8" stroke-width="2" stroke-linejoin="round"/></svg>'},
+  {nom:'Badge Foudre',court:'Foudre',img:'badge-foudre.png',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<g fill="#ffd23e" stroke="#d99a00" stroke-width="1.8" stroke-linejoin="round"><rect x="14.5" y="14.5" width="19" height="19"/><rect x="14.5" y="14.5" width="19" height="19" transform="rotate(45 24 24)"/></g></svg>'},
+  {nom:'Badge Prisme',court:'Prisme',img:'badge-prisme.png',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<g stroke="none"><circle cx="24" cy="15.4" r="4.8" fill="#e74c3c"/><circle cx="31.45" cy="19.7" r="4.8" fill="#e67e22"/><circle cx="31.45" cy="28.3" r="4.8" fill="#f1c40f"/><circle cx="24" cy="32.6" r="4.8" fill="#2ecc71"/><circle cx="16.55" cy="28.3" r="4.8" fill="#3498db"/><circle cx="16.55" cy="19.7" r="4.8" fill="#9b59b6"/></g><circle cx="24" cy="24" r="3.8" fill="#fff" stroke="#d9a92c" stroke-width="1.2"/></svg>'},
+  {nom:'Badge Âme',court:'Âme',img:'badge-ame.png',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<path d="M24 36.5 C11 27 12.5 12.5 20 12.5 C22.8 12.5 24 14.8 24 16.2 C24 14.8 25.2 12.5 28 12.5 C35.5 12.5 37 27 24 36.5 Z" fill="#f472b6" stroke="#c7438b" stroke-width="2" stroke-linejoin="round"/></svg>'},
+  {nom:'Badge Marais',court:'Marais',img:'badge-marais.png',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<circle cx="24" cy="24" r="12.5" fill="#f5c542" stroke="#c9930a" stroke-width="2"/><circle cx="24" cy="24" r="6.5" fill="none" stroke="#c9930a" stroke-width="2.2"/><circle cx="24" cy="24" r="1.8" fill="#c9930a"/></svg>'},
+  {nom:'Badge Volcan',court:'Volcan',img:'badge-volcan.png',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<path d="M24 8.5 C27 14.5 33 18.5 33 26.5 a9 9 0 0 1 -18 0 C15 19.5 20.5 15.5 24 8.5 Z" fill="#e2483d" stroke="#a92c22" stroke-width="2" stroke-linejoin="round"/><path d="M24 20.5 C25.8 23.2 27.8 24.8 27.8 28.2 a3.8 3.8 0 0 1 -7.6 0 C20.2 25.2 22.2 23.2 24 20.5 Z" fill="#f6b73c"/></svg>'},
+  {nom:'Badge Terre',court:'Terre',img:'badge-terre.png',svg:'<svg viewBox="0 0 48 48">'+MEDAILLE_CADRE+'<path d="M24 9 C31 14 33.5 23.5 24 39 C14.5 23.5 17 14 24 9 Z" fill="#57b368" stroke="#35804a" stroke-width="2" stroke-linejoin="round"/><path d="M24 13.5 L24 34.5" stroke="#35804a" stroke-width="2" stroke-linecap="round"/></svg>'}
 ];
 let passeportOuvert=null;
 let passData=null;
@@ -794,7 +794,8 @@ function renderPasseport(){
   BADGES8.forEach(B=>{
     const ok=bd.indexOf(B.nom)>=0;
     const m=el('div','bmedal'+(ok?'':' off'));
-    m.innerHTML=B.svg;
+    const im=el('img');im.src=B.img;im.alt=B.nom;im.loading='lazy';im.onerror=()=>{im.remove();m.insertAdjacentHTML('afterbegin',B.svg)};
+    m.append(im);
     m.append(el('span','bn',B.court+(ok?'':' · à gagner')));
     bg.append(m);
   });
@@ -2143,7 +2144,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v99');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v100');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
