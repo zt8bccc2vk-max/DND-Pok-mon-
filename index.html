@@ -65,6 +65,28 @@ h2{color:#fff;font-size:18px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink)}
 .hpbox .n small{color:var(--mut);font-weight:700}
 .bar{height:11px;background:#d9d6ee;border:2px solid var(--ink);border-radius:99px;overflow:hidden;margin:3px 0}
 .fill{height:100%;transition:width .7s ease,background .4s}
+.bench{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
+.bench .btitre{width:100%;font-size:11px;font-weight:800;color:#20304a;opacity:.75;letter-spacing:.02em}
+.bslot{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.82);border:2px solid var(--ink);border-radius:12px;padding:3px 8px 3px 3px;cursor:pointer;min-width:128px;flex:1 1 128px;max-width:190px}
+.bslot.ko{opacity:.55;filter:grayscale(.6)}
+.bslot .bspr{width:38px;height:38px;image-rendering:pixelated}
+.bslot .binf{flex:1;min-width:0}
+.bslot .bname{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bslot .bbar{height:7px;background:#d9d6ee;border:1.5px solid var(--ink);border-radius:99px;overflow:hidden;margin:2px 0}
+.bslot .bfill{height:100%}
+.bslot .bpv{font-size:10.5px;font-weight:700;color:#5a5480}
+#combatfeed{margin-bottom:14px}
+.pin{position:relative}
+.pinq{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;border-radius:99px;background:#7a5af8;color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #fff;padding:0 3px}
+.poi.enq{border-color:#7a5af8;background:#f3efff}
+.relrow{display:flex;align-items:center;gap:8px;margin:5px 0 2px}
+.rellab{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#8a86a3}
+.relgauge{display:inline-flex;gap:3px}
+.relpip{width:16px;height:8px;border-radius:99px;background:#e3e1ef}
+.relpip.neg{background:#e63946}
+.relpip.mid{background:#9a94b8}
+.relpip.pos{background:#2a9d8f}
+.relval{font-size:12px;font-weight:700;color:#55516e}
 .pv{font-size:12px;color:var(--mut);font-weight:700}
 .st{display:inline-block;font-size:11px;font-weight:800;border:2px solid var(--ink);border-radius:99px;padding:0 7px;margin:2px 3px 0 0;background:#e6e1ff}
 .own{font-size:11px;font-weight:800;color:var(--red)}
@@ -530,7 +552,8 @@ html,body{overflow-x:hidden}
       <h2 id="conv-h" hidden>🎬 La conversation</h2>
       <div class="card" id="convcard" hidden></div>
       <h2 id="combat-h">⚔️ Le combat</h2>
-      <div class="arena"><div id="scene" hidden></div><div id="deco"></div><div class="row" id="foes"></div><div class="row" id="allies"></div></div>
+      <div class="arena"><div id="scene" hidden></div><div id="deco"></div><div class="row" id="foes"></div><div id="bench-foes" class="bench" hidden></div><div class="row" id="allies"></div><div id="bench-allies" class="bench" hidden></div></div>
+      <div class="card" id="combatfeed" hidden></div>
       <h2>📣 À vos annonces</h2>
       <div class="card"><div id="ann-status"></div><div class="ann" id="annonces"></div></div>
       <h2>📜 Dernier résultat</h2>
@@ -687,15 +710,54 @@ function illusLieu(nom){
   for(const [mot,f] of ILLUS_LIEUX){if(s.indexOf(mot)>=0)return f}
   return null;
 }
+function miniSlot(p){
+  const ko=p.pv_actuel<=0||p.statut_pokemon==='ko';
+  const d=el('div','bslot'+(ko?' ko':''));d.dataset.pid=p.id;
+  const id=dexId(p);
+  if(id){const im=new Image();im.className='bspr';im.src=spriteUrl(id,false);im.alt=p.espece||'';im.onerror=()=>{im.onerror=null;im.src=officialUrl(id)};d.append(im)}
+  const inf=el('div','binf');
+  inf.append(el('div','bname',p.nom+' · Niv. '+p.niveau));
+  const bar=el('div','bbar'),f=el('div','bfill '+hpClass(p));f.style.width=pct(p)+'%';bar.append(f);inf.append(bar);
+  inf.append(el('div','bpv',p.pv_actuel+'/'+p.pv_max+' PV'+(ko?' · K.O.':'')));
+  d.append(inf);
+  d.onclick=()=>{if(!estMystere(p))ouvrirFiche(p.id)};
+  return d;
+}
+function bancAllies(list){return list.filter(p=>(p.proprietaire==='Axel'||p.proprietaire==='Julien')&&!p.actif&&(p.statut_pokemon||'actif')==='actif'&&!estLibre(p))}
+function bancFoes(list,rows){
+  const last=(rows&&rows[0])?rows[0].tour:0,min=last-12,noms=new Set();
+  (rows||[]).filter(r=>r.tour>min).forEach(r=>{const t=(r.texte_resolution||'')+' '+(r.des_json||[]).map(x=>x.label||'').join(' ');list.forEach(p=>{if(p.proprietaire==='Adversaire'&&t.indexOf(p.nom)>=0)noms.add(p.id)})});
+  return list.filter(p=>p.proprietaire==='Adversaire'&&!p.actif&&noms.has(p.id));
+}
+function estCombatRow(r){
+  if(!r)return false;
+  return (r.des_json||[]).some(x=>/d[ée]g[âa]ts|K\.O\./i.test(x.verdict||''));
+}
+let feedSig='';
+function renderCombatFeed(rows,combat){
+  const z=$('combatfeed');if(!z)return;
+  const row=(rows||[]).find(estCombatRow);
+  const recent=row&&(rows||[]).indexOf(row)<3;
+  if(!row||(!combat&&!recent)){if(!z.hidden){z.hidden=true}feedSig='';return}
+  const sig=row.id+'|'+(tourDebloque(row)?1:0);
+  if(sig===feedSig)return;
+  feedSig=sig;
+  z.hidden=false;z.replaceChildren();
+  z.append(el('div','jh','⚔️ Dernier round — Tour n°'+row.tour));
+  if(!tourDebloque(row)){const m=el('div','reslock','🎲 Lance les dés du dernier résultat pour afficher le round ici');VERROUS.push({tour:row.tour,row:row,el:m,feed:true});z.append(m);return}
+  z.append(blocResumeCourt(row));
+}
 let arenaSig='';
-function renderArena(list){
+function renderArena(list,rows){
   const act=list.filter(p=>p.actif),F=$('foes'),A=$('allies');
   const foes=act.filter(p=>p.proprietaire==='Adversaire'),al=act.filter(p=>p.proprietaire!=='Adversaire');
-  const sig=JSON.stringify(act.map(p=>[p.id,p.proprietaire,p.nom,p.espece,p.niveau,p.pv_actuel,p.pv_max,p.statut,p.dex_id]))+'|'+lieuCourant+'|'+fondCourant;
+  const bA=bancAllies(list),bF=foes.length?bancFoes(list,rows||[]):[];
+  renderCombatFeed(rows||[],foes.length>0);
+  const sig=JSON.stringify(act.map(p=>[p.id,p.proprietaire,p.nom,p.espece,p.niveau,p.pv_actuel,p.pv_max,p.statut,p.dex_id]))+'|'+JSON.stringify(bA.map(p=>[p.id,p.pv_actuel,p.pv_max]))+'|'+JSON.stringify(bF.map(p=>[p.id,p.pv_actuel,p.pv_max]))+'|'+lieuCourant+'|'+fondCourant;
   if(sig===arenaSig)return;
   arenaSig=sig;
   F.replaceChildren();A.replaceChildren();
-  const ch=$('combat-h');if(ch)ch.textContent=foes.length?'⚔️ Le combat':'📍 En ce moment';
+  const ch=$('combat-h');if(ch)ch.textContent=foes.length?('⚔️ Le combat'+(tourCourant?' — Tour n°'+tourCourant:'')):'📍 En ce moment';
   F.style.display=A.style.display=foes.length?'':'none';
   const ar=document.querySelector('.arena');if(ar)ar.classList.toggle('compact',!foes.length);
   const sc=$('scene');
@@ -708,6 +770,9 @@ function renderArena(list){
   }
   foes.forEach(p=>F.append(slot(p,true)));
   if(foes.length){al.forEach(p=>A.append(slot(p,false)));if(!al.length)A.append(el('div','vide','Aucun Pokémon allié en jeu.'))}
+  const BF=$('bench-foes'),BA=$('bench-allies');
+  if(BF){BF.replaceChildren();BF.hidden=!(foes.length&&bF.length);if(foes.length&&bF.length){BF.append(el('div','btitre','Banc adverse'));bF.forEach(p=>BF.append(miniSlot(p)))}}
+  if(BA){BA.replaceChildren();BA.hidden=!(foes.length&&bA.length);if(foes.length&&bA.length){BA.append(el('div','btitre','Banc — vos équipes'));bA.forEach(p=>BA.append(miniSlot(p)))}}
 }
 function lignePoke(p,avecPv){
   const r=el('div','poke');r.dataset.pid=p.id;
@@ -1537,8 +1602,8 @@ const LIEUX=[
   {nom:'Carmin sur Mer',court:'Carmin sur Mer',x:72,y:81,ico:'⚓',etape:11,mots:['carmin'],desc:"Le grand port de Kanto. L'Arène du Major Bob, les quais… et l'Océane, le bateau de croisière, à quai. La revanche contre Bob a duré 45 rounds : Badge Foudre gagné sur le Fouet Lianes de Groot.",pres:'Major Bob — champion · Oscar — son Second'},
   {nom:'Grotte Digda',court:'Grotte Digda',x:81,y:73,ico:'🐾',etape:12,verrou:1,mots:['digda','grotte digda'],desc:"Le tunnel des Taupiqueur : un raccourci souterrain entre les environs de Carmin sur Mer et la route d’Argenta."},
   {nom:'Lavanville',court:'Lavanville',x:87,y:57,ico:'🗼',etape:13,mots:['lavanville'],desc:"La ville mauve, au pied de la Tour Pokémon. On y parle bas, et les souvenirs y restent."},
-  {nom:'Céladopole',court:'Céladopole',x:45,y:43,ico:'🏙️',etape:14,mots:['céladopole','celadopole'],desc:"La plus grande ville de l'ouest : grand magasin, casino, restaurants… et l'Arène d'Erika."},
-  {nom:'Safrania',court:'Safrania',x:71,y:42,ico:'🏙️',etape:15,mots:['safrania'],desc:"La ville dorée au centre de Kanto. La Silph SARL, et l'Arène de Morgane."},
+  {nom:'Céladopole',court:'Céladopole',x:45,y:43,ico:'🏙️',etape:15,mots:['céladopole','celadopole'],desc:"La plus grande ville de l'ouest : grand magasin, casino, restaurants… et l'Arène d'Erika."},
+  {nom:'Safrania',court:'Safrania',x:71,y:42,ico:'🏙️',etape:14,mots:['safrania'],desc:"La ville dorée au centre de Kanto. La Silph SARL, et l'Arène de Morgane."},
   {nom:'Parmanie',court:'Parmanie',x:45,y:76,ico:'🏘️',etape:16,mots:['parmanie'],desc:"La ville du sud, porte de la Zone Safari. L'Arène de Koga n'est jamais là où on l'attend."},
   {nom:'Îles Écumes',court:'Îles Écumes',x:28,y:87,ico:'❄️',etape:17,mots:['écume','ecume','îles','iles'],desc:"Deux îlots de grottes gelées au milieu de la mer, entre Parmanie et Cramois’Île."},
   {nom:"Cramois'Île",court:"Cramois'Île",x:14,y:88,ico:'🌋',etape:18,mots:['cramois'],desc:"L'île volcan du sud. Un laboratoire, un manoir en ruines, et l'Arène de Blaine."},
@@ -1566,9 +1631,14 @@ const POIS={
 'Îles Écumes':[["Les îles jumelles","Deux îlots rocheux sur les routes maritimes 19 et 20."],["Grottes de glace","Des galeries gelées, balayées par des courants marins puissants."]],
 'Route Victoire':[["La dernière route","Un chemin d’épreuves réservé aux dresseurs qui portent les huit badges."],["Les portes des badges","Chaque porte de la route ne s’ouvre que pour le badge qui lui correspond."]]
 };
+let ENQUETES=[];
+function chargerEnquetes(objectifs){ENQUETES=[];const row=(objectifs||[]).find(o=>o.categorie==='carte_enquetes');if(row){try{const d=JSON.parse(row.texte);if(Array.isArray(d))ENQUETES=d}catch(e){}}}
+function enqPour(nom){return ENQUETES.filter(e=>e.lieu===nom)}
 function rendrePois(affiche,curE){
   const z=$('carte-pois');if(!z)return;z.replaceChildren();
   if(!affiche)return;
+  const enqs=enqPour(affiche.nom);
+  if(enqs.length){z.append(el('div','poititre','🟣 Enquêtes en cours — '+affiche.nom));enqs.forEach(p=>{const d=el('div','poi enq');d.append(el('b','',p.titre));if(p.detail)d.append(el('div','poitxt',p.detail));z.append(d)})}
   const liste=POIS[affiche.nom];if(!liste)return;
   if(affiche.verrou||affiche.etape>curE){z.append(el('div','poilock','🔒 Points d’intérêt — à découvrir sur place'));return}
   z.append(el('div','poititre','📌 Points d’intérêt — '+affiche.nom));
@@ -1591,7 +1661,8 @@ function renderCarte(lieu){
   let s='<div class="mapwrap"><img class="mapimg" src="carte-kanto-illustree.webp" alt="Carte de Kanto">';
   LIEUX.forEach(L=>{
     const fait=(L.etape<=curE&&!L.verrou), ici=curL&&L.nom===curL.nom;
-    s+='<button class="pin'+(ici?' ici':(fait?' fait':' avenir'))+(L.petit?' petit':'')+'" data-nom="'+L.nom+'" style="left:'+L.x+'%;top:'+L.y+'%" title="'+L.nom+'">'+L.ico+'</button>';
+    const nq=enqPour(L.nom).length;
+    s+='<button class="pin'+(ici?' ici':(fait?' fait':' avenir'))+(L.petit?' petit':'')+'" data-nom="'+L.nom+'" style="left:'+L.x+'%;top:'+L.y+'%" title="'+L.nom+'">'+L.ico+(nq?'<span class="pinq">'+nq+'</span>':'')+'</button>';
   });
   const ordre=LIEUX.filter(L=>!L.petit).slice().sort((a,b)=>a.etape-b.etape);
   const ptsFait=ordre.filter(L=>L.etape<=curE&&!L.verrou);
@@ -1644,6 +1715,7 @@ function renderCarteSVG(lieu){
     if(ici)s+='<circle cx="'+L.x+'" cy="'+L.y+'" r="5.6" fill="none" stroke="#e63946" stroke-width="0.9" class="pulse"/>';
     s+='<g class="pin" data-nom="'+L.nom+'" opacity="'+op+'" style="cursor:pointer">';
     s+='<circle cx="'+L.x+'" cy="'+L.y+'" r="'+r+'" fill="#ffffff" stroke="#241f4e" stroke-width="0.6"/>';
+    if(enqPour(L.nom).length)s+='<circle cx="'+(L.x+r*0.72)+'" cy="'+(L.y-r*0.72)+'" r="1.7" fill="#7a5af8" stroke="#ffffff" stroke-width="0.5"/>';
     s+='<text x="'+L.x+'" y="'+(L.y+(L.petit?1.3:1.7))+'" font-size="'+(L.petit?3.2:4.4)+'" text-anchor="middle">'+L.ico+'</text>';
     s+='</g>';
     const ly=L.lab==='dessus'?(L.y-r-1.6):(L.y+r+4.2);
@@ -1812,6 +1884,7 @@ function majVerrous(tour){
     if(!tourDebloque(v.row))continue;
     if(v.conv){conv=true;VERROUS.splice(k,1);continue}
     if(v.surPlace){v.el.textContent=v.contenu;v.el.classList.remove('reslock')}
+    else if(v.feed){v.el.replaceWith(blocResumeCourt(v.row))}
     else if(v.court){v.el.replaceWith(blocResumeCourt(v.row))}
     else{const d=el(v.balise,'',v.contenu);v.el.replaceWith(d)}
     VERROUS.splice(k,1)}
@@ -2118,6 +2191,23 @@ function renderSouvenirs(obj){
   });
   z.append(c);
 }
+let RELATIONS={};
+function chargerRelations(objectifs){RELATIONS={};const row=(objectifs||[]).find(o=>o.categorie==='relations');if(row){try{const d=JSON.parse(row.texte);if(d&&typeof d==='object')RELATIONS=d}catch(e){}}}
+const REL_LABELS={'-2':'Hostile','-1':'Méfiance','0':'Neutre','1':'Amical','2':'Allié proche'};
+function relNiveau(nom){const v=parseInt(RELATIONS[nom],10);return isNaN(v)?0:Math.max(-2,Math.min(2,v))}
+function relJauge(nom){
+  const v=relNiveau(nom);
+  const wrap=el('div','relrow');
+  wrap.append(el('span','rellab','Relation'));
+  const g=el('span','relgauge');
+  [-2,-1,0,1,2].forEach(n=>{
+    const on=(v===0&&n===0)||(v>0&&n>=0&&n<=v)||(v<0&&n<=0&&n>=v);
+    g.append(el('span','relpip'+(on?(n<0?' neg':(n>0?' pos':' mid')):''),''));
+  });
+  wrap.append(g);
+  wrap.append(el('span','relval',(v>0?'+':'')+v+' · '+REL_LABELS[String(v)]));
+  return wrap;
+}
 function renderPersos(rows){
   const z=$('persos');z.replaceChildren();
   if(!rows.length){const c=el('div','card');c.append(el('div','vide','Aucun personnage pour l’instant.'));z.append(c);return}
@@ -2150,6 +2240,7 @@ function renderPersos(rows){
       txt.append(el('h3','',r.nom));
       const meta=[r.role,r.statut].filter(Boolean).join(' · ');
       if(meta)txt.append(el('p','pmeta',meta));
+      txt.append(relJauge(r.nom));
       txt.append(el('p','',r.texte||''));
       c.append(txt);
       c.append(el('span','chipcamp',camp));
@@ -2277,7 +2368,7 @@ async function chargerInterne(){
   const list=p.data||[];pokesCache=list;
   advActif=list.some(x=>x.proprietaire==='Adversaire'&&x.actif);
   tourCourant=e.data?e.data.tour:null;
-  safe('état',()=>renderEtat(e.data));safe('arène',()=>renderArena(list));safe('annonces',()=>renderAnnonces(a.data||[]));safe('journal',()=>renderJournal(j.data||[]));
+  safe('état',()=>renderEtat(e.data));safe('annonces',()=>renderAnnonces(a.data||[]));safe('journal',()=>renderJournal(j.data||[]));safe('arène',()=>renderArena(list,j.data||[]));
   const pr=await db.from('personnages').select('*').eq('code_partie',partie).order('ordre');
   persosCache=pr.error?persosCache:(pr.data||[]);
   safe('conversation',()=>renderConversation());
@@ -2296,6 +2387,8 @@ async function chargerInterne(){
   safe('quêtes',()=>renderQuetes(ob.error?[]:(ob.data||[])));
   safe('suggestions',()=>renderSuggestions(ob.error?[]:(ob.data||[])));
   safe('evenements',()=>{chargerEvenements(ob.error?[]:(ob.data||[]));renderJournal(j.data||[])});
+  safe('enquetes',()=>{chargerEnquetes(ob.error?[]:(ob.data||[]));renderCarte(lieuCourant)});
+  safe('relations',()=>{chargerRelations(ob.error?[]:(ob.data||[]));renderPersos(persosCache)});
   safe('souvenirs',()=>{renderSouvenirs(ob.error?[]:(ob.data||[]));renderPrecedemment(ob.error?[]:(ob.data||[]))});
   const rc=await db.from('rencontres').select('*').eq('code_partie',partie);
   if(rc.error)errs.push('rencontres : '+(rc.error.message||rc.error.code||'?'));
@@ -2322,7 +2415,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v105');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v108');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
