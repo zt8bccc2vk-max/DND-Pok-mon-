@@ -72,6 +72,18 @@ h2{color:#fff;font-size:18px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink)}
 .cball{width:21px;height:21px;display:block}
 .cball:not(.ko){animation:pbspin 2.6s linear infinite}
 .cball.ko{filter:grayscale(1) brightness(.32);cursor:pointer}
+@keyframes popIn{0%{transform:scale(.2);opacity:0}60%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}
+.slot .sprite.pop{animation:popIn .38s ease-out}
+#badge-overlay{position:fixed;inset:0;z-index:200;background:rgba(16,12,38,.82);display:flex;align-items:center;justify-content:center}
+#badge-overlay[hidden]{display:none}
+.bo-card{position:relative;background:linear-gradient(#fffdf5,#ffedb0);border:3px solid var(--ink);border-radius:22px;padding:26px 30px;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.45);animation:popIn .45s ease-out;max-width:82vw}
+.bo-card img,.bo-card svg{width:120px;height:120px}
+#bo-titre{font-size:1.35rem;font-weight:900;color:#20304a;margin-top:8px}
+#bo-sous{font-weight:700;color:#7a5b00;margin-top:2px}
+.bo-indice{font-size:.75rem;opacity:.6;margin-top:10px}
+#bo-confettis{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#bo-confettis i{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;animation:confettiFall linear forwards}
+@keyframes confettiFall{to{transform:translateY(105vh) rotate(720deg)}}
 .bench{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
 .bench .btitre{width:100%;font-size:11px;font-weight:800;color:#20304a;opacity:.75;letter-spacing:.02em}
 .bslot{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.82);border:2px solid var(--ink);border-radius:12px;padding:3px 8px 3px 3px;cursor:pointer;min-width:128px;flex:1 1 128px;max-width:190px}
@@ -620,6 +632,7 @@ html,body{overflow-x:hidden}
 <div id="attaque" hidden><div class="passfull"><button class="pclose" onclick="fermerAttaque()" aria-label="Fermer">✖</button><div id="atk-body"></div><button class="go" onclick="fermerAttaque()">⬅ Retour à la fiche</button></div></div>
 <div id="objet" hidden><div class="passfull" id="objet-body"></div></div>
 <div id="pokedex" hidden><div class="passfull" id="pokedex-body"></div></div>
+<div id="badge-overlay" hidden><div id="bo-confettis"></div><div class="bo-card"><div id="bo-media"></div><div id="bo-titre"></div><div id="bo-sous"></div><div class="bo-indice">Toucher pour fermer</div></div></div>
 <div id="choix" hidden><div class="passfull" id="choix-body"><button class="pclose" type="button" onclick="fermerChoix()" aria-label="Fermer">✖</button><h2>🎯 Le MJ te propose — rien que pour toi</h2><div id="sugg-list"></div><div class="fmsg" id="sugg-msg">Touche jusqu’à 2 propositions, dans l’ordre où tu veux les jouer : elles s’ajoutent à ton annonce, l’une après l’autre. Retouche un choix actif pour le retirer — et tu peux toujours écrire librement.</div><button class="go" type="button" onclick="fermerChoix()">✔ C’est choisi</button></div></div>
 <script>
 const SUPABASE_URL='https://kybylakwlqwsmbyawjlu.supabase.co';
@@ -631,6 +644,7 @@ const $=id=>document.getElementById(id);
 let db=null;
 window.addEventListener('error',e=>{const c=document.getElementById('conn');if(c)c.textContent='Erreur : '+(e.message||'inconnue')});
 const prev={};
+let terrainVus={};
 
 function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'')}
@@ -654,6 +668,39 @@ async function exporterPartie(){
   for(const t of tables){try{const r=await db.from(t).select('*').eq('code_partie',partie);out[t]=r.data||[]}catch(e){out[t]=[]}}
   const blob=new Blob([JSON.stringify(out,null,1)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='chant-et-festin-export.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+let AC=null,sonActif=true;try{sonActif=localStorage.getItem('sonActif')!=='0'}catch(e){}
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC}
+document.addEventListener('pointerdown',()=>{if(sonActif)ac()});
+let dernierSon={};
+function bip(f,t0,d,type,vol,glisse){const c=ac();if(!c)return;const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+t0;o.type=type;o.frequency.setValueAtTime(f,t);if(glisse)o.frequency.exponentialRampToValueAtTime(glisse,t+d);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.05)}
+function sonner(type){
+  if(!sonActif)return;const c=ac();if(!c||c.state!=='running')return;
+  const now=performance.now();if(dernierSon[type]&&now-dernierSon[type]<160)return;dernierSon[type]=now;
+  if(type==='de'){bip(620,0,.06,'square',.035);bip(840,.05,.06,'square',.035);bip(1050,.1,.09,'square',.035)}
+  else if(type==='touche'){bip(170,0,.12,'sawtooth',.055,60)}
+  else if(type==='ko'){bip(520,0,.42,'triangle',.06,65)}
+  else if(type==='envoi'){bip(280,0,.15,'sine',.05,880);bip(1180,.14,.07,'square',.028)}
+  else if(type==='badge'){[523,659,784,1046].forEach((f,i)=>bip(f,i*.11,.15,'triangle',.05));bip(1318,.45,.32,'triangle',.05)}
+  else if(type==='clic'){bip(700,0,.05,'square',.025)}
+}
+function montrerBadge(i,celebre){
+  const B=BADGES8[i];if(!B)return;const ov=$('badge-overlay');if(!ov)return;
+  const md=$('bo-media');md.replaceChildren();const im=new Image();im.src=B.img;im.alt=B.nom;im.onerror=()=>{md.innerHTML=B.svg};md.append(im);
+  $('bo-titre').textContent='🏅 '+B.nom+' obtenu !';
+  $('bo-sous').textContent='Badge n°'+(i+1)+' sur 8';
+  const cf=$('bo-confettis');cf.replaceChildren();
+  if(celebre){const cols=['#e3352c','#ffd23e','#35a3e8','#57b368','#f472b6','#f6b73c'];for(let k=0;k<28;k++){const s=document.createElement('i');s.style.left=(Math.random()*100)+'%';s.style.background=cols[k%cols.length];s.style.animationDuration=(1.6+Math.random()*1.4)+'s';s.style.animationDelay=(Math.random()*.5)+'s';cf.append(s)}}
+  ov.hidden=false;ov.onclick=()=>{ov.hidden=true};
+  if(celebre)sonner('badge');
+}
+function verifierBadges(dresseurs){
+  const moi=localStorage.getItem('joueurLocal')==='Julien'?'Julien':'Axel';
+  const d=(dresseurs||[]).find(x=>x.nom===moi);if(!d)return;
+  const bd=Array.isArray(d.badges)?d.badges:[],n=bd.length,cle='badgesVus_'+moi;
+  let vu=null;try{vu=localStorage.getItem(cle)}catch(e){}
+  if(vu===null){try{localStorage.setItem(cle,String(n))}catch(e){}return}
+  if(n>+vu){try{localStorage.setItem(cle,String(n))}catch(e){}const idx=BADGES8.findIndex(B=>B.nom===bd[bd.length-1]);if(idx>=0)montrerBadge(idx,true)}
 }
 function normeTxt(t){return (t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
 function pokesDuTexte(texte){
@@ -711,7 +758,8 @@ function hpbox(p,owner){
 }
 function slot(p,foe){
   const s=el('div','slot'+(foe?' foe':'')),sp=sprite(p,!foe),o=prev[p.id];
-  if(o!==undefined&&pct(p)<o)sp.classList.add('hit');
+  if(!terrainVus[p.id]){sp.classList.add('pop');sonner('envoi')}
+  if(o!==undefined&&pct(p)<o){sp.classList.add('hit');sonner(pct(p)<=0?'ko':'touche')}
   const hb=hpbox(p,foe?'':p.proprietaire);
   if(foe)s.append(hb,sp);else s.append(sp,hb);
   return s;
@@ -831,6 +879,7 @@ function renderArena(list,rows){
   if(ct)ct.hidden=!enCombat;
   if(cb)cb.hidden=!enCombat;
   if(enCombat){coinBalls($('balls-tl'),gAdv[0]||null);coinBalls($('balls-tr'),gAdv[1]||null);coinBalls($('balls-bl'),coinMoi);coinBalls($('balls-br'),coinAutre)}
+  terrainVus={};act.forEach(p=>{terrainVus[p.id]=1});
 }
 function lignePoke(p,avecPv){
   const r=el('div','poke');r.dataset.pid=p.id;
@@ -912,9 +961,10 @@ function renderPasseport(){
   const bd=Array.isArray(d.badges)?d.badges:[];
   body.append(el('h3','ph3','🏅 Badges — '+bd.length+' / 8'));
   const bg=el('div','badges8');
-  BADGES8.forEach(B=>{
+  BADGES8.forEach((B,bi)=>{
     const ok=bd.indexOf(B.nom)>=0;
     const m=el('div','bmedal'+(ok?'':' off'));
+    if(ok){m.style.cursor='pointer';m.title='Toucher pour revoir';m.onclick=()=>montrerBadge(bi,false)}
     const im=el('img');im.src=B.img;im.alt=B.nom;im.loading='lazy';im.onerror=()=>{im.remove();m.insertAdjacentHTML('afterbegin',B.svg)};
     m.append(im);
     m.append(el('span','bn',B.court+(ok?'':' · à gagner')));
@@ -1912,7 +1962,7 @@ function ouvrirPokedex(evt){
 function fermerPokedex(){const z=$('pokedex');if(z)z.hidden=true;if(window._dexAudio){try{window._dexAudio.pause()}catch(e){}window._dexAudio=null}}
 function majLecEvt(){const z=$('lec-evt');if(!z)return;z.replaceChildren();const r=window._lecRow;if(!r)return;const evt=evtPourTour(r.tour);if(evt&&tourDebloque(r))z.append(boutonEvt(evt))}
 function noteDeRevele(tour,i){const k=cleReveal(tour);let arr=[];try{arr=JSON.parse(localStorage.getItem(k)||'[]')}catch(e){}if(!arr.includes(i)){arr.push(i);try{localStorage.setItem(k,JSON.stringify(arr))}catch(e){}}majVerrous(tour)}
-function hookDeRevele(key){const m=String(key).replace(/^jouer-/,'');const p=m.lastIndexOf('-');if(p<0)return;const id=m.slice(0,p),i=+m.slice(p+1);const tour=TOUR_PAR_ID[id];if(tour!=null)noteDeRevele(tour,i)}
+function hookDeRevele(key){sonner('de');const m=String(key).replace(/^jouer-/,'');const p=m.lastIndexOf('-');if(p<0)return;const id=m.slice(0,p),i=+m.slice(p+1);const tour=TOUR_PAR_ID[id];if(tour!=null)noteDeRevele(tour,i)}
 function blocResolution(row,mode){
   const texte=row.texte_resolution||'';
   const contenu=mode==='plein'?texte:mode==='apercu'?(texte.slice(0,300)+(texte.length>300?'…':'')):(texte.slice(0,80)+'…');
@@ -2460,6 +2510,7 @@ async function chargerInterne(){
   safe('équipes',()=>renderEquipes(list,dr.error?[]:(dr.data||[]),j.data||[],pr.error?[]:(pr.data||[]),ob.error?[]:(ob.data||[])));
   safe('matos',()=>renderMatos(ob.error?[]:(ob.data||[]),pr.error?[]:(pr.data||[])));
   safe('sac',()=>renderSac(iv.error?[]:(iv.data||[])));
+  safe('badges',()=>verifierBadges(dr.error?[]:(dr.data||[])));
   safe('quêtes',()=>renderQuetes(ob.error?[]:(ob.data||[])));
   safe('suggestions',()=>renderSuggestions(ob.error?[]:(ob.data||[])));
   safe('evenements',()=>{chargerEvenements(ob.error?[]:(ob.data||[]));renderJournal(j.data||[])});
@@ -2493,8 +2544,9 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v113');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v114');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
   const bx=el('button','go','💾 Exporter la partie (JSON)');bx.style.cssText='margin-top:8px';bx.onclick=()=>exporterPartie();z.append(bx);
+  const bs=el('button','go','');bs.style.cssText='margin-top:8px;margin-left:8px';const majBs=()=>{bs.textContent=sonActif?'🔊 Son : oui':'🔇 Son : non'};majBs();bs.onclick=()=>{sonActif=!sonActif;try{localStorage.setItem('sonActif',sonActif?'1':'0')}catch(e){}majBs();if(sonActif)sonner('clic')};z.append(bs);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
