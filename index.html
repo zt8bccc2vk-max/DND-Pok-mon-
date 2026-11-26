@@ -65,6 +65,12 @@ h2{color:#fff;font-size:18px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink)}
 .hpbox .n small{color:var(--mut);font-weight:700}
 .bar{height:11px;background:#d9d6ee;border:2px solid var(--ink);border-radius:99px;overflow:hidden;margin:3px 0}
 .fill{height:100%;transition:width .7s ease,background .4s}
+.cornerbar{position:relative;z-index:1;display:flex;justify-content:space-between;gap:8px;margin:2px 0 6px}
+.corner{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.88);border:2px solid var(--ink);border-radius:999px;padding:3px 9px 3px 8px;min-height:30px}
+.corner .cname{font-size:11px;font-weight:800;color:#20304a;white-space:nowrap}
+.corner .cballs{display:flex;gap:2px;align-items:center}
+.pball{width:21px;height:21px;display:block}
+.pball.ko{filter:grayscale(1) brightness(.32);cursor:pointer}
 .bench{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
 .bench .btitre{width:100%;font-size:11px;font-weight:800;color:#20304a;opacity:.75;letter-spacing:.02em}
 .bslot{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.82);border:2px solid var(--ink);border-radius:12px;padding:3px 8px 3px 3px;cursor:pointer;min-width:128px;flex:1 1 128px;max-width:190px}
@@ -552,7 +558,7 @@ html,body{overflow-x:hidden}
       <h2 id="conv-h" hidden>🎬 La conversation</h2>
       <div class="card" id="convcard" hidden></div>
       <h2 id="combat-h">⚔️ Le combat</h2>
-      <div class="arena"><div id="scene" hidden></div><div id="deco"></div><div class="row" id="foes"></div><div id="bench-foes" class="bench" hidden></div><div class="row" id="allies"></div><div id="bench-allies" class="bench" hidden></div></div>
+      <div class="arena"><div id="scene" hidden></div><div id="deco"></div><div class="cornerbar" id="cb-top" hidden><div class="corner" id="balls-tl"></div><div class="corner" id="balls-tr"></div></div><div class="row" id="foes"></div><div class="row" id="allies"></div><div class="cornerbar" id="cb-bot" hidden><div class="corner" id="balls-bl"></div><div class="corner" id="balls-br"></div></div></div>
       <div class="card" id="combatfeed" hidden></div>
       <h2>📣 À vos annonces</h2>
       <div class="card"><div id="ann-status"></div><div class="ann" id="annonces"></div></div>
@@ -747,33 +753,66 @@ function renderCombatFeed(rows,combat){
   if(!tourDebloque(row)){const m=el('div','reslock','🎲 Lance les dés du dernier résultat pour afficher le round ici');VERROUS.push({tour:row.tour,row:row,el:m,feed:true});z.append(m);return}
   z.append(blocResumeCourt(row));
 }
+let SELECTION_COMBAT=null;
+function chargerSelectionCombat(objectifs){SELECTION_COMBAT=null;const row=(objectifs||[]).find(o=>o.categorie==='combat_selection');if(row){try{const d=JSON.parse(row.texte);if(d&&Array.isArray(d.dresseurs))SELECTION_COMBAT=d.dresseurs}catch(e){}}}
+function dresseurAdv(p){const m=String(p.nom||'').match(/(?:de la|du|des|de|d['’])\s*(.+)$/i);return m?m[1].trim():'Adversaire'}
+function groupesAdverses(list,rows){
+  if(SELECTION_COMBAT&&SELECTION_COMBAT.length){
+    return SELECTION_COMBAT.map(g=>({nom:g.nom,pokes:(g.pokemons||[]).map(id=>list.find(p=>p.id===id)).filter(Boolean)})).filter(g=>g.pokes.length);
+  }
+  const ids=new Set();list.forEach(p=>{if(p.proprietaire==='Adversaire'&&p.actif)ids.add(p.id)});
+  bancFoes(list,rows||[]).forEach(p=>ids.add(p.id));
+  const groupes=[],parNom={};
+  list.filter(p=>p.proprietaire==='Adversaire'&&ids.has(p.id)).forEach(p=>{const n=dresseurAdv(p);if(!parNom[n]){parNom[n]={nom:n,pokes:[]};groupes.push(parNom[n])}parNom[n].pokes.push(p)});
+  return groupes;
+}
+function coinBalls(elm,groupe){
+  if(!elm)return;
+  elm.replaceChildren();
+  if(!groupe||!groupe.pokes.length){elm.style.visibility='hidden';return}
+  elm.style.visibility='';
+  elm.append(el('span','cname',groupe.nom));
+  const wrap=el('span','cballs');
+  groupe.pokes.forEach(p=>{
+    const ko=p.pv_actuel<=0;
+    const im=new Image();im.className='pball'+(ko?' ko':'');im.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';im.alt=ko?(p.nom+' — K.O.'):'Poké Ball';
+    if(ko){im.title=p.nom+' — K.O. (toucher pour voir)';im.onclick=()=>{if(!estMystere(p))ouvrirFiche(p.id)}}
+    wrap.append(im);
+  });
+  elm.append(wrap);
+}
 let arenaSig='';
 function renderArena(list,rows){
   const act=list.filter(p=>p.actif),F=$('foes'),A=$('allies');
-  const foes=act.filter(p=>p.proprietaire==='Adversaire'),al=act.filter(p=>p.proprietaire!=='Adversaire');
-  const bA=bancAllies(list),bF=foes.length?bancFoes(list,rows||[]):[];
-  renderCombatFeed(rows||[],foes.length>0);
-  const sig=JSON.stringify(act.map(p=>[p.id,p.proprietaire,p.nom,p.espece,p.niveau,p.pv_actuel,p.pv_max,p.statut,p.dex_id]))+'|'+JSON.stringify(bA.map(p=>[p.id,p.pv_actuel,p.pv_max]))+'|'+JSON.stringify(bF.map(p=>[p.id,p.pv_actuel,p.pv_max]))+'|'+lieuCourant+'|'+fondCourant;
+  const enCombat=act.some(p=>p.proprietaire==='Adversaire');
+  const foes=act.filter(p=>p.proprietaire==='Adversaire'&&p.pv_actuel>0),al=act.filter(p=>p.proprietaire!=='Adversaire'&&p.pv_actuel>0);
+  renderCombatFeed(rows||[],enCombat);
+  const moi=localStorage.getItem('joueurLocal')==='Julien'?'Julien':'Axel',autre=moi==='Axel'?'Julien':'Axel';
+  const coinMoi={nom:moi,pokes:list.filter(p=>p.proprietaire===moi&&(p.statut_pokemon||'actif')==='actif'&&!estLibre(p))};
+  const coinAutre={nom:autre,pokes:list.filter(p=>p.proprietaire===autre&&(p.statut_pokemon||'actif')==='actif'&&!estLibre(p))};
+  const gAdv=enCombat?groupesAdverses(list,rows||[]):[];
+  const sig=JSON.stringify(act.map(p=>[p.id,p.proprietaire,p.nom,p.espece,p.niveau,p.pv_actuel,p.pv_max,p.statut,p.dex_id]))+'|'+JSON.stringify([coinMoi,coinAutre].concat(gAdv).map(g=>[g.nom,g.pokes.map(p=>[p.id,p.pv_actuel])]))+'|'+lieuCourant+'|'+fondCourant+'|'+moi;
   if(sig===arenaSig)return;
   arenaSig=sig;
-  combatActif=foes.length>0;majFondArene();
+  combatActif=enCombat;majFondArene();
   F.replaceChildren();A.replaceChildren();
-  const ch=$('combat-h');if(ch)ch.textContent=foes.length?('⚔️ Le combat'+(tourCourant?' — Tour n°'+tourCourant:'')):'📍 En ce moment';
-  F.style.display=A.style.display=foes.length?'':'none';
-  const ar=document.querySelector('.arena');if(ar)ar.classList.toggle('compact',!foes.length);
+  const ch=$('combat-h');if(ch)ch.textContent=enCombat?('⚔️ Le combat'+(tourCourant?' — Tour n°'+tourCourant:'')):'📍 En ce moment';
+  F.style.display=A.style.display=enCombat?'':'none';
+  const ar=document.querySelector('.arena');if(ar)ar.classList.toggle('compact',!enCombat);
   const sc=$('scene');
   if(sc){
-    const ill=foes.length?null:illusLieu(lieuCourant);
+    const ill=enCombat?null:illusLieu(lieuCourant);
     if(ill){
       sc.hidden=false;
       if(sc.dataset.k!==ill){sc.dataset.k=ill;sc.replaceChildren();const im=new Image();im.src=ill;im.alt=lieuCourant;im.style.width='100%';im.style.display='block';im.onerror=()=>{sc.hidden=true;sc.replaceChildren();delete sc.dataset.k};sc.append(im);const cap=el('div','scap','📍 '+lieuCourant);sc.append(cap)}
     }else{sc.hidden=true;sc.replaceChildren();delete sc.dataset.k}
   }
   foes.forEach(p=>F.append(slot(p,true)));
-  if(foes.length){al.forEach(p=>A.append(slot(p,false)));if(!al.length)A.append(el('div','vide','Aucun Pokémon allié en jeu.'))}
-  const BF=$('bench-foes'),BA=$('bench-allies');
-  if(BF){BF.replaceChildren();BF.hidden=!(foes.length&&bF.length);if(foes.length&&bF.length){BF.append(el('div','btitre','Banc adverse'));bF.forEach(p=>BF.append(miniSlot(p)))}}
-  if(BA){BA.replaceChildren();BA.hidden=!(foes.length&&bA.length);if(foes.length&&bA.length){BA.append(el('div','btitre','Banc — vos équipes'));bA.forEach(p=>BA.append(miniSlot(p)))}}
+  if(enCombat){al.forEach(p=>A.append(slot(p,false)));if(!al.length&&!act.some(p=>p.proprietaire!=='Adversaire'))A.append(el('div','vide','Aucun Pokémon allié en jeu.'))}
+  const ct=$('cb-top'),cb=$('cb-bot');
+  if(ct)ct.hidden=!enCombat;
+  if(cb)cb.hidden=!enCombat;
+  if(enCombat){coinBalls($('balls-tl'),gAdv[0]||null);coinBalls($('balls-tr'),gAdv[1]||null);coinBalls($('balls-bl'),coinMoi);coinBalls($('balls-br'),coinAutre)}
 }
 function lignePoke(p,avecPv){
   const r=el('div','poke');r.dataset.pid=p.id;
@@ -2406,6 +2445,7 @@ async function chargerInterne(){
   safe('evenements',()=>{chargerEvenements(ob.error?[]:(ob.data||[]));renderJournal(j.data||[])});
   safe('enquetes',()=>{chargerEnquetes(ob.error?[]:(ob.data||[]));renderCarte(lieuCourant)});
   safe('relations',()=>{chargerRelations(ob.error?[]:(ob.data||[]));renderPersos(persosCache)});
+  safe('selection',()=>{chargerSelectionCombat(ob.error?[]:(ob.data||[]));arenaSig='';renderArena(pokesCache,j.data||[])});
   safe('souvenirs',()=>{renderSouvenirs(ob.error?[]:(ob.data||[]));renderPrecedemment(ob.error?[]:(ob.data||[]))});
   const rc=await db.from('rencontres').select('*').eq('code_partie',partie);
   if(rc.error)errs.push('rencontres : '+(rc.error.message||rc.error.code||'?'));
@@ -2432,7 +2472,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v109');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v110');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
