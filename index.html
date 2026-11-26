@@ -636,6 +636,24 @@ function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\
 function dexId(p){if(p.dex_id)return p.dex_id;const e=String(p.espece||'').trim();return /^\d+$/.test(e)?+e:DEX[norm(e)]||DEX[norm(p.nom)]||null}
 function spriteUrl(id,back){return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+(back?'back/':'')+id+'.png'}
 function officialUrl(id){return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'+id+'.png'}
+function spriteShinyUrl(id,back){return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+(back?'back/':'')+'shiny/'+id+'.png'}
+function officialShinyUrl(id){return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/'+id+'.png'}
+let CHROMATIQUES=[];
+function estChroma(p){return !!(p&&p.id!=null&&CHROMATIQUES.indexOf(p.id)>=0)}
+function chargerChromatiques(objectifs){CHROMATIQUES=[];const row=(objectifs||[]).find(o=>o.categorie==='chromatiques');if(row){try{const d=JSON.parse(row.texte);if(Array.isArray(d))CHROMATIQUES=d}catch(e){}}}
+function poseSpritePoke(img,p,back,dernier){
+  const id=dexId(p);if(!id)return;
+  const chr=estChroma(p);
+  img.src=chr?spriteShinyUrl(id,back):spriteUrl(id,back);
+  img.onerror=()=>{img.onerror=()=>{img.onerror=null;if(dernier)dernier();else img.src='missingno.png'};img.src=chr?officialShinyUrl(id):officialUrl(id)};
+}
+async function exporterPartie(){
+  const tables=['etat','pokemon','personnages','dresseurs','inventaire','objectifs','journal','annonces','rencontres'];
+  const out={appli:'Chant & Festin',exporte_le:new Date().toISOString(),partie:partie};
+  for(const t of tables){try{const r=await db.from(t).select('*').eq('code_partie',partie);out[t]=r.data||[]}catch(e){out[t]=[]}}
+  const blob=new Blob([JSON.stringify(out,null,1)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='chant-et-festin-export.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
 function normeTxt(t){return (t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
 function pokesDuTexte(texte){
   const t=' '+normeTxt(texte)+' ';const out=[];const vus=new Set();
@@ -653,13 +671,12 @@ function chainePortrait(imgEl,base,emotion,classeCut,classeCarre,onFail){
   imgEl.onload=()=>{const cut=ch[i].indexOf('-cut.')>=0;if(classeCut)imgEl.classList.toggle(classeCut,cut);if(classeCarre)imgEl.classList.toggle(classeCarre,!cut)};
   imgEl.src=ch[0];
 }
-function stripPokes(cont,texte){cont.replaceChildren();pokesDuTexte(texte).forEach(d=>{const im=new Image();im.alt='';im.src=officialUrl(d);im.onerror=()=>{im.onerror=()=>im.remove();im.src=spriteUrl(d)};cont.append(im)})}
+function stripPokes(cont,texte){cont.replaceChildren();pokesDuTexte(texte).forEach(d=>{const im=new Image();im.alt='';im.src=officialUrl(d);im.onerror=()=>{im.onerror=()=>{im.onerror=null;im.src='missingno.png'};im.src=spriteUrl(d)};cont.append(im)})}
 function sprite(p,back){
   const id=dexId(p),box=el('div','noimg','❔');
   if(!id)return box;
   const img=new Image();img.className='sprite';img.alt=p.nom;
-  img.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+(back?'back/':'')+id+'.png';
-  img.onerror=()=>img.replaceWith(box);
+  poseSpritePoke(img,p,back,()=>img.replaceWith(box));
   return img;
 }
 function col(v){return v>50?'var(--ok)':v>25?'var(--mid)':'var(--low)'}
@@ -720,7 +737,7 @@ function miniSlot(p){
   const ko=p.pv_actuel<=0||p.statut_pokemon==='ko';
   const d=el('div','bslot'+(ko?' ko':''));d.dataset.pid=p.id;
   const id=dexId(p);
-  if(id){const im=new Image();im.className='bspr';im.src=spriteUrl(id,false);im.alt=p.espece||'';im.onerror=()=>{im.onerror=null;im.src=officialUrl(id)};d.append(im)}
+  if(id){const im=new Image();im.className='bspr';im.alt=p.espece||'';poseSpritePoke(im,p,false);d.append(im)}
   const inf=el('div','binf');
   inf.append(el('div','bname',p.nom+' · Niv. '+p.niveau));
   const bar=el('div','bbar'),f=el('div','bfill '+hpClass(p));f.style.width=pct(p)+'%';bar.append(f);inf.append(bar);
@@ -818,11 +835,11 @@ function lignePoke(p,avecPv){
   const r=el('div','poke');r.dataset.pid=p.id;
   const id=dexId(p);
   const img=new Image();img.className='sprite';img.alt=p.espece||'?';
-  if(id){img.src=spriteUrl(id,false);img.onerror=()=>{img.onerror=null;img.src=officialUrl(id)}}
+  if(id){poseSpritePoke(img,p,false)}
   else{img.removeAttribute('src');img.alt='❔'}
   r.append(img);
   const info=el('div','pinfo');
-  info.append(el('div','pname',p.nom+' '+stIcon(p)));
+  info.append(el('div','pname',p.nom+(estChroma(p)?' ✨':'')+' '+stIcon(p)));
   info.append(el('div','psub',(p.espece||'???')+' · Niv. '+(p.niveau||'?')+(p.proprietaire&&p.proprietaire!=='Adversaires'?' · à '+p.proprietaire:'')));
   if(p.trait)info.append(el('div','ptrait','✦ '+p.trait));
   r.append(info);
@@ -908,7 +925,7 @@ function renderPasseport(){
   const pt=el('div','pteam');
   team.forEach(p=>{
     const id=dexId(p);const fig=el('figure','');
-    if(id){const im=new Image();im.src=spriteUrl(id);im.alt=p.nom;im.title=p.nom+' — toucher pour voir la fiche';im.style.cursor='pointer';im.onclick=()=>{fermerPasseport();ouvrirFiche(p.id)};fig.append(im)}
+    if(id){const im=new Image();poseSpritePoke(im,p,false);im.alt=p.nom;im.title=p.nom+' — toucher pour voir la fiche';im.style.cursor='pointer';im.onclick=()=>{fermerPasseport();ouvrirFiche(p.id)};fig.append(im)}
     else fig.append(el('span','empty','?'));
     fig.append(el('figcaption','',p.nom+' · niv. '+p.niveau));
     pt.append(fig);
@@ -1240,12 +1257,12 @@ function renderFiche(){
   const bk0=el('button','go','⬅ Retour aux Équipes');bk0.onclick=fermerFiche;body.append(bk0);
   const head=el('div','fiche-head');
   const id=dexId(p);
-  if(id){const im=new Image();im.className='fiche-sprite';im.src=spriteUrl(id,false);im.alt=p.espece||'';im.onerror=()=>{im.onerror=null;im.src=officialUrl(id)};head.append(im)}
+  if(id){const im=new Image();im.className='fiche-sprite';im.alt=p.espece||'';poseSpritePoke(im,p,false);head.append(im)}
   const sp=p.statut_pokemon||'actif';
   const ko=(p.pv_actuel<=0)||sp==='ko';
   const statutTxt=ko?'K.O.':(sp==='depot'?'Au PC (dépôt)':(sp==='parti'?'Parti':(estLibre(p)?'Compagnon libre':'En équipe')));
   const ht=el('div','fiche-ht');
-  ht.append(el('div','dnom',p.nom));
+  ht.append(el('div','dnom',p.nom+(estChroma(p)?' ✨ chromatique':'')));
   ht.append(el('div','pt',(p.espece||'???')+' · niv. '+(p.niveau||'?')+' · '+statutTxt));
   const hp=el('div','hp');const bar=el('div','hpbar'),fill=el('div','hpfill '+hpClass(p));fill.style.width=pct(p)+'%';bar.append(fill);hp.append(bar,el('div','hptext','PV '+p.pv_actuel+'/'+p.pv_max));ht.append(hp);
   head.append(ht);body.append(head);
@@ -1331,7 +1348,7 @@ function slotEquipe(p){
   const ko=(p.pv_actuel<=0)||(p.statut_pokemon==='ko');
   const d=el('div','slotq'+(ko?' ko':''));d.dataset.pid=p.id;
   const id=dexId(p);
-  if(id){const im=new Image();im.className='qsprite';im.src=spriteUrl(id,false);im.alt=p.espece||'';im.onerror=()=>{im.onerror=null;im.src=officialUrl(id)};d.append(im)}
+  if(id){const im=new Image();im.className='qsprite';im.alt=p.espece||'';poseSpritePoke(im,p,false);d.append(im)}
   d.append(el('div','qname',p.nom));
   d.append(el('div','qsub',(p.espece||'???')+' · Niv. '+(p.niveau||'?')));
   const hp=el('div','hp');const bar=el('div','hpbar'),fill=el('div','hpfill '+hpClass(p));fill.style.width=pct(p)+'%';bar.append(fill);hp.append(bar,el('div','hptext',p.pv_actuel+'/'+p.pv_max+' PV'));d.append(hp);
@@ -1430,7 +1447,7 @@ function renderDex(rencontres,list){
     const uc=el('div','card');
     uc.append(el('span','unetag','✨ À la une !'));
     const row=el('div','une');
-    const im=el('img');im.loading='lazy';im.src=officialUrl(une.id);im.alt=une.nom;im.onerror=()=>{im.onerror=null;im.src=spriteUrl(une.id)};row.append(im);
+    const im=el('img');im.loading='lazy';im.src=officialUrl(une.id);im.alt=une.nom;im.onerror=()=>{im.onerror=()=>{im.onerror=null;im.src='missingno.png'};im.src=spriteUrl(une.id)};row.append(im);
     const tx=el('div','');
     const nm=el('div','');nm.append(el('b','',une.nom+' '),el('span','tourchip','N°'+une.id));tx.append(nm);
     tx.append(el('p','pmeta',une.sub||''));
@@ -1523,17 +1540,19 @@ function renderQuetes(obj){
   } else oc.append(el('div','vide','Rien pour l’instant.'));
   z.append(oc);
 }
-function spriteObjet(n){
+function slugObjet(n){
   const s=(n||'').toLowerCase();
-  const M=[['super potion','super-potion'],['hyper potion','hyper-potion'],['potion max','max-potion'],['rappel max','max-revive'],['super bonbon','rare-candy'],['poké ball','poke-ball'],['super ball','great-ball'],['hyper ball','ultra-ball'],['master ball','master-ball'],['potion','potion'],['rappel','revive'],['miel','honey'],['amonita','helix-fossil'],['fossile dôme','dome-fossil'],['pierre lune','moon-stone'],['pierre feu','fire-stone'],['pierre eau','water-stone'],['pierre foudre','thunder-stone'],['pierre plante','leaf-stone'],['pierre soleil','sun-stone'],['antidote','antidote'],['anti-para','paralyze-heal'],['réveil','awakening'],['anti-brûle','burn-heal'],['antigel','ice-heal'],['soin total','full-heal'],['élixir','elixir'],['huile','ether']];
-  for(const [k,v] of M){if(s.includes(k))return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/'+v+'.png'}
+  const M=[['super potion','super-potion'],['hyper potion','hyper-potion'],['potion max','max-potion'],['rappel max','max-revive'],['super bonbon','rare-candy'],['poké ball','poke-ball'],['super ball','great-ball'],['hyper ball','ultra-ball'],['master ball','master-ball'],['tomberoche','tm-rock'],['vibraqua','tm-water'],['onde de choc','tm-electric'],['baie oran','oran-berry'],['baie ceriz','cheri-berry'],['baie maron','chesto-berry'],['baie pecha','pecha-berry'],['baie fraive','rawst-berry'],['baie prine','leppa-berry'],['baie sitrus','sitrus-berry'],['vieille canne','old-rod'],['super canne','super-rod'],['méga canne','good-rod'],['corde sortie','escape-rope'],['multi exp','exp-share'],['œuf chance','lucky-egg'],['potion','potion'],['rappel','revive'],['miel','honey'],['amonita','helix-fossil'],['fossile dôme','dome-fossil'],['fossile','helix-fossil'],['pierre lune','moon-stone'],['pierre feu','fire-stone'],['pierre eau','water-stone'],['pierre foudre','thunder-stone'],['pierre plante','leaf-stone'],['pierre soleil','sun-stone'],['antidote','antidote'],['anti-para','paralyze-heal'],['réveil','awakening'],['anti-brûle','burn-heal'],['antigel','ice-heal'],['soin total','full-heal'],['élixir','elixir'],['huile','ether'],['ct ','tm-normal']];
+  for(const [k,v] of M){if(s.includes(k))return v}
   return null;
 }
+function spriteObjet(n){const v=slugObjet(n);return v?'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/'+v+'.png':null}
+function spriteObjet5e(n){const v=slugObjet(n);return v?'https://poke5e.app/assets/items/'+v+'/sprite.png':null}
 let sacCache=[];
 function ligneObjet(i){
   const d=el('div','objligne');
-  const url=spriteObjet(i.nom);
-  if(url){const img=new Image();img.src=url;img.className='iimg';img.alt='';img.onerror=()=>img.replaceWith(document.createTextNode((i.icone||'🎒')+' '));d.append(img)}
+  const u5=spriteObjet5e(i.nom),uA=spriteObjet(i.nom);
+  if(u5){const img=new Image();img.className='iimg';img.alt='';img.src=u5;let et=0;img.onerror=()=>{et++;if(et===1){img.src=uA}else{img.onerror=null;img.replaceWith(document.createTextNode((i.icone||'🎒')+' '))}};d.append(img)}
   else d.append(document.createTextNode((i.icone||'🎒')+' '));
   d.append(document.createTextNode(i.nom+(i.quantite>1?' ×'+i.quantite:'')+(i.note?' — '+i.note:'')));
   d.style.cursor='pointer';d.title='Toucher pour voir la fiche de l’objet';
@@ -1560,8 +1579,8 @@ function ouvrirObjet(id){
   body.replaceChildren();
   const bk0=el('button','go','⬅ Retour à l’Inventaire');bk0.onclick=fermerObjet;body.append(bk0);
   const head=el('div','fiche-head');
-  const url=spriteObjet(it.nom);
-  if(url){const img=new Image();img.className='obj-sprite';img.src=url;img.alt=it.nom;img.onerror=()=>{const s=el('div','obj-emoji',it.icone||'🎒');img.replaceWith(s)};head.append(img)}
+  const u5o=spriteObjet5e(it.nom),uAo=spriteObjet(it.nom);
+  if(u5o){const img=new Image();img.className='obj-sprite';img.src=u5o;img.alt=it.nom;let et=0;img.onerror=()=>{et++;if(et===1){img.src=uAo}else{img.onerror=null;const s=el('div','obj-emoji',it.icone||'🎒');img.replaceWith(s)}};head.append(img)}
   else head.append(el('div','obj-emoji',it.icone||'🎒'));
   const ht=el('div','fiche-ht');
   ht.append(el('div','dnom',it.nom));
@@ -2446,6 +2465,7 @@ async function chargerInterne(){
   safe('enquetes',()=>{chargerEnquetes(ob.error?[]:(ob.data||[]));renderCarte(lieuCourant)});
   safe('relations',()=>{chargerRelations(ob.error?[]:(ob.data||[]));renderPersos(persosCache)});
   safe('selection',()=>{chargerSelectionCombat(ob.error?[]:(ob.data||[]));arenaSig='';renderArena(pokesCache,j.data||[])});
+  safe('chromatiques',()=>{chargerChromatiques(ob.error?[]:(ob.data||[]));arenaSig='';renderArena(pokesCache,j.data||[])});
   safe('souvenirs',()=>{renderSouvenirs(ob.error?[]:(ob.data||[]));renderPrecedemment(ob.error?[]:(ob.data||[]))});
   const rc=await db.from('rencontres').select('*').eq('code_partie',partie);
   if(rc.error)errs.push('rencontres : '+(rc.error.message||rc.error.code||'?'));
@@ -2472,7 +2492,8 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v110');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v111');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const bx=el('button','go','💾 Exporter la partie (JSON)');bx.style.cssText='margin-top:8px';bx.onclick=()=>exporterPartie();z.append(bx);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
