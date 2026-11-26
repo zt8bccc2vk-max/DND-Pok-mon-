@@ -756,6 +756,7 @@ function renderArena(list,rows){
   const sig=JSON.stringify(act.map(p=>[p.id,p.proprietaire,p.nom,p.espece,p.niveau,p.pv_actuel,p.pv_max,p.statut,p.dex_id]))+'|'+JSON.stringify(bA.map(p=>[p.id,p.pv_actuel,p.pv_max]))+'|'+JSON.stringify(bF.map(p=>[p.id,p.pv_actuel,p.pv_max]))+'|'+lieuCourant+'|'+fondCourant;
   if(sig===arenaSig)return;
   arenaSig=sig;
+  combatActif=foes.length>0;majFondArene();
   F.replaceChildren();A.replaceChildren();
   const ch=$('combat-h');if(ch)ch.textContent=foes.length?('⚔️ Le combat'+(tourCourant?' — Tour n°'+tourCourant:'')):'📍 En ce moment';
   F.style.display=A.style.display=foes.length?'':'none';
@@ -1562,6 +1563,21 @@ function fondDepuisLieu(lieu){
 }
 function fxMeteo(m){const n=norm(m||'');if(!n)return '';if(n.indexOf('pluie')>=0)return 'Eau +2 · Feu −2';if(n.indexOf('soleil')>=0||n.indexOf('zenith')>=0)return 'Feu +2 · Eau −2';if(n.indexOf('brouillard')>=0)return 'Touches −1 pour tous';if(n.indexOf('grele')>=0||n.indexOf('tempete')>=0)return 'Dégâts d’ambiance (hors types immunisés)';if(n.indexOf('couvert')>=0||n.indexOf('clair')>=0||n.indexOf('nuage')>=0)return 'Aucun effet';return ''}
 let fondCourant='plaine',lieuCourant='';
+let plateauCourant=null,combatActif=false;
+const PLATEAUX_ARENE=[['argenta','arene-argenta.jpg'],['azuria','arene-azuria.jpg'],['carmin','arene-carmin.jpg'],['safrania','arene-safrania.webp'],['celadopole','arene-celadopole.jpg'],['parmanie','arene-parmanie.jpg'],['cramois','arene-cramoisile.jpg'],['jadielle','arene-jadielle.jpg']];
+function plateauDepuisLieu(lieu){const s=norm(lieu||'');for(const pa of PLATEAUX_ARENE){if(s.includes(pa[0]))return pa[1]}return null}
+function majFondArene(){
+  const ar=document.querySelector('.arena');if(!ar)return;
+  const d=$('deco');
+  if(combatActif&&plateauCourant){
+    ar.style.background='linear-gradient(rgba(14,10,38,.20),rgba(14,10,38,.34)),url("'+plateauCourant+'") center 32%/cover no-repeat #241d3a';
+    if(d)d.style.display='none';
+  }else{
+    const th=FONDS[fondCourant]||FONDS.plaine;
+    ar.style.background=th.bg;
+    if(d)d.style.display='';
+  }
+}
 function momentDuJour(h){
   const n=parseInt(String(h||'').split(':')[0],10);
   if(isNaN(n))return '—';
@@ -1576,9 +1592,10 @@ function renderEtat(e){
   const l=$('lieu');l.textContent=e.lieu||'—';
   const m2=$('c-meteo2');if(m2){const fx=e.meteo?fxMeteo(e.meteo):'';m2.textContent=(e.horloge||'')+(e.meteo?' · '+e.meteo:'')+(fx?' · '+fx:'')}
   fondCourant=e.fond||fondDepuisLieu(e.lieu);lieuCourant=e.lieu||'';
+  plateauCourant=plateauDepuisLieu(e.lieu);
   const th=FONDS[fondCourant]||FONDS.plaine;
-  document.querySelector('.arena').style.background=th.bg;
   $('deco').textContent=th.deco;
+  majFondArene();
   renderCarte(e.lieu);majMusique(e);
   if(e.evenement&&e.evenement_id){
     let vu=0;try{vu=+localStorage.getItem('evVu')||0}catch(_){}
@@ -2415,7 +2432,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v108');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v109');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
 }
 function majGate(){
   const g=$('gate');if(!g)return;
