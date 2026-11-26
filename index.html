@@ -6,6 +6,11 @@
 <title>Pokémon Chant & Festin — Kanto</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#171233">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 :root{--bg:#231a4a;--ink:#1a1240;--red:#d6473a;--yel:#f7d35a;--brn:#6b4c28;--soft:#f8f7ff;--mut:#6c6694;--ok:#4caf50;--mid:#f5a524;--low:#e5483c}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -16,10 +21,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font:600 16px/1.35 'Baloo 2'
 .state{background:var(--brn);color:#fff}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{background:rgba(255,255,255,.18);border-radius:99px;padding:3px 12px;font-weight:800;font-size:14px}
-.state h1{margin:10px 2px 6px;font-size:26px;line-height:1.1}
+.state h1{margin:10px 2px 6px;font-size:16px;line-height:1.5;font-family:'Press Start 2P','Baloo 2',sans-serif}
 .lieu{display:inline-block;background:var(--yel);color:var(--ink);border:3px solid var(--ink);border-radius:99px;padding:4px 14px;font-weight:800}
-h2{color:#fff;font-size:18px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink)}
-.card h2{color:var(--ink);text-shadow:none;font-size:19px}
+h2{color:#fff;font-size:13px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink);font-family:'Press Start 2P','Baloo 2',sans-serif;line-height:1.5}
+.card h2{color:var(--ink);text-shadow:none;font-size:14px}
 .arena{position:relative;border:3px solid var(--ink);border-radius:20px;box-shadow:0 5px 0 #0e0a26;margin-bottom:14px;overflow:hidden;background:linear-gradient(#9fd8ff 0 46%,#86c95a 46%);padding:10px}
 #anim{position:fixed;inset:0;background:rgba(14,10,38,.94);z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:20px}
 #anim[hidden]{display:none}
@@ -2544,7 +2549,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v114');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v115');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
   const bx=el('button','go','💾 Exporter la partie (JSON)');bx.style.cssText='margin-top:8px';bx.onclick=()=>exporterPartie();z.append(bx);
   const bs=el('button','go','');bs.style.cssText='margin-top:8px;margin-left:8px';const majBs=()=>{bs.textContent=sonActif?'🔊 Son : oui':'🔇 Son : non'};majBs();bs.onclick=()=>{sonActif=!sonActif;try{localStorage.setItem('sonActif',sonActif?'1':'0')}catch(e){}majBs();if(sonActif)sonner('clic')};z.append(bs);
 }
@@ -2838,5 +2843,6 @@ function basculeSon(){
 }
 demarrer();
 </script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){})}</script>
 </body>
 </html>
