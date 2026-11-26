@@ -854,6 +854,7 @@ function coinBalls(elm,groupe){
   elm.append(wrap);
 }
 let arenaSig='';
+const sigRendus={};
 function renderArena(list,rows){
   const act=list.filter(p=>p.actif),F=$('foes'),A=$('allies');
   const enCombat=act.some(p=>p.proprietaire==='Adversaire');
@@ -2492,7 +2493,7 @@ showLoader(600);
 async function charger(){if(enCharge){enAttente=true;return}enCharge=true;try{await chargerInterne()}catch(err){const eb=$('errbox');if(eb){eb.hidden=false;eb.textContent='⚠️ Erreur de chargement — '+((err&&err.message)||err)}setConn(false)}finally{enCharge=false;hideLoader();if(enAttente){enAttente=false;charger()}}}
 async function chargerInterne(){
   const errs=[];
-  const safe=(nom,fn)=>{try{fn()}catch(err){errs.push(nom+' : '+((err&&err.message)||err))}};
+  const safe=(nom,fn,sig)=>{if(sig!==undefined&&sigRendus[nom]===sig)return;try{fn();if(sig!==undefined)sigRendus[nom]=sig}catch(err){errs.push(nom+' : '+((err&&err.message)||err))}};
   const e=await db.from('etat').select('*').eq('code_partie',partie).maybeSingle();
   const [p,j]=await Promise.all([
     db.from('pokemon').select('*').eq('code_partie',partie).order('id'),
@@ -2505,12 +2506,12 @@ async function chargerInterne(){
   const list=p.data||[];pokesCache=list;
   advActif=list.some(x=>x.proprietaire==='Adversaire'&&x.actif);
   tourCourant=e.data?e.data.tour:null;
-  safe('état',()=>renderEtat(e.data));safe('annonces',()=>renderAnnonces(a.data||[]));safe('journal',()=>renderJournal(j.data||[]));safe('arène',()=>renderArena(list,j.data||[]));
+  safe('état',()=>renderEtat(e.data),JSON.stringify(e.data));safe('annonces',()=>renderAnnonces(a.data||[]),JSON.stringify([a.data,localStorage.getItem('joueurLocal')]));safe('journal',()=>renderJournal(j.data||[]),JSON.stringify(j.data));safe('arène',()=>renderArena(list,j.data||[]),JSON.stringify([list,j.data]));
   const pr=await db.from('personnages').select('*').eq('code_partie',partie).order('ordre');
   persosCache=pr.error?persosCache:(pr.data||[]);
-  safe('conversation',()=>renderConversation());
-  safe('persos',()=>renderPersos(pr.error?[]:(pr.data||[])));
-  safe('annonces2',()=>renderAnnonces(a.data||[]));
+  safe('conversation',()=>renderConversation(),JSON.stringify(pr.data));
+  safe('persos',()=>renderPersos(pr.error?[]:(pr.data||[])),JSON.stringify(pr.data));
+  safe('annonces2',()=>renderAnnonces(a.data||[]),JSON.stringify([a.data,localStorage.getItem('joueurLocal')]));
   const [dr,iv,ob]=await Promise.all([
     db.from('dresseurs').select('*').eq('code_partie',partie),
     db.from('inventaire').select('*').eq('code_partie',partie).order('id'),
@@ -2518,21 +2519,21 @@ async function chargerInterne(){
   if(dr.error)errs.push('dresseurs : '+(dr.error.message||dr.error.code||'?'));
   if(iv.error)errs.push('inventaire : '+(iv.error.message||iv.error.code||'?'));
   if(ob.error)errs.push('objectifs : '+(ob.error.message||ob.error.code||'?'));
-  safe('équipes',()=>renderEquipes(list,dr.error?[]:(dr.data||[]),j.data||[],pr.error?[]:(pr.data||[]),ob.error?[]:(ob.data||[])));
-  safe('matos',()=>renderMatos(ob.error?[]:(ob.data||[]),pr.error?[]:(pr.data||[])));
-  safe('sac',()=>renderSac(iv.error?[]:(iv.data||[])));
-  safe('badges',()=>verifierBadges(dr.error?[]:(dr.data||[])));
-  safe('quêtes',()=>renderQuetes(ob.error?[]:(ob.data||[])));
-  safe('suggestions',()=>renderSuggestions(ob.error?[]:(ob.data||[])));
-  safe('evenements',()=>{chargerEvenements(ob.error?[]:(ob.data||[]));renderJournal(j.data||[])});
-  safe('enquetes',()=>{chargerEnquetes(ob.error?[]:(ob.data||[]));renderCarte(lieuCourant)});
-  safe('relations',()=>{chargerRelations(ob.error?[]:(ob.data||[]));renderPersos(persosCache)});
-  safe('selection',()=>{chargerSelectionCombat(ob.error?[]:(ob.data||[]));arenaSig='';renderArena(pokesCache,j.data||[])});
-  safe('chromatiques',()=>{chargerChromatiques(ob.error?[]:(ob.data||[]));arenaSig='';renderArena(pokesCache,j.data||[])});
-  safe('souvenirs',()=>{renderSouvenirs(ob.error?[]:(ob.data||[]));renderPrecedemment(ob.error?[]:(ob.data||[]))});
+  safe('équipes',()=>renderEquipes(list,dr.error?[]:(dr.data||[]),j.data||[],pr.error?[]:(pr.data||[]),ob.error?[]:(ob.data||[])),JSON.stringify([list,dr.data,j.data,pr.data,ob.data]));
+  safe('matos',()=>renderMatos(ob.error?[]:(ob.data||[]),pr.error?[]:(pr.data||[])),JSON.stringify([ob.data,pr.data]));
+  safe('sac',()=>renderSac(iv.error?[]:(iv.data||[])),JSON.stringify(iv.data));
+  safe('badges',()=>verifierBadges(dr.error?[]:(dr.data||[])),JSON.stringify(dr.data));
+  safe('quêtes',()=>renderQuetes(ob.error?[]:(ob.data||[])),JSON.stringify(ob.data));
+  safe('suggestions',()=>renderSuggestions(ob.error?[]:(ob.data||[])),JSON.stringify(ob.data));
+  safe('evenements',()=>{chargerEvenements(ob.error?[]:(ob.data||[]));renderJournal(j.data||[])},JSON.stringify([ob.data,j.data]));
+  safe('enquetes',()=>{chargerEnquetes(ob.error?[]:(ob.data||[]));renderCarte(lieuCourant)},JSON.stringify([ob.data,e.data]));
+  safe('relations',()=>{chargerRelations(ob.error?[]:(ob.data||[]));renderPersos(persosCache)},JSON.stringify([ob.data,pr.data]));
+  safe('selection',()=>{chargerSelectionCombat(ob.error?[]:(ob.data||[]));arenaSig='';renderArena(pokesCache,j.data||[])},JSON.stringify(ob.data));
+  safe('chromatiques',()=>{chargerChromatiques(ob.error?[]:(ob.data||[]));arenaSig='';renderArena(pokesCache,j.data||[])},JSON.stringify(ob.data));
+  safe('souvenirs',()=>{renderSouvenirs(ob.error?[]:(ob.data||[]));renderPrecedemment(ob.error?[]:(ob.data||[]))},JSON.stringify(ob.data));
   const rc=await db.from('rencontres').select('*').eq('code_partie',partie);
   if(rc.error)errs.push('rencontres : '+(rc.error.message||rc.error.code||'?'));
-  safe('dex',()=>renderDex(rc.error?[]:(rc.data||[]),list));
+  safe('dex',()=>renderDex(rc.error?[]:(rc.data||[]),list),JSON.stringify([rc.data,list]));
   list.forEach(x=>{prev[x.id]=pct(x)});
   safe('pokédex',()=>verifierNouveaux(list));
   const eb=$('errbox');if(eb){if(errs.length){eb.hidden=false;eb.textContent='⚠️ Chargement incomplet — '+errs.join(' · ')}else{eb.hidden=true;eb.textContent=''}}
@@ -2555,7 +2556,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v117');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v118');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
   const bx=el('button','go','💾 Exporter la partie (JSON)');bx.style.cssText='margin-top:8px';bx.onclick=()=>exporterPartie();z.append(bx);
   const bs=el('button','go','');bs.style.cssText='margin-top:8px;margin-left:8px';const majBs=()=>{bs.textContent=sonActif?'🔊 Son : oui':'🔇 Son : non'};majBs();bs.onclick=()=>{sonActif=!sonActif;try{localStorage.setItem('sonActif',sonActif?'1':'0')}catch(e){}majBs();if(sonActif)sonner('clic')};z.append(bs);
 }
