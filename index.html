@@ -338,6 +338,7 @@ html,body{overflow-x:hidden}
 .acc2.camp-autres>summary{background:#e6e1ff;border-radius:10px;padding-left:8px}
 .perso{display:flex;gap:10px;align-items:flex-start;position:relative}
 .perso .pimg{width:92px;height:92px;object-fit:cover;flex:none;margin:0}
+.perso .pimg.silhouette{filter:brightness(0)}
 .perso .ptxt{flex:1;min-width:0}
 .perso .ptxt h3{margin:2px 22px 4px 0}
 .chipcamp{position:absolute;top:8px;right:8px;background:var(--yel);border:2px solid var(--ink);border-radius:99px;padding:1px 9px;font-size:11.5px;font-weight:800}
@@ -1734,7 +1735,7 @@ const LIEUX=[
   {nom:'Grotte Digda',court:'Grotte Digda',x:81,y:73,ico:'🐾',etape:12,verrou:1,mots:['digda','grotte digda'],desc:"Le tunnel des Taupiqueur : un raccourci souterrain entre les environs de Carmin sur Mer et la route d’Argenta."},
   {nom:'Lavanville',court:'Lavanville',x:87,y:57,ico:'🗼',etape:13,mots:['lavanville'],desc:"La ville mauve, au pied de la Tour Pokémon. On y parle bas, et les souvenirs y restent."},
   {nom:'Céladopole',court:'Céladopole',x:45,y:43,ico:'🏙️',etape:15,mots:['céladopole','celadopole'],desc:"La plus grande ville de l'ouest : grand magasin, casino, restaurants… et l'Arène d'Erika."},
-  {nom:'Safrania',court:'Safrania',x:71,y:42,ico:'🏙️',etape:14,mots:['safrania'],desc:"La ville dorée au centre de Kanto. La Silph SARL, et l'Arène de Morgane."},
+  {nom:'Safrania',court:'Safrania',x:71,y:42,ico:'🏙️',etape:14,mots:['safrania'],desc:"La ville dorée au centre de Kanto. La Silph SARL, et l'Arène de Morgane.",pres:'Morgane — championne · Amanda — sa Seconde'},
   {nom:'Parmanie',court:'Parmanie',x:45,y:76,ico:'🏘️',etape:16,mots:['parmanie'],desc:"La ville du sud, porte de la Zone Safari. L'Arène de Koga n'est jamais là où on l'attend."},
   {nom:'Îles Écumes',court:'Îles Écumes',x:28,y:87,ico:'❄️',etape:17,mots:['écume','ecume','îles','iles'],desc:"Deux îlots de grottes gelées au milieu de la mer, entre Parmanie et Cramois’Île."},
   {nom:"Cramois'Île",court:"Cramois'Île",x:14,y:88,ico:'🌋',etape:18,mots:['cramois'],desc:"L'île volcan du sud. Un laboratoire, un manoir en ruines, et l'Arène de Blaine."},
@@ -2362,7 +2363,12 @@ function renderPersos(rows){
     det.append(sum);
     groups[camp].forEach(r=>{
       const c=el('div','card perso');c.dataset.nom=r.nom||'';
-      if(r.image){
+      if(camp==='Champions d’Arène'&&r.statut!=='rencontré'){
+        const img=new Image();img.src='inconnu.png';img.alt='Pas encore rencontré';img.className='pimg';
+        img.onerror=()=>{const b=el('div','noimg','❔');b.style.width='92px';b.style.height='92px';b.style.fontSize='40px';b.style.flex='none';img.replaceWith(b)};
+        c.append(img);
+      }
+      else if(r.image){
         const img=new Image();img.src=r.image;img.alt=r.nom;img.className='pimg';
         img.onerror=()=>{const b=el('div','noimg','❔');b.style.width='92px';b.style.height='92px';b.style.fontSize='40px';b.style.flex='none';img.replaceWith(b)};
         c.append(img);
@@ -2549,7 +2555,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v115');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v117');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
   const bx=el('button','go','💾 Exporter la partie (JSON)');bx.style.cssText='margin-top:8px';bx.onclick=()=>exporterPartie();z.append(bx);
   const bs=el('button','go','');bs.style.cssText='margin-top:8px;margin-left:8px';const majBs=()=>{bs.textContent=sonActif?'🔊 Son : oui':'🔇 Son : non'};majBs();bs.onclick=()=>{sonActif=!sonActif;try{localStorage.setItem('sonActif',sonActif?'1':'0')}catch(e){}majBs();if(sonActif)sonner('clic')};z.append(bs);
 }
