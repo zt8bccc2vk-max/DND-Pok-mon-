@@ -34,6 +34,16 @@ h2{color:#fff;font-size:13px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink);f
 .teinte.nuit{background:linear-gradient(180deg,rgba(7,9,40,.46),rgba(3,5,26,.42))}
 .teinte.pluie::after{content:'';position:absolute;inset:-40px;background:repeating-linear-gradient(105deg,transparent 0 9px,rgba(190,210,255,.20) 9px 10px,transparent 10px 19px);animation:teintePluie .55s linear infinite}
 @keyframes teintePluie{from{transform:translateY(-28px)}to{transform:translateY(28px)}}
+.ambiance{position:absolute;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+.ambiance.eau::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.16) 48%,transparent 62%);background-size:250% 100%;animation:ambEau 5.5s ease-in-out infinite}
+@keyframes ambEau{0%{background-position:120% 0}100%{background-position:-120% 0}}
+.ambiance.feuilles i{position:absolute;top:-24px;font-style:normal;font-size:15px;opacity:0;animation:ambFeuille 7s linear infinite}
+.ambiance.feuilles i:nth-child(1){left:12%}
+.ambiance.feuilles i:nth-child(2){left:34%;animation-delay:2.6s;font-size:12px}
+.ambiance.feuilles i:nth-child(3){left:55%;animation-delay:4.4s}
+.ambiance.feuilles i:nth-child(4){left:74%;animation-delay:1.5s;font-size:13px}
+.ambiance.feuilles i:nth-child(5){left:90%;animation-delay:5.8s}
+@keyframes ambFeuille{0%{transform:translate(0,-10px) rotate(0deg);opacity:0}12%{opacity:.85}50%{transform:translate(14px,120px) rotate(160deg)}100%{transform:translate(-8px,280px) rotate(320deg);opacity:0}}
 #anim{position:fixed;inset:0;background:rgba(14,10,38,.94);z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:20px}
 #anim[hidden]{display:none}
 #anim-stage{min-height:185px;display:flex;align-items:center;justify-content:center}
@@ -828,7 +838,9 @@ function hpbox(p,owner){
 }
 function slot(p,foe){
   const s=el('div','slot'+(foe?' foe':'')),sp=sprite(p,!foe),o=prev[p.id];
-  if(!terrainVus[p.id]){sp.classList.add('pop');sonner('envoi')}
+  if(!terrainVus[p.id]){sp.classList.add('pop');sonner('envoi');criPoke(p)}
+  sp.style.cursor='pointer';sp.title='Écouter son cri';
+  sp.addEventListener('click',()=>criPoke(p,true));
   if(o!==undefined&&pct(p)<o){sp.classList.add('hit');sonner(pct(p)<=0?'ko':'touche')}
   const hb=hpbox(p,foe?'':p.proprietaire);
   const fx=fxStatut(p,sp);
@@ -865,7 +877,7 @@ function miniSlot(p){
   const bar=el('div','bbar'),f=el('div','bfill '+hpClass(p));f.style.width=pct(p)+'%';bar.append(f);inf.append(bar);
   inf.append(el('div','bpv',p.pv_actuel+'/'+p.pv_max+' PV'+(ko?' · K.O.':'')));
   d.append(inf);
-  d.onclick=()=>{if(!estMystere(p))ouvrirFiche(p.id)};
+  d.onclick=()=>{if(!estMystere(p)){criPoke(p,true);ouvrirFiche(p.id)}};
   return d;
 }
 function bancAllies(list){return list.filter(p=>(p.proprietaire==='Axel'||p.proprietaire==='Julien')&&!p.actif&&(p.statut_pokemon||'actif')==='actif'&&!estLibre(p))}
@@ -922,6 +934,23 @@ function coinBalls(elm,groupe){
 }
 let arenaSig='';
 const sigRendus={};
+
+let dejaInteragi=false;
+document.addEventListener('pointerdown',()=>{dejaInteragi=true});
+function criPoke(p,force){
+  if(!sonActif||!p||estMystere(p))return;
+  if(!force&&!dejaInteragi)return;
+  const id=dexId(p);if(!id)return;
+  try{
+    const a=new Audio('https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/legacy/'+id+'.ogg');
+    a.volume=.45;
+    a.onerror=()=>{try{const b=new Audio('https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/'+id+'.ogg');b.volume=.45;b.play().catch(()=>{})}catch(e){}};
+    a.play().catch(()=>{});
+  }catch(e){}
+}
+const AMB_EAU=['océane','oceane','ss anne','paquebot','mer','plage','port','phare','île','ile','bateau','quai'];
+const AMB_FEUILLES=['forêt','foret','bois','jardin','parc','plaine','prairie','clairière','clairiere'];
+function ambianceLieu(lieu){const s=String(lieu||'').toLowerCase();if(AMB_EAU.some(m=>s.includes(m)))return 'eau';if(AMB_FEUILLES.some(m=>s.includes(m)))return 'feuilles';return ''}
 function phaseJour(h){
   const m=String(h||'').match(/(\d{1,2})[:h](\d{2})?/);
   if(!m)return '';
@@ -954,6 +983,12 @@ function renderArena(list,rows,etat){
     if(!te){te=el('div','teinte');ar.append(te)}
     const ph=etat?phaseJour(etat.horloge):'';
     te.className='teinte'+(ph?' '+ph:'')+((etat&&/pluie|orage|averse/i.test(etat.meteo||''))?' pluie':'');
+    const amb=ambianceLieu(lieuCourant);
+    let am=ar.querySelector('.ambiance');
+    if(amb){
+      if(!am){am=el('div','ambiance');ar.append(am)}
+      if(am.dataset.k!==amb){am.dataset.k=amb;am.className='ambiance '+amb;am.innerHTML=amb==='feuilles'?'<i>🍃</i><i>🍃</i><i>🍃</i><i>🍃</i><i>🍃</i>':''}
+    }else if(am)am.remove();
   }
   const sc=$('scene');
   if(sc){
@@ -2704,7 +2739,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v124');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v125');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
   const bx=el('button','go','💾 Exporter la partie (JSON)');bx.style.cssText='margin-top:8px';bx.onclick=()=>exporterPartie();z.append(bx);
   const bs=el('button','go','');bs.style.cssText='margin-top:8px;margin-left:8px';const majBs=()=>{bs.textContent=sonActif?'🔊 Son : oui':'🔇 Son : non'};majBs();bs.onclick=()=>{sonActif=!sonActif;try{localStorage.setItem('sonActif',sonActif?'1':'0')}catch(e){}majBs();if(sonActif)sonner('clic')};z.append(bs);
 }
