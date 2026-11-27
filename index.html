@@ -151,7 +151,7 @@ h2{color:#fff;font-size:13px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink);f
 .slits{display:flex;gap:6px;transform:rotate(-20deg)}.slits i{width:6px;height:34px;border-radius:4px;background:var(--ink)}
 .dice{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin:8px 0}
 .reslock{margin:10px 0;padding:14px 12px;border:2px dashed #241f4e;border-radius:12px;text-align:center;font-weight:800;background:rgba(36,31,78,.07)}
-.rcourt{margin:8px 0;font-size:.92rem;line-height:1.5;text-align:left}.rcourt .rl{margin:5px 0}.rcourt .rl.mj{opacity:.72}.rcourt .rconc{margin-top:9px;padding-top:7px;border-top:2px dashed #241f4e;font-size:.88rem}
+.rcourt{margin:8px 0;font-size:.92rem;line-height:1.5;text-align:left}.rcourt .rl{margin:5px 0}.rcourt .rl.mj{opacity:.72}.rcourt .rconc{margin-top:9px;padding-top:7px;border-top:2px dashed #241f4e;font-size:.88rem}.rcourt .calctoggle{font-size:.82rem;padding:3px 12px;margin:2px 0 4px}.rcourt .rlines{margin:2px 0 4px}
 .dw{text-align:center}
 .die{position:relative;width:46px;height:46px;margin:0 auto;cursor:pointer;background:var(--ink);clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)}
 .die::before{content:"";position:absolute;inset:3px;background:linear-gradient(#e5483c 0 43%,var(--ink) 43% 57%,#fff 57%);clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)}
@@ -1984,6 +1984,10 @@ function blocResumeCourt(row){
   const wrap=el('div','rcourt');
   const des=row.des_json||[];
   if(!des.length){wrap.append(el('div','',(row.texte_resolution||'').slice(0,300)));return wrap}
+  const lignes=el('div','rlines');lignes.hidden=true;
+  const btnCalc=el('button','go calctoggle','🎲 Voir les calculs');btnCalc.type='button';
+  btnCalc.onclick=()=>{lignes.hidden=!lignes.hidden;btnCalc.textContent=lignes.hidden?'🎲 Voir les calculs':'🎲 Masquer les calculs'};
+  wrap.append(btnCalc,lignes);
   des.forEach(x=>{
     const lab=String(x.label||'');
     const p=lab.indexOf(' — ');
@@ -1996,7 +2000,7 @@ function blocResumeCourt(row){
     const suite=' · '+deTxt+' → '+(x.verdict||'');
     if(estMoi){ligne.append(el('b','',(qui?qui+' — ':'')+action),document.createTextNode(suite))}
     else{ligne.append(document.createTextNode((qui?qui+' — ':'')+action+suite))}
-    wrap.append(ligne);
+    lignes.append(ligne);
   });
   const paras=String(row.texte_resolution||'').split(/\n\s*\n/);
   const conc=paras.find(t=>/^\s*CONCLUSION/i.test(t));
@@ -2556,7 +2560,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v119');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v120');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
   const bx=el('button','go','💾 Exporter la partie (JSON)');bx.style.cssText='margin-top:8px';bx.onclick=()=>exporterPartie();z.append(bx);
   const bs=el('button','go','');bs.style.cssText='margin-top:8px;margin-left:8px';const majBs=()=>{bs.textContent=sonActif?'🔊 Son : oui':'🔇 Son : non'};majBs();bs.onclick=()=>{sonActif=!sonActif;try{localStorage.setItem('sonActif',sonActif?'1':'0')}catch(e){}majBs();if(sonActif)sonner('clic')};z.append(bs);
 }
