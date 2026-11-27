@@ -26,6 +26,14 @@ body{margin:0;background:var(--bg);color:var(--ink);font:600 16px/1.35 'Baloo 2'
 h2{color:#fff;font-size:13px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink);font-family:'Press Start 2P','Baloo 2',sans-serif;line-height:1.5}
 .card h2{color:var(--ink);text-shadow:none;font-size:14px}
 .arena{position:relative;border:3px solid var(--ink);border-radius:20px;box-shadow:0 5px 0 #0e0a26;margin-bottom:14px;overflow:hidden;background:linear-gradient(#9fd8ff 0 46%,#86c95a 46%);padding:10px}
+.teinte{position:absolute;inset:0;pointer-events:none;z-index:6;transition:background 1.2s ease}
+.teinte.aube{background:linear-gradient(180deg,rgba(255,166,88,.20),rgba(255,120,130,.10) 60%,rgba(80,60,140,.10))}
+.teinte.jour{background:transparent}
+.teinte.crepuscule{background:linear-gradient(180deg,rgba(255,110,55,.24),rgba(150,60,130,.16) 55%,rgba(35,30,90,.20))}
+.teinte.soir{background:linear-gradient(180deg,rgba(35,45,120,.30),rgba(12,14,55,.26))}
+.teinte.nuit{background:linear-gradient(180deg,rgba(7,9,40,.46),rgba(3,5,26,.42))}
+.teinte.pluie::after{content:'';position:absolute;inset:-40px;background:repeating-linear-gradient(105deg,transparent 0 9px,rgba(190,210,255,.20) 9px 10px,transparent 10px 19px);animation:teintePluie .55s linear infinite}
+@keyframes teintePluie{from{transform:translateY(-28px)}to{transform:translateY(28px)}}
 #anim{position:fixed;inset:0;background:rgba(14,10,38,.94);z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:20px}
 #anim[hidden]{display:none}
 #anim-stage{min-height:185px;display:flex;align-items:center;justify-content:center}
@@ -914,7 +922,17 @@ function coinBalls(elm,groupe){
 }
 let arenaSig='';
 const sigRendus={};
-function renderArena(list,rows){
+function phaseJour(h){
+  const m=String(h||'').match(/(\d{1,2})[:h](\d{2})?/);
+  if(!m)return '';
+  const t=(+m[1])*60+(+(m[2]||0));
+  if(t>=1260||t<300)return 'nuit';
+  if(t<450)return 'aube';
+  if(t<1050)return 'jour';
+  if(t<1170)return 'crepuscule';
+  return 'soir';
+}
+function renderArena(list,rows,etat){
   const act=list.filter(p=>p.actif),F=$('foes'),A=$('allies');
   const enCombat=act.some(p=>p.proprietaire==='Adversaire');
   const foes=act.filter(p=>p.proprietaire==='Adversaire'&&p.pv_actuel>0),al=act.filter(p=>p.proprietaire!=='Adversaire'&&p.pv_actuel>0);
@@ -923,7 +941,7 @@ function renderArena(list,rows){
   const coinMoi={nom:moi,pokes:list.filter(p=>p.proprietaire===moi&&(p.statut_pokemon||'actif')==='actif'&&!estLibre(p))};
   const coinAutre={nom:autre,pokes:list.filter(p=>p.proprietaire===autre&&(p.statut_pokemon||'actif')==='actif'&&!estLibre(p))};
   const gAdv=enCombat?groupesAdverses(list,rows||[]):[];
-  const sig=JSON.stringify(act.map(p=>[p.id,p.proprietaire,p.nom,p.espece,p.niveau,p.pv_actuel,p.pv_max,p.statut,p.dex_id]))+'|'+JSON.stringify([coinMoi,coinAutre].concat(gAdv).map(g=>[g.nom,g.pokes.map(p=>[p.id,p.pv_actuel])]))+'|'+lieuCourant+'|'+fondCourant+'|'+moi;
+  const sig=JSON.stringify(act.map(p=>[p.id,p.proprietaire,p.nom,p.espece,p.niveau,p.pv_actuel,p.pv_max,p.statut,p.dex_id]))+'|'+JSON.stringify([coinMoi,coinAutre].concat(gAdv).map(g=>[g.nom,g.pokes.map(p=>[p.id,p.pv_actuel])]))+'|'+lieuCourant+'|'+fondCourant+'|'+moi+'|'+(etat?(etat.horloge||'')+'/'+(etat.meteo||''):'');
   if(sig===arenaSig)return;
   arenaSig=sig;
   combatActif=enCombat;majFondArene();
@@ -931,6 +949,12 @@ function renderArena(list,rows){
   const ch=$('combat-h');if(ch)ch.textContent=enCombat?('⚔️ Le combat'+(tourCourant?' — Tour n°'+tourCourant:'')):'📍 En ce moment';
   F.style.display=A.style.display=enCombat?'':'none';
   const ar=document.querySelector('.arena');if(ar)ar.classList.toggle('compact',!enCombat);
+  if(ar){
+    let te=ar.querySelector('.teinte');
+    if(!te){te=el('div','teinte');ar.append(te)}
+    const ph=etat?phaseJour(etat.horloge):'';
+    te.className='teinte'+(ph?' '+ph:'')+((etat&&/pluie|orage|averse/i.test(etat.meteo||''))?' pluie':'');
+  }
   const sc=$('scene');
   if(sc){
     const ill=enCombat?null:illusLieu(lieuCourant);
@@ -2151,7 +2175,8 @@ function dieElJ(key,x){
 function renderSituation(list,e){
   const z=$('situation');if(!z)return;
   z.replaceChildren();
-  z.append(el('div','jh',(e&&e.lieu?e.lieu:'—')+' · '+(e&&e.horloge?e.horloge:'')+(e&&e.meteo?' · '+e.meteo:'')));
+  const phI={aube:'🌅',jour:'☀️',crepuscule:'🌆',soir:'🌃',nuit:'🌙'}[e?phaseJour(e.horloge):'']||'';
+  z.append(el('div','jh',(e&&e.lieu?e.lieu:'—')+' · '+(e&&e.horloge?e.horloge:'')+(e&&e.meteo?' · '+e.meteo:'')+(phI?' · '+phI:'')));
   const L=list||[];
   const ligneSit=p=>{const d=el('div','sitrow');d.append(el('span','',p.nom+(p.proprietaire?' ('+p.proprietaire+')':'')),el('span','',p.pv_actuel+'/'+p.pv_max+' PV'+(p.pv_actuel<=0?' · K.O.':(p.statut?' · '+p.statut:''))));return d};
   const act=L.filter(p=>p.actif);
@@ -2629,7 +2654,7 @@ async function chargerInterne(){
   const list=p.data||[];pokesCache=list;
   advActif=list.some(x=>x.proprietaire==='Adversaire'&&x.actif);
   tourCourant=e.data?e.data.tour:null;
-  safe('état',()=>renderEtat(e.data),JSON.stringify(e.data));safe('annonces',()=>renderAnnonces(a.data||[]),JSON.stringify([a.data,localStorage.getItem('joueurLocal')]));safe('journal',()=>renderJournal(j.data||[]),JSON.stringify(j.data));safe('arène',()=>renderArena(list,j.data||[]),JSON.stringify([list,j.data,e.data]));safe('situation',()=>renderSituation(list,e.data),JSON.stringify([list,e.data]));
+  safe('état',()=>renderEtat(e.data),JSON.stringify(e.data));safe('annonces',()=>renderAnnonces(a.data||[]),JSON.stringify([a.data,localStorage.getItem('joueurLocal')]));safe('journal',()=>renderJournal(j.data||[]),JSON.stringify(j.data));safe('arène',()=>renderArena(list,j.data||[],e.data),JSON.stringify([list,j.data,e.data]));safe('situation',()=>renderSituation(list,e.data),JSON.stringify([list,e.data]));
   const pr=await db.from('personnages').select('*').eq('code_partie',partie).order('ordre');
   persosCache=pr.error?persosCache:(pr.data||[]);
   safe('conversation',()=>renderConversation(),JSON.stringify(pr.data));
@@ -2679,7 +2704,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v123');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v124');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
   const bx=el('button','go','💾 Exporter la partie (JSON)');bx.style.cssText='margin-top:8px';bx.onclick=()=>exporterPartie();z.append(bx);
   const bs=el('button','go','');bs.style.cssText='margin-top:8px;margin-left:8px';const majBs=()=>{bs.textContent=sonActif?'🔊 Son : oui':'🔇 Son : non'};majBs();bs.onclick=()=>{sonActif=!sonActif;try{localStorage.setItem('sonActif',sonActif?'1':'0')}catch(e){}majBs();if(sonActif)sonner('clic')};z.append(bs);
 }
