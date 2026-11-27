@@ -1128,7 +1128,6 @@ function estMystere(p){return !p.espece}
 const TYPE_COUL={'Normal':'#A8A77A','Feu':'#EE8130','Eau':'#6390F0','Électrik':'#C79A00','Plante':'#5CA62E','Glace':'#6FBFB8','Combat':'#C22E28','Poison':'#A33EA1','Sol':'#C7A33F','Vol':'#A98FF3','Psy':'#F95587','Insecte':'#A6B91A','Roche':'#B6A136','Spectre':'#735797','Dragon':'#6F35FC','Ténèbres':'#705746','Acier':'#8E8EA8','Fée':'#D685AD'};
 const TYPES_ESP={"1":["Plante","Poison"],"2":["Plante","Poison"],"3":["Plante","Poison"],"4":["Feu"],"5":["Feu"],"6":["Feu","Vol"],"7":["Eau"],"8":["Eau"],"9":["Eau"],"10":["Insecte"],"11":["Insecte"],"12":["Insecte","Vol"],"13":["Insecte","Poison"],"14":["Insecte","Poison"],"15":["Insecte","Poison"],"16":["Normal","Vol"],"17":["Normal","Vol"],"18":["Normal","Vol"],"19":["Normal"],"20":["Normal"],"21":["Normal","Vol"],"22":["Normal","Vol"],"23":["Poison"],"24":["Poison"],"25":["Électrik"],"26":["Électrik"],"27":["Sol"],"28":["Sol"],"29":["Poison"],"30":["Poison"],"31":["Poison","Sol"],"32":["Poison"],"33":["Poison"],"34":["Poison","Sol"],"35":["Fée"],"36":["Fée"],"37":["Feu"],"38":["Feu"],"39":["Normal","Fée"],"40":["Normal","Fée"],"41":["Poison","Vol"],"42":["Poison","Vol"],"43":["Plante","Poison"],"44":["Plante","Poison"],"45":["Plante","Poison"],"46":["Insecte","Plante"],"47":["Insecte","Plante"],"48":["Insecte","Poison"],"49":["Insecte","Poison"],"50":["Sol"],"51":["Sol"],"52":["Normal"],"53":["Normal"],"54":["Eau"],"55":["Eau"],"56":["Combat"],"57":["Combat"],"58":["Feu"],"59":["Feu"],"60":["Eau"],"61":["Eau"],"62":["Eau","Combat"],"63":["Psy"],"64":["Psy"],"65":["Psy"],"66":["Combat"],"67":["Combat"],"68":["Combat"],"69":["Plante","Poison"],"70":["Plante","Poison"],"71":["Plante","Poison"],"72":["Eau","Poison"],"73":["Eau","Poison"],"74":["Roche","Sol"],"75":["Roche","Sol"],"76":["Roche","Sol"],"77":["Feu"],"78":["Feu"],"79":["Eau","Psy"],"80":["Eau","Psy"],"81":["Électrik","Acier"],"82":["Électrik","Acier"],"83":["Normal","Vol"],"84":["Normal","Vol"],"85":["Normal","Vol"],"86":["Eau"],"87":["Eau","Glace"],"88":["Poison"],"89":["Poison"],"90":["Eau"],"91":["Eau","Glace"],"92":["Spectre","Poison"],"93":["Spectre","Poison"],"94":["Spectre","Poison"],"95":["Roche","Sol"],"96":["Psy"],"97":["Psy"],"98":["Eau"],"99":["Eau"],"100":["Électrik"],"101":["Électrik"],"102":["Plante","Psy"],"103":["Plante","Psy"],"104":["Sol"],"105":["Sol"],"106":["Combat"],"107":["Combat"],"108":["Normal"],"109":["Poison"],"110":["Poison"],"111":["Sol","Roche"],"112":["Sol","Roche"],"113":["Normal"],"114":["Plante"],"115":["Normal"],"116":["Eau"],"117":["Eau"],"118":["Eau"],"119":["Eau"],"120":["Eau"],"121":["Eau","Psy"],"122":["Psy","Fée"],"123":["Insecte","Vol"],"124":["Glace","Psy"],"125":["Électrik"],"126":["Feu"],"127":["Insecte"],"128":["Normal"],"129":["Eau"],"130":["Eau","Vol"],"131":["Eau","Glace"],"132":["Normal"],"133":["Normal"],"134":["Eau"],"135":["Électrik"],"136":["Feu"],"137":["Normal"],"138":["Roche","Eau"],"139":["Roche","Eau"],"140":["Roche","Eau"],"141":["Roche","Eau"],"142":["Roche","Vol"],"143":["Normal"],"144":["Glace","Vol"],"145":["Électrik","Vol"],"146":["Feu","Vol"],"147":["Dragon"],"148":["Dragon"],"149":["Dragon","Vol"],"150":["Psy"],"151":["Psy"],"446":["Normal"],"212":["Insecte","Acier"]};
 const CHARTE_TYPES={"Normal":{"Roche":0.5,"Acier":0.5,"Spectre":0},"Feu":{"Insecte":2,"Acier":2,"Plante":2,"Glace":2,"Roche":0.5,"Feu":0.5,"Eau":0.5,"Dragon":0.5},"Eau":{"Sol":2,"Roche":2,"Feu":2,"Eau":0.5,"Plante":0.5,"Dragon":0.5},"Électrik":{"Vol":2,"Eau":2,"Plante":0.5,"Électrik":0.5,"Dragon":0.5,"Sol":0},"Plante":{"Sol":2,"Roche":2,"Eau":2,"Vol":0.5,"Poison":0.5,"Insecte":0.5,"Acier":0.5,"Feu":0.5,"Plante":0.5,"Dragon":0.5},"Glace":{"Vol":2,"Sol":2,"Plante":2,"Dragon":2,"Acier":0.5,"Feu":0.5,"Eau":0.5,"Glace":0.5},"Combat":{"Normal":2,"Roche":2,"Acier":2,"Glace":2,"Ténèbres":2,"Vol":0.5,"Poison":0.5,"Insecte":0.5,"Psy":0.5,"Fée":0.5,"Spectre":0},"Poison":{"Plante":2,"Fée":2,"Poison":0.5,"Sol":0.5,"Roche":0.5,"Spectre":0.5,"Acier":0},"Sol":{"Poison":2,"Roche":2,"Acier":2,"Feu":2,"Électrik":2,"Insecte":0.5,"Plante":0.5,"Vol":0},"Vol":{"Combat":2,"Insecte":2,"Plante":2,"Roche":0.5,"Acier":0.5,"Électrik":0.5},"Psy":{"Combat":2,"Poison":2,"Acier":0.5,"Psy":0.5,"Ténèbres":0},"Insecte":{"Plante":2,"Psy":2,"Ténèbres":2,"Combat":0.5,"Vol":0.5,"Poison":0.5,"Spectre":0.5,"Acier":0.5,"Feu":0.5,"Fée":0.5},"Roche":{"Vol":2,"Insecte":2,"Feu":2,"Glace":2,"Combat":0.5,"Sol":0.5,"Acier":0.5},"Spectre":{"Spectre":2,"Psy":2,"Ténèbres":0.5,"Normal":0},"Dragon":{"Dragon":2,"Acier":0.5,"Fée":0},"Ténèbres":{"Spectre":2,"Psy":2,"Combat":0.5,"Ténèbres":0.5,"Fée":0.5},"Acier":{"Roche":2,"Glace":2,"Fée":2,"Acier":0.5,"Feu":0.5,"Eau":0.5,"Électrik":0.5},"Fée":{"Combat":2,"Dragon":2,"Ténèbres":2,"Poison":0.5,"Acier":0.5,"Feu":0.5}};
-const TYPES18=['Normal','Feu','Eau','Électrik','Plante','Glace','Combat','Poison','Sol','Vol','Psy','Insecte','Roche','Spectre','Dragon','Ténèbres','Acier','Fée'];
 function multTypes(typeAtk,defs){let m=1;(defs||[]).forEach(d=>{const l=CHARTE_TYPES[typeAtk];if(l&&l[d]!==undefined)m*=l[d]});return m}
 function profilDefensif(defs){const f=[],r=[],im=[];TYPES18.forEach(a=>{const m=multTypes(a,defs);if(m===0)im.push(a);else if(m>1)f.push(a+' ×'+m);else if(m<1)r.push(a+' ×'+m)});return{f:f,r:r,im:im}}
 function superContre(typeAtk){return TYPES18.filter(d=>multTypes(typeAtk,[d])===2)}
@@ -1620,7 +1619,46 @@ function renderEquipes(list,dresseurs,journalRows,persos,objectifs){
   const partis=list.filter(p=>sp(p)==='parti');
   if(partis.length){const c=el('div','card');c.append(el('h3','','👋 Anciens Pokémon — partis'));partis.forEach(p=>c.append(lignePoke(p,false)));z.append(c)}
   if(!list.length){const c=el('div','card');c.append(el('div','vide','Aucun Pokémon pour l’instant.'));z.append(c)}
+  owners.forEach(n=>{const m=teamOrdonnee(n).map(id=>list.find(p=>p.id===id)).filter(Boolean);if(m.length)z.append(carteAnalyse(n,m))});
   if(ficheId!=null)renderFiche();
+}
+const TYPES18=['Normal','Feu','Eau','Électrik','Plante','Glace','Combat','Poison','Sol','Vol','Psy','Insecte','Roche','Spectre','Dragon','Ténèbres','Acier','Fée'];
+function multAttDef(typeAtt,typesDef){let m=1;(typesDef||[]).forEach(td=>{const c=CHARTE_TYPES[typeAtt];if(c&&td in c)m*=c[td]});return m}
+function analyseEquipe(membres){
+  const defs={};
+  TYPES18.forEach(ta=>{
+    let faible=0,resiste=0,immunise=0;
+    membres.forEach(p=>{const tps=TYPES_ESP[p.dex_id||dexId(p)];if(!tps)return;const m=multAttDef(ta,tps);if(m===0)immunise++;else if(m>1)faible++;else if(m<1)resiste++});
+    defs[ta]={faible:faible,resiste:resiste,immunise:immunise};
+  });
+  const offensif={};
+  TYPES18.forEach(td=>{offensif[td]=0});
+  membres.forEach(p=>{const tps=TYPES_ESP[p.dex_id||dexId(p)];if(!tps)return;tps.forEach(ta=>{TYPES18.forEach(td=>{if(multAttDef(ta,[td])>1)offensif[td]++})})});
+  return {defs:defs,offensif:offensif};
+}
+function carteAnalyse(nom,membres){
+  const connus=membres.filter(p=>TYPES_ESP[p.dex_id||dexId(p)]);
+  const card=el('div','card');card.append(el('h3','','🔍 Analyse d’équipe — '+nom));
+  if(!connus.length){card.append(el('div','vide','Aucun type connu dans cette équipe pour l’instant.'));return card}
+  const a=analyseEquipe(connus);
+  card.append(el('div','objcat','🛡️ En défense — par type d’attaque reçue'));
+  TYPES18.forEach(ta=>{const d=a.defs[ta];if(!d.faible&&!d.resiste&&!d.immunise)return;
+    const bits=[];if(d.faible)bits.push('⚠️ '+d.faible+' faible'+(d.faible>1?'s':''));if(d.resiste)bits.push('🛡️ '+d.resiste+' résistant'+(d.resiste>1?'s':''));if(d.immunise)bits.push('🚫 '+d.immunise+' immunisé'+(d.immunise>1?'s':''));
+    const row=el('div','objligne',(d.faible>=2?'🔴 ':d.faible===1?'🟠 ':'🟢 ')+ta+' : '+bits.join(' · '));card.append(row)});
+  const trous=TYPES18.filter(td=>a.offensif[td]===0);
+  const couverts=TYPES18.filter(td=>a.offensif[td]>0);
+  card.append(el('div','objcat','⚔️ En attaque — types couverts par les types de l’équipe : '+couverts.length+' / 18'));
+  card.append(el('div','objligne',couverts.length?couverts.join(', '):'Aucun.'));
+  if(trous.length)card.append(el('div','objligne','❌ Aucune couverture super-efficace contre : '+trous.join(', ')+'.'));
+  const dangers=TYPES18.filter(ta=>a.defs[ta].faible>=2&&a.defs[ta].immunise===0);
+  const manques=[];
+  dangers.forEach(ta=>manques.push('Plusieurs Pokémon faibles au type '+ta+' ('+a.defs[ta].faible+')'+(a.defs[ta].resiste?' — mais '+a.defs[ta].resiste+' résistant(s) pour compenser':' — et aucun résistant dans l’équipe')+'.'));
+  if(trous.length)manques.push('Aucun type de l’équipe ne frappe fort contre : '+trous.join(', ')+'.');
+  card.append(el('div','objcat','🧭 Ce qu’il manque'));
+  if(manques.length)manques.forEach(m=>card.append(el('div','objligne','• '+m)));
+  else card.append(el('div','objligne','• Rien d’évident : équipe équilibrée sur les types.'));
+  card.append(el('div','vide','Analyse calculée sur l’équipe affichée ci-dessus (types officiels, table Gén. IX). L’attaque ne compte que les types des Pokémon (STAB), pas le type de chaque attaque.'));
+  return card;
 }
 function renderDex(rencontres,list){
   const z=$('dex');if(!z)return;z.replaceChildren();
