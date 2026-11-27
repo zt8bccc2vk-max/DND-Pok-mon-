@@ -56,6 +56,41 @@ h2{color:#fff;font-size:13px;margin:4px 4px 8px;text-shadow:0 2px 0 var(--ink);f
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
 .slot{position:relative;display:flex;flex-direction:column;align-items:center;min-height:150px}
 .sprite{width:104px;height:104px;object-fit:contain;image-rendering:pixelated;position:relative;z-index:1;filter:drop-shadow(0 3px 0 rgba(0,0,0,.18))}
+.spwrap{position:relative;width:104px;height:104px;flex:none}
+.fxstat{position:absolute;inset:0;pointer-events:none;z-index:3;overflow:visible}
+.fxstat .f{position:absolute;font-style:normal;line-height:1}
+.fx-zzz .f{right:2px;top:6px;font-size:15px;opacity:0;animation:fxZzz 2.6s ease-in-out infinite}
+.fx-zzz .f:nth-child(2){right:14px;top:0;font-size:19px;animation-delay:.85s}
+.fx-zzz .f:nth-child(3){right:0;top:16px;font-size:12px;animation-delay:1.7s}
+@keyframes fxZzz{0%{transform:translate(0,4px) scale(.7) rotate(-6deg);opacity:0}25%{opacity:1}60%{transform:translate(3px,-6px) scale(1) rotate(4deg);opacity:1}100%{transform:translate(6px,-16px) scale(1.15) rotate(8deg);opacity:0}}
+.fx-bub .f{bottom:16px;width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f3d5ff,#a33ea1);opacity:0;animation:fxBub 2.2s ease-in infinite}
+.fx-bub .f:nth-child(1){left:16px}
+.fx-bub .f:nth-child(2){left:44px;width:8px;height:8px;animation-delay:.7s}
+.fx-bub .f:nth-child(3){left:72px;width:13px;height:13px;animation-delay:1.3s}
+@keyframes fxBub{0%{transform:translateY(6px) scale(.6);opacity:0}30%{opacity:.95}100%{transform:translateY(-34px) translateX(4px) scale(1);opacity:0}}
+.sprite.fx-poison{animation:fxPoisonGlow 2.2s ease-in-out infinite}
+@keyframes fxPoisonGlow{0%,100%{filter:drop-shadow(0 3px 0 rgba(0,0,0,.18))}50%{filter:drop-shadow(0 0 9px rgba(163,62,161,.85))}}
+.fx-eclair .f{font-size:14px;opacity:0;animation:fxEclair 1.5s steps(1) infinite}
+.fx-eclair .f:nth-child(1){left:4px;top:10px}
+.fx-eclair .f:nth-child(2){right:6px;top:30px;animation-delay:.75s}
+@keyframes fxEclair{0%,55%,100%{opacity:0}60%,80%{opacity:1}}
+.sprite.fx-para{animation:fxPara .9s linear infinite}
+@keyframes fxPara{0%,88%,100%{transform:translateX(0)}90%{transform:translateX(-2px)}94%{transform:translateX(2px)}98%{transform:translateX(-1px)}}
+.fx-neige .f{top:-2px;font-size:13px;opacity:0;animation:fxNeige 2.8s linear infinite}
+.fx-neige .f:nth-child(1){left:14px}
+.fx-neige .f:nth-child(2){left:48px;animation-delay:1.1s}
+.fx-neige .f:nth-child(3){left:78px;animation-delay:1.9s}
+@keyframes fxNeige{0%{transform:translateY(-4px);opacity:0}25%{opacity:1}100%{transform:translateY(30px) translateX(5px);opacity:0}}
+.sprite.fx-gel{filter:drop-shadow(0 3px 0 rgba(0,0,0,.18)) saturate(.55) brightness(1.18) hue-rotate(8deg)}
+.fx-flamme .f{bottom:2px;font-size:15px;animation:fxFlamme .55s ease-in-out infinite alternate}
+.fx-flamme .f:nth-child(1){left:22px}
+.fx-flamme .f:nth-child(2){left:62px;animation-delay:.28s}
+@keyframes fxFlamme{from{transform:scale(.85) rotate(-4deg)}to{transform:scale(1.12) rotate(4deg)}}
+.fx-orbite .f{left:50%;top:2px;font-size:14px;margin-left:-7px;animation:fxOrbite 1.6s linear infinite}
+@keyframes fxOrbite{from{transform:rotate(0deg) translateX(16px) rotate(0deg)}to{transform:rotate(360deg) translateX(16px) rotate(-360deg)}}
+.fx-lent .f{right:4px;bottom:2px;font-size:15px;animation:fxLent 2.4s ease-in-out infinite}
+@keyframes fxLent{0%,100%{transform:translateX(0)}50%{transform:translateX(-5px)}}
+@media (prefers-reduced-motion: reduce){.fxstat .f,.sprite.fx-poison,.sprite.fx-para{animation:none!important}.fxstat .f{opacity:.9}}
 .slot::after{content:"";position:absolute;bottom:34px;width:110px;height:20px;border-radius:50%;background:rgba(0,0,0,.18)}
 .slot.foe::after{bottom:auto;top:98px;width:90px;height:14px}
 .arena.compact{padding:6px 10px}
@@ -745,6 +780,21 @@ function hpClass(p){const v=pct(p);return v>50?'ok':v>25?'mid':'low'}
 function pct(p){return Math.max(0,Math.min(100,Math.round(100*p.pv_actuel/Math.max(1,p.pv_max))))}
 function statuts(p,into){(p.statut||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>{const c=el('span','st',s);c.style.background=stColor(s);into.append(c)})}
 
+function fxStatut(p,sp){
+  if(!p||p.pv_actuel<=0)return null;
+  const s=String(p.statut||'').toLowerCase();
+  let kind=null,inner='';
+  if(/endorm|sommeil/.test(s)){kind='zzz';inner='<i class="f">💤</i><i class="f">💤</i><i class="f">💤</i>'}
+  else if(/gel/.test(s)){kind='neige';inner='<i class="f">❄️</i><i class="f">❄️</i><i class="f">❄️</i>';sp.classList.add('fx-gel')}
+  else if(/br[uû]l/.test(s)){kind='flamme';inner='<i class="f">🔥</i><i class="f">🔥</i>'}
+  else if(/paraly/.test(s)){kind='eclair';inner='<i class="f">⚡</i><i class="f">⚡</i>';sp.classList.add('fx-para')}
+  else if(/poison|empoisonn/.test(s)){kind='bub';inner='<i class="f"></i><i class="f"></i><i class="f"></i>';sp.classList.add('fx-poison')}
+  else if(/confus/.test(s)){kind='orbite';inner='<i class="f">💫</i>'}
+  else if(/étourd|etourd/.test(s)){kind='orbite';inner='<i class="f">⭐</i>'}
+  else if(/ralent/.test(s)){kind='lent';inner='<i class="f">🐌</i>'}
+  if(!kind)return null;
+  const d=el('div','fxstat fx-'+kind);d.innerHTML=inner;return d;
+}
 function stIcon(s){s=String(s||'').toLowerCase();
   if(/endorm|sommeil/.test(s))return '💤';
   if(/gel/.test(s))return '❄️';
@@ -773,7 +823,10 @@ function slot(p,foe){
   if(!terrainVus[p.id]){sp.classList.add('pop');sonner('envoi')}
   if(o!==undefined&&pct(p)<o){sp.classList.add('hit');sonner(pct(p)<=0?'ko':'touche')}
   const hb=hpbox(p,foe?'':p.proprietaire);
-  if(foe)s.append(hb,sp);else s.append(sp,hb);
+  const fx=fxStatut(p,sp);
+  let tete=sp;
+  if(fx){const w=el('div','spwrap');w.append(sp,fx);tete=w}
+  if(foe)s.append(hb,tete);else s.append(tete,hb);
   return s;
 }
 const ILLUS_LIEUX=[
@@ -2626,7 +2679,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v122');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v123');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
   const bx=el('button','go','💾 Exporter la partie (JSON)');bx.style.cssText='margin-top:8px';bx.onclick=()=>exporterPartie();z.append(bx);
   const bs=el('button','go','');bs.style.cssText='margin-top:8px;margin-left:8px';const majBs=()=>{bs.textContent=sonActif?'🔊 Son : oui':'🔇 Son : non'};majBs();bs.onclick=()=>{sonActif=!sonActif;try{localStorage.setItem('sonActif',sonActif?'1':'0')}catch(e){}majBs();if(sonActif)sonner('clic')};z.append(bs);
 }
