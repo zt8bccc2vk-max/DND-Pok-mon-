@@ -2506,7 +2506,7 @@ async function chargerInterne(){
   const list=p.data||[];pokesCache=list;
   advActif=list.some(x=>x.proprietaire==='Adversaire'&&x.actif);
   tourCourant=e.data?e.data.tour:null;
-  safe('état',()=>renderEtat(e.data),JSON.stringify(e.data));safe('annonces',()=>renderAnnonces(a.data||[]),JSON.stringify([a.data,localStorage.getItem('joueurLocal')]));safe('journal',()=>renderJournal(j.data||[]),JSON.stringify(j.data));safe('arène',()=>renderArena(list,j.data||[]),JSON.stringify([list,j.data]));
+  safe('état',()=>renderEtat(e.data),JSON.stringify(e.data));safe('annonces',()=>renderAnnonces(a.data||[]),JSON.stringify([a.data,localStorage.getItem('joueurLocal')]));safe('journal',()=>renderJournal(j.data||[]),JSON.stringify(j.data));safe('arène',()=>renderArena(list,j.data||[]),JSON.stringify([list,j.data,e.data]));
   const pr=await db.from('personnages').select('*').eq('code_partie',partie).order('ordre');
   persosCache=pr.error?persosCache:(pr.data||[]);
   safe('conversation',()=>renderConversation(),JSON.stringify(pr.data));
@@ -2524,7 +2524,7 @@ async function chargerInterne(){
   safe('sac',()=>renderSac(iv.error?[]:(iv.data||[])),JSON.stringify(iv.data));
   safe('badges',()=>verifierBadges(dr.error?[]:(dr.data||[])),JSON.stringify(dr.data));
   safe('quêtes',()=>renderQuetes(ob.error?[]:(ob.data||[])),JSON.stringify(ob.data));
-  safe('suggestions',()=>renderSuggestions(ob.error?[]:(ob.data||[])),JSON.stringify(ob.data));
+  safe('suggestions',()=>renderSuggestions(ob.error?[]:(ob.data||[])),JSON.stringify([ob.data,tourCourant,localStorage.getItem('joueurLocal')]));
   safe('evenements',()=>{chargerEvenements(ob.error?[]:(ob.data||[]));renderJournal(j.data||[])},JSON.stringify([ob.data,j.data]));
   safe('enquetes',()=>{chargerEnquetes(ob.error?[]:(ob.data||[]));renderCarte(lieuCourant)},JSON.stringify([ob.data,e.data]));
   safe('relations',()=>{chargerRelations(ob.error?[]:(ob.data||[]));renderPersos(persosCache)},JSON.stringify([ob.data,pr.data]));
@@ -2556,7 +2556,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v118');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v119');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
   const bx=el('button','go','💾 Exporter la partie (JSON)');bx.style.cssText='margin-top:8px';bx.onclick=()=>exporterPartie();z.append(bx);
   const bs=el('button','go','');bs.style.cssText='margin-top:8px;margin-left:8px';const majBs=()=>{bs.textContent=sonActif?'🔊 Son : oui':'🔇 Son : non'};majBs();bs.onclick=()=>{sonActif=!sonActif;try{localStorage.setItem('sonActif',sonActif?'1':'0')}catch(e){}majBs();if(sonActif)sonner('clic')};z.append(bs);
 }
@@ -2570,12 +2570,29 @@ majLock();
 majGate();
 const VAPID_PUBLIC='BFltIpKEvJKltKtgDmwtsZfLILyVpNt3Vu7goaZIepE8gllzNBKjqgIzROMI2OmVP8C2OXtKYMOjz5aF2FbU4IU';
 function vapidBytes(){const pad='='.repeat((4-VAPID_PUBLIC.length%4)%4);const raw=atob((VAPID_PUBLIC+pad).replace(/-/g,'+').replace(/_/g,'/'));const arr=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);return arr}
-async function majNotif(){
+async function enregistrerPush(sub){
+  const j=sub.toJSON(),joueur=localStorage.getItem('joueurLocal')||'Inconnu';
+  const r=await db.from('push_subs').upsert({joueur:joueur,endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth},{onConflict:'endpoint'});
+  return !r.error;
+}
+async function majNotif(essai){
   const b=$('btn-notif'),m=$('notif-msg');if(!b)return;
   if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){b.style.display='none';m.textContent='🔔 Pour les notifications, ouvre l’appli installée sur l’écran d’accueil.';return}
   if(Notification.permission==='granted'){
-    try{const reg=await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();
-      if(sub){b.textContent='🔔 Notifications actives';m.textContent='Tu seras prévenu dès que le MJ délibère.';return}}catch(e){}
+    try{
+      const reg=await navigator.serviceWorker.ready;
+      let sub=await reg.pushManager.getSubscription();
+      if(!sub){try{sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:vapidBytes()})}catch(e){sub=null}}
+      if(sub){
+        b.textContent='🔔 Notifications actives';m.textContent='Tu seras prévenu dès que le MJ délibère.';
+        // Réparation silencieuse (v119) : après une mise à jour de l’appli, iOS peut
+        // supprimer ou renouveler l’abonnement push. On le recrée si besoin et on
+        // ré-enregistre TOUJOURS l’adresse actuelle côté serveur.
+        if(db){enregistrerPush(sub).catch(()=>{})}
+        else if(!essai){setTimeout(()=>majNotif(1),3000)}
+        return;
+      }
+    }catch(e){}
   }
   b.textContent='🔔 Activer les notifications';
 }
@@ -2587,9 +2604,10 @@ async function activerNotif(){
     const reg=await navigator.serviceWorker.ready;
     let sub=await reg.pushManager.getSubscription();
     if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:vapidBytes()});
-    const j=sub.toJSON(),joueur=localStorage.getItem('joueurLocal')||'Inconnu';
-    const r=await db.from('push_subs').upsert({joueur:joueur,endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth},{onConflict:'endpoint'});
-    if(r.error){m.textContent='Erreur d’enregistrement : '+r.error.message;return}
+    const joueur=localStorage.getItem('joueurLocal')||'Inconnu';
+    if(!db){m.textContent='Connexion en cours — réessaie dans quelques secondes.';return}
+    const ok=await enregistrerPush(sub).catch(()=>false);
+    if(!ok){m.textContent='Erreur d’enregistrement — réessaie.';return}
     b.textContent='🔔 Notifications actives';m.textContent='C’est fait, '+joueur+' ! Prochaine délibération du MJ = une notification.';
   }catch(e){m.textContent='Oups : '+(e&&e.message?e.message:e)}
 }
@@ -2850,6 +2868,5 @@ function basculeSon(){
 }
 demarrer();
 </script>
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){})}</script>
 </body>
 </html>
