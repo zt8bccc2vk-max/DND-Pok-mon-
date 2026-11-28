@@ -1627,37 +1627,50 @@ function multAttDef(typeAtt,typesDef){let m=1;(typesDef||[]).forEach(td=>{const 
 function analyseEquipe(membres){
   const defs={};
   TYPES18.forEach(ta=>{
-    let faible=0,resiste=0,immunise=0;
-    membres.forEach(p=>{const tps=TYPES_ESP[p.dex_id||dexId(p)];if(!tps)return;const m=multAttDef(ta,tps);if(m===0)immunise++;else if(m>1)faible++;else if(m<1)resiste++});
-    defs[ta]={faible:faible,resiste:resiste,immunise:immunise};
+    let faible=0,resiste=0,immunise=0;const fN=[],rN=[],iN=[];
+    membres.forEach(p=>{const tps=TYPES_ESP[p.dex_id||dexId(p)];if(!tps)return;const m=multAttDef(ta,tps);if(m===0){immunise++;iN.push(p.nom)}else if(m>1){faible++;fN.push(p.nom)}else if(m<1){resiste++;rN.push(p.nom)}});
+    defs[ta]={faible:faible,resiste:resiste,immunise:immunise,faiblesNoms:fN,resistNoms:rN,immNoms:iN};
   });
   const offensif={};
   TYPES18.forEach(td=>{offensif[td]=0});
   membres.forEach(p=>{const tps=TYPES_ESP[p.dex_id||dexId(p)];if(!tps)return;tps.forEach(ta=>{TYPES18.forEach(td=>{if(multAttDef(ta,[td])>1)offensif[td]++})})});
   return {defs:defs,offensif:offensif};
 }
+function typesPresents(membres){const s=new Set();membres.forEach(p=>{const tps=TYPES_ESP[p.dex_id||dexId(p)];if(tps)tps.forEach(t=>s.add(t))});return s}
+function conseilRecrutement(a,membres){
+  const presents=typesPresents(membres);
+  const dangers=TYPES18.filter(ta=>a.defs[ta].faible>=2).map(ta=>({ta:ta,sev:a.defs[ta].faible-a.defs[ta].resiste-a.defs[ta].immunise})).filter(d=>d.sev>0);
+  const trous=TYPES18.filter(td=>a.offensif[td]===0);
+  const scores=[];
+  TYPES18.forEach(t=>{if(presents.has(t))return;let s=0;
+    dangers.forEach(d=>{const m=multAttDef(d.ta,[t]);if(m===0)s+=3*d.sev+1;else if(m<1)s+=2*d.sev;else if(m>1)s-=3*d.sev});
+    trous.forEach(h=>{if(multAttDef(t,[h])>1)s+=1});
+    scores.push({t:t,s:s})});
+  scores.sort((x,y)=>y.s-x.s);
+  return scores.filter(x=>x.s>0).slice(0,2).map(x=>x.t);
+}
 function carteAnalyse(nom,membres){
   const connus=membres.filter(p=>TYPES_ESP[p.dex_id||dexId(p)]);
   const card=el('div','card');card.append(el('h3','','🔍 Analyse d’équipe — '+nom));
   if(!connus.length){card.append(el('div','vide','Aucun type connu dans cette équipe pour l’instant.'));return card}
   const a=analyseEquipe(connus);
-  card.append(el('div','objcat','🛡️ En défense — par type d’attaque reçue'));
-  TYPES18.forEach(ta=>{const d=a.defs[ta];if(!d.faible&&!d.resiste&&!d.immunise)return;
-    const bits=[];if(d.faible)bits.push('⚠️ '+d.faible+' faible'+(d.faible>1?'s':''));if(d.resiste)bits.push('🛡️ '+d.resiste+' résistant'+(d.resiste>1?'s':''));if(d.immunise)bits.push('🚫 '+d.immunise+' immunisé'+(d.immunise>1?'s':''));
-    const row=el('div','objligne',(d.faible>=2?'🔴 ':d.faible===1?'🟠 ':'🟢 ')+ta+' : '+bits.join(' · '));card.append(row)});
+  card.append(el('div','objcat','🛡️ Faiblesses — ce qui peut te faire mal'));
+  const lignes=TYPES18.filter(ta=>a.defs[ta].faible>=1).sort((x,y)=>{const dx=a.defs[x],dy=a.defs[y];return (dy.faible-dx.faible)||((dx.resiste+dx.immunise)-(dy.resiste+dy.immunise))}).slice(0,4);
+  if(!lignes.length)card.append(el('div','objligne','💪 Aucune faiblesse : aucun type ne frappe fort sur cette équipe.'));
+  lignes.forEach(ta=>{const d=a.defs[ta];const grave=d.faible>=2&&!d.resiste&&!d.immunise;
+    let txt=(grave?'🔴 ':'🟠 ')+ta+' : '+d.faiblesNoms.join(' et ')+(d.faible>1?' sont faibles':' est faible');
+    if(d.resiste)txt+=' — mais '+d.resistNoms.join(', ')+(d.resiste>1?' résistent':' résiste');
+    else if(d.immunise)txt+=' — mais '+d.immNoms.join(', ')+(d.immunise>1?' sont immunisés':' est immunisé');
+    else txt+=' — personne ne résiste';
+    card.append(el('div','objligne',txt+'.'))});
   const trous=TYPES18.filter(td=>a.offensif[td]===0);
-  const couverts=TYPES18.filter(td=>a.offensif[td]>0);
-  card.append(el('div','objcat','⚔️ En attaque — types couverts par les types de l’équipe : '+couverts.length+' / 18'));
-  card.append(el('div','objligne',couverts.length?couverts.join(', '):'Aucun.'));
-  if(trous.length)card.append(el('div','objligne','❌ Aucune couverture super-efficace contre : '+trous.join(', ')+'.'));
-  const dangers=TYPES18.filter(ta=>a.defs[ta].faible>=2&&a.defs[ta].immunise===0);
-  const manques=[];
-  dangers.forEach(ta=>manques.push('Plusieurs Pokémon faibles au type '+ta+' ('+a.defs[ta].faible+')'+(a.defs[ta].resiste?' — mais '+a.defs[ta].resiste+' résistant(s) pour compenser':' — et aucun résistant dans l’équipe')+'.'));
-  if(trous.length)manques.push('Aucun type de l’équipe ne frappe fort contre : '+trous.join(', ')+'.');
-  card.append(el('div','objcat','🧭 Ce qu’il manque'));
-  if(manques.length)manques.forEach(m=>card.append(el('div','objligne','• '+m)));
-  else card.append(el('div','objligne','• Rien d’évident : équipe équilibrée sur les types.'));
-  card.append(el('div','vide','Analyse calculée sur l’équipe affichée ci-dessus (types officiels, table Gén. IX). L’attaque ne compte que les types des Pokémon (STAB), pas le type de chaque attaque.'));
+  card.append(el('div','objcat','⚔️ Attaque — '+(18-trous.length)+' / 18 types couverts'));
+  card.append(el('div','objligne',trous.length?'❌ Aveugle contre : '+trous.join(', ')+'.':'✅ Aucun trou : tous les types sont couverts.'));
+  const rec=conseilRecrutement(a,connus);
+  card.append(el('div','objcat','🎯 À recruter'));
+  if(rec.length)card.append(el('div','objligne','Un Pokémon de type '+rec.join(' ou ')+' : il encaisse ce qui te fait le plus mal et frappe là où tu es aveugle.'));
+  else card.append(el('div','objligne','Rien d’évident : équipe équilibrée sur les types.'));
+  card.append(el('div','vide','Types officiels Gén. IX. Attaque = types des Pokémon (STAB), pas le type de chaque attaque.'));
   return card;
 }
 function renderDex(rencontres,list){
@@ -2777,7 +2790,7 @@ function majLock(){
   const tb=el('button','locktest','🔧 Tester le son');tb.type='button';tb.onclick=ouvrirTestSon;z.append(tb);
   const te=el('button','locktest','📤 Tester l’envoi');te.type='button';te.onclick=testerEnvoi;z.append(te);
   const tr=el('div','','');tr.id='test-envoi-rapport';tr.style.cssText='white-space:pre-wrap;font-size:.82rem;margin-top:6px;text-align:left';z.append(tr);
-  const tv=el('div','','version v125');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
+  const tv=el('div','','version v127');tv.style.cssText='font-size:.72rem;opacity:.55;margin-top:4px';z.append(tv);
   const bx=el('button','go','💾 Exporter la partie (JSON)');bx.style.cssText='margin-top:8px';bx.onclick=()=>exporterPartie();z.append(bx);
   const bs=el('button','go','');bs.style.cssText='margin-top:8px;margin-left:8px';const majBs=()=>{bs.textContent=sonActif?'🔊 Son : oui':'🔇 Son : non'};majBs();bs.onclick=()=>{sonActif=!sonActif;try{localStorage.setItem('sonActif',sonActif?'1':'0')}catch(e){}majBs();if(sonActif)sonner('clic')};z.append(bs);
 }
